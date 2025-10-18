@@ -19,21 +19,6 @@ export function Sidebar() {
       <nav style={{display:'grid',gap:6}}>
         <Item to="/" label="Dashboard" />
         <Item to="/work-orders" label="Work Orders" />
-        <Item to="/" label="Dashboard" />
-        <Item to="/work-orders" label="Work Orders" />
-        <Item to="/crm" label="CRM" />
-        <Item to="/inventory" label="Inventory" />
-        <Item to="/purchasing" label="Purchasing" />
-        <Item to="/" label="Dashboard" />
-        <Item to="/work-orders" label="Work Orders" />
-        <Item to="/crm" label="CRM" />
-        <Item to="/inventory" label="Inventory" />
-        <Item to="/purchasing" label="Purchasing" />
-        <Item to="/dispatch" label="Dispatch & Scheduling" />
-        <Item to="/labels" label="Labels" />
-        <Item to="/forecast" label="Forecasting" />
-        <Item to="/" label="Dashboard" />
-        <Item to="/work-orders" label="Work Orders" />
         <Item to="/crm" label="CRM" />
         <Item to="/inventory" label="Inventory" />
         <Item to="/purchasing" label="Purchasing" />
