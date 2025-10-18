@@ -1,17 +1,19 @@
-import { Controller, Post, Get, Param } from '@nestjs/common';
+import { Controller, Get, Post, Req } from '@nestjs/common';
 import { ForecastService } from './service';
 
 @Controller('forecast')
 export class ForecastController {
   constructor(private readonly service: ForecastService) {}
 
-  @Post(':tenantId')
-  run(@Param('tenantId') tenantId: string) {
-    return this.service.runForecastJob(tenantId);
+  @Post()
+  run(@Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.runForecastJob(String(tenantId));
   }
 
-  @Get(':tenantId')
-  get(@Param('tenantId') tenantId: string) {
-    return this.service.getForecasts(tenantId);
+  @Get()
+  get(@Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getForecasts(String(tenantId));
   }
 }

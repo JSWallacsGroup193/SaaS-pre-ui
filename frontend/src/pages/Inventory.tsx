@@ -1,31 +1,33 @@
-
 import { useEffect, useState } from 'react'
 import api from '../utils/axiosClient'
 
+type SKU = { id: string; name: string; description?: string; barcode?: string }
+
 export default function Inventory() {
-  const [items,setItems] = useState<any[]>([])
-  useEffect(() => { (async () => {
-    const { data } = await api.get('/inventory/skus')
-    setItems(data)
-  })() }, [])
+  const [items,setItems] = useState<SKU[]>([])
+  const [total,setTotal] = useState(0)
+  const [q,setQ] = useState('')
+  const [page,setPage] = useState(1)
+  const pageSize = 50
+
+  useEffect(() => { 
+    (async () => {
+      const { data } = await api.get('/inventory/skus', { params: { q, page, pageSize } })
+      setItems(data.items)
+      setTotal(data.total)
+    })() 
+  }, [q, page])
+
   return (
     <div>
       <h2>Inventory</h2>
-      <div style={{background:'#fff',borderRadius:8,overflow:'hidden',border:'1px solid #e5e7eb'}}>
-        <table style={{width:'100%',borderCollapse:'collapse'}}>
-          <thead>
-            <tr style={{background:'#f9fafb',textAlign:'left'}}>
-              <th style={{padding:12,borderBottom:'1px solid #e5e7eb'}}>code</th><th style={{padding:12,borderBottom:'1px solid #e5e7eb'}}>description</th><th style={{padding:12,borderBottom:'1px solid #e5e7eb'}}>barcode</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((it,i) => (
-              <tr key={it.id || i}>
-                <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.code ?? '-'}</td><td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.description ?? '-'}</td><td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.barcode ?? '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <input placeholder="Search" value={q} onChange={e=>{ setPage(1); setQ(e.target.value) }} />
+      <div>Showing {items.length} of {total}</div>
+      <ul>{items.map(i=> <li key={i.id}>{i.name} {i.barcode ? `(${i.barcode})` : ''}</li>)}</ul>
+      <div>
+        <button disabled={page===1} onClick={()=>setPage(p=>p-1)}>Prev</button>
+        <span> Page {page} </span>
+        <button disabled={(page*pageSize) >= total} onClick={()=>setPage(p=>p+1)}>Next</button>
       </div>
     </div>
   )

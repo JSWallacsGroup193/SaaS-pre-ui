@@ -179,7 +179,10 @@ model SKU {
   forecasts      Forecast[]
 
   tenant         Tenant          @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
 }
+
 
 model Warehouse {
   id        String   @id @default(uuid())
@@ -189,7 +192,10 @@ model Warehouse {
   createdAt DateTime @default(now())
 
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
 }
+
 
 model Bin {
   id           String        @id @default(uuid())
@@ -213,7 +219,12 @@ model StockLedger {
   sku       SKU            @relation(fields: [skuId], references: [id])
   bin       Bin            @relation(fields: [binId], references: [id])
   tenant    Tenant         @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([skuId, createdAt])
 }
+
+
 
 enum StockDirection {
   IN
@@ -231,7 +242,14 @@ model PurchaseOrder {
 
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   sku        SKU      @relation(fields: [skuId], references: [id])
+
+  @@index([tenantId])
+  @@index([skuId])
+  @@index([status, tenantId])
 }
+
+
+
 
 enum POStatus {
   OPEN
@@ -254,7 +272,9 @@ model Forecast {
   sku              SKU      @relation(fields: [skuId], references: [id])
 
   @@unique([tenantId, skuId])
+  @@index([tenantId])
 }
+
 
 model ChatLog {
   id         String   @id @default(uuid())

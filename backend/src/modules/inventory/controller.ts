@@ -1,43 +1,51 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { InventoryService } from './service';
 
+import { Controller, Get, Post, Body, Req, Query, ParseIntPipe } from '@nestjs/common';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { InventoryService } from './service';
+import { CreateSkuDto } from './dto/create-sku.dto';
+
+@ApiTags('inventory')
+@ApiBearerAuth()
 @Controller('inventory')
 export class InventoryController {
   constructor(private readonly service: InventoryService) {}
 
-  @Get('skus/:tenantId')
-  getSKUs(@Param('tenantId') tenantId: string) {
-    return this.service.getSKUs(tenantId);
+  @Get('skus')
+  @ApiQuery({ name: 'q', required: false })
+  @ApiQuery({ name: 'page', required: false, schema: { default: 1 } })
+  @ApiQuery({ name: 'pageSize', required: false, schema: { default: 50 } })
+  getSKUs(
+    @Req() req: any,
+    @Query('q') q?: string,
+    @Query('page', new ParseIntPipe({ optional: true })) page = 1,
+    @Query('pageSize', new ParseIntPipe({ optional: true })) pageSize = 50,
+  ) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getSKUs(String(tenantId), q, page, pageSize);
   }
 
   @Post('skus')
-  createSKU(@Body() body: { tenantId: string; name: string; description?: string; barcode?: string }) {
-    return this.service.createSKU(body);
+  createSKU(@Body() body: CreateSkuDto, @Req() req: any) {
+    const tenantId = body.tenantId || req.user?.tenantId;
+    return this.service.createSKU({ ...body, tenantId: String(tenantId) });
   }
 
-  @Get('ledger/:tenantId')
-  getLedger(@Param('tenantId') tenantId: string) {
-    return this.service.getStockLedger(tenantId);
-  }
-
-  @Post('ledger')
-  createLedger(@Body() body: { tenantId: string; skuId: string; binId: string; quantity: number; direction: 'IN' | 'OUT'; note?: string }) {
-    return this.service.createLedgerEntry(body);
-  }
-
-  @Get('warehouses/:tenantId')
-  getWarehouses(@Param('tenantId') tenantId: string) {
-    return this.service.getWarehouses(tenantId);
+  @Get('warehouses')
+  getWarehouses(@Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getWarehouses(String(tenantId));
   }
 
   @Post('warehouses')
-  createWarehouse(@Body() body: { tenantId: string; name: string }) {
-    return this.service.createWarehouse(body);
+  createWarehouse(@Body() body: { tenantId?: string; name: string }, @Req() req: any) {
+    const tenantId = body.tenantId || req.user?.tenantId;
+    return this.service.createWarehouse({ ...body, tenantId: String(tenantId) });
   }
 
-  @Get('bins/:tenantId')
-  getBins(@Param('tenantId') tenantId: string) {
-    return this.service.getBins(tenantId);
+  @Get('bins')
+  getBins(@Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getBins(String(tenantId));
   }
 
   @Post('bins')
