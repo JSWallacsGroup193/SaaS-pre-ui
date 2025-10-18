@@ -12,7 +12,7 @@ channel = "stable-24_11"
 run = ["bash", "-c", "cd backend && npm run start:prod"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["bash", "-c", "cd backend && npm install && npx prisma generate"]
+build = ["bash", "-c", "cd backend && npm install && npx prisma generate && npm run build"]
 
 [agent]
 expertMode = true
