@@ -52,11 +52,11 @@ export class InventoryController {
   createBin(@Body() body: { warehouseId: string; name: string }) {
     return this.service.createBin(body);
   }
-
   @Get('skus/:id/onhand')
   @ApiOkResponse({ schema: { example: { onHand: 42 } } })
-  getOnHand(@Param('id') skuId: string, @Req() req: any) {
+  getOnHand(@Param('id') skuId: string, @Req() req: AuthenticatedRequest) {
     const tenantId = req.user?.tenantId || req.query?.tenantId;
     return this.service.getOnHand(String(tenantId), skuId);
   }
+
 }

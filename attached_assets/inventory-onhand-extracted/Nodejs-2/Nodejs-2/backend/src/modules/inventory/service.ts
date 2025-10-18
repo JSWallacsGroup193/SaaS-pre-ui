@@ -14,7 +14,7 @@ export class InventoryService {
         { barcode: { contains: q, mode: 'insensitive' } },
       ];
     }
-    let [items, total] = await this.prisma.$transaction([
+    const [items, total] = await this.prisma.$transaction([
       this.prisma.sKU.findMany({
         where,
         orderBy: { createdAt: 'desc' },
@@ -23,32 +23,31 @@ export class InventoryService {
       }),
       this.prisma.sKU.count({ where }),
     ]);
-    
     // compute on-hand per SKU using stock ledger sums
-    const skuIds = items.map(i => i.id);
-    if (skuIds.length > 0) {
-      const ins = await this.prisma.stockLedger.groupBy({
-        by: ['skuId'],
-        where: { tenantId, skuId: { in: skuIds }, direction: 'IN' },
-        _sum: { quantity: true },
-      });
-      const outs = await this.prisma.stockLedger.groupBy({
-        by: ['skuId'],
-        where: { tenantId, skuId: { in: skuIds }, direction: 'OUT' },
-        _sum: { quantity: true },
-      });
-      const sumIn = Object.fromEntries(ins.map(r => [r.skuId, r._sum.quantity || 0]));
-      const sumOut = Object.fromEntries(outs.map(r => [r.skuId, r._sum.quantity || 0]));
-      items = items.map(i => ({
-        ...i,
-        onHand: (sumIn[i.id] || 0) - (sumOut[i.id] || 0),
-      }));
-    }
-    return { items, total, page, pageSize };
+const skuIds = items.map(i => i.id);
+if (skuIds.length > 0) {
+  const ins = await this.prisma.stockLedger.groupBy({
+    by: ['skuId'],
+    where: { tenantId, skuId: { in: skuIds }, direction: 'IN' },
+    _sum: { quantity: true },
+  });
+  const outs = await this.prisma.stockLedger.groupBy({
+    by: ['skuId'],
+    where: { tenantId, skuId: { in: skuIds }, direction: 'OUT' },
+    _sum: { quantity: true },
+  });
+  const sumIn = Object.fromEntries(ins.map(r => [r.skuId, r._sum.quantity || 0]));
+  const sumOut = Object.fromEntries(outs.map(r => [r.skuId, r._sum.quantity || 0]));
+  items = items.map(i => ({
+    ...i,
+    onHand: (sumIn[i.id] || 0) - (sumOut[i.id] || 0),
+  }));
+}
+return { items, total, page, pageSize };
   }
 
   async createSKU(data: { tenantId: string; name: string; description?: string; barcode?: string }) {
-    return this.prisma.sKU.create({ data });
+    return this.prisma.sku.create({ data });
   }
 
   async getWarehouses(tenantId: string) {
@@ -65,8 +64,7 @@ export class InventoryService {
 
   async createBin(data: { warehouseId: string; name: string }) {
     return this.prisma.bin.create({ data });
-  }
-
+  
   async getOnHand(tenantId: string, skuId: string) {
     const [ins, outs] = await Promise.all([
       this.prisma.stockLedger.aggregate({ where: { tenantId, skuId, direction: 'IN' }, _sum: { quantity: true } }),
