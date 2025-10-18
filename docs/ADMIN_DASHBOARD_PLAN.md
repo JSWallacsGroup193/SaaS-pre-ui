@@ -1,10 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.1
+- **Version**: 1.2
 - **Last Updated**: October 18, 2025
 - **Status**: Planning Phase
-- **Recent Changes**: Added zero dollar work orders and call back tracking
+- **Recent Changes**: Restructured user roles and permissions
 
 ---
 
@@ -727,17 +727,31 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Export data
   - Cannot: Modify system settings, manage roles, access audit logs
   
-#### 3. Manager
-- **Operational Oversight**: Monitor and manage daily operations
+#### 3. Field Manager
+- **Field Operations Leadership**: Oversee field technicians and work order execution
 - **Permissions**:
-  - View executive, analytics, and operational dashboards
-  - Manage work orders and dispatch
-  - Approve purchase orders
-  - View inventory and CRM data
-  - Generate reports
-  - Cannot: User management, system settings, financial data (limited access)
+  - View executive and operational dashboards
+  - Manage work orders and technician assignments
+  - Approve technician time and expenses
+  - View and manage dispatch schedule
+  - Monitor technician performance metrics
+  - Access customer information
+  - Generate field operations reports
+  - Cannot: User management, system settings, purchasing, full financial access
   
-#### 4. Dispatcher
+#### 4. Lead Dispatch
+- **Dispatch Leadership**: Senior dispatcher with additional oversight
+- **Permissions**:
+  - Full access to dispatch dashboard and analytics
+  - Create, assign, and reassign work orders
+  - Manage all technician schedules
+  - Optimize routes and workload distribution
+  - Approve schedule changes and overtime
+  - Train and mentor dispatchers
+  - View dispatch performance metrics
+  - Cannot: User management, system settings, purchasing approval, full financial data
+  
+#### 5. Dispatcher
 - **Scheduling Focus**: Manage technician schedules and work order assignments
 - **Permissions**:
   - Full access to dispatch dashboard
@@ -747,7 +761,19 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View basic inventory (parts availability)
   - Cannot: Financial data, system administration, user management
   
-#### 5. Technician
+#### 6. Lead Tech
+- **Senior Technician**: Lead technician with mentoring and quality oversight
+- **Permissions**:
+  - All technician permissions
+  - View team performance metrics
+  - Assist with complex work orders
+  - Provide technical guidance to other technicians
+  - Review and approve technician work (quality control)
+  - Access to training materials and documentation
+  - Limited access to dispatch for coordination
+  - Cannot: Create work orders, access financial data, user management
+  
+#### 7. Technician
 - **Field Operations**: Access to assigned work orders and mobile features
 - **Permissions**:
   - View own assigned work orders
@@ -757,17 +783,69 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View customer information (limited)
   - Cannot: Dashboard access, create work orders, view other technicians' data
   
-#### 6. Inventory Manager
-- **Stock Control**: Manage inventory and purchasing
+#### 8. Purchasing Manager
+- **Procurement Leadership**: Oversee purchasing operations and vendor relationships
 - **Permissions**:
-  - Full access to inventory dashboard
-  - Manage SKUs, warehouses, bins
-  - Process stock movements
-  - Create purchase orders
-  - View inventory reports
-  - Cannot: Work order management, CRM, user administration
+  - Full access to purchasing dashboard
+  - Create, approve, and manage all purchase orders
+  - Manage vendor relationships and contracts
+  - Set purchasing budgets and approval limits
+  - View and analyze purchasing analytics
+  - Negotiate pricing and terms
+  - Manage purchasing team and workflows
+  - View inventory levels and demand forecasts
+  - Cannot: User management (except purchasing team), system settings, work order management
   
-#### 7. Sales/CRM User
+#### 9. Purchasing
+- **Procurement Specialist**: Create and manage purchase orders
+- **Permissions**:
+  - Access to purchasing dashboard
+  - Create purchase orders (up to approval limit)
+  - Track and receive orders
+  - Communicate with vendors
+  - View inventory levels and reorder points
+  - Generate purchasing reports
+  - Cannot: Approve high-value POs, manage vendors, user management, financial analytics
+  
+#### 10. Warehouse Manager
+- **Warehouse Operations Leadership**: Oversee warehouse and inventory operations
+- **Permissions**:
+  - Full access to inventory dashboard and analytics
+  - Manage SKUs, warehouses, bins, and locations
+  - Oversee stock movements and cycle counts
+  - Approve inventory adjustments
+  - Manage warehouse personnel
+  - Create and review purchase orders
+  - Set reorder points and stock levels
+  - View inventory valuation and turnover reports
+  - Cannot: Work order management, CRM, user administration, system settings
+  
+#### 11. Warehouse Personnel
+- **Warehouse Operations**: Handle day-to-day inventory tasks
+- **Permissions**:
+  - Access to inventory management features
+  - Process stock movements (receiving, picking, transfers)
+  - Update bin locations and quantities
+  - Perform cycle counts
+  - Use barcode scanner for inventory
+  - View SKU information and stock levels
+  - Generate pick lists and packing slips
+  - Cannot: Create SKUs, approve adjustments, create POs, access analytics, user management
+  
+#### 12. Accounting
+- **Financial Management**: Manage financial data and reporting
+- **Permissions**:
+  - Full access to financial dashboard and reports
+  - View all revenue and expense data
+  - Manage accounts receivable and payable
+  - Process invoices and payments
+  - Reconcile accounts
+  - Generate financial reports (P&L, balance sheet, cash flow)
+  - View all work order financial data
+  - Access audit logs for financial transactions
+  - Cannot: Create/edit work orders, manage inventory (view only), user management, system settings
+  
+#### 13. Sales/CRM User
 - **Customer Relations**: Manage leads and customer accounts
 - **Permissions**:
   - Full access to CRM dashboard
@@ -777,7 +855,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate CRM reports
   - Cannot: Inventory, purchasing, system administration
   
-#### 8. Viewer/Analyst
+#### 14. Viewer/Analyst
 - **Read-Only Access**: View dashboards and reports without modification
 - **Permissions**:
   - View-only access to dashboards
@@ -787,19 +865,64 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 
 ### Permission Matrix
 
-| Feature/Module | Super Admin | Admin | Manager | Dispatcher | Technician | Inventory Mgr | Sales/CRM | Viewer |
-|----------------|-------------|-------|---------|------------|------------|---------------|-----------|--------|
-| Executive Dashboard | Full | Full | View | View | No | View | View | View |
-| Analytics & Reports | Full | Full | View | Limited | No | Limited | Limited | View |
-| Work Orders | Full | Full | Full | Full | Own Only | View | Create | View |
-| Inventory | Full | Full | View | Limited | Scanner | Full | View | View |
-| CRM | Full | Full | View | View | View | No | Full | View |
-| Dispatch | Full | Full | Full | Full | Own Only | No | No | View |
-| Purchasing | Full | Full | Approve | No | No | Full | No | View |
-| User Management | Full | Limited | No | No | No | No | No | No |
-| System Settings | Full | No | No | No | No | No | No | No |
-| Audit Logs | Full | View | No | No | No | No | No | No |
-| Financial Data | Full | Full | Limited | No | No | Limited | Limited | View |
+#### Management & Operations Roles
+
+| Feature/Module | Super Admin | Admin | Field Manager | Lead Dispatch | Dispatcher | Lead Tech | Technician |
+|----------------|-------------|-------|---------------|---------------|------------|-----------|------------|
+| Executive Dashboard | Full | Full | View | View | View | No | No |
+| Analytics & Reports | Full | Full | Limited | Limited | No | Limited | No |
+| Work Orders | Full | Full | Full | Full | Full | Own+Team | Own Only |
+| Inventory | Full | Full | View | Limited | Limited | View | Scanner |
+| CRM | Full | Full | View | View | View | View | View |
+| Dispatch | Full | Full | Full | Full | Full | Limited | Own Only |
+| Purchasing | Full | Full | No | No | No | No | No |
+| User Management | Full | Limited | No | No | No | No | No |
+| System Settings | Full | No | No | No | No | No | No |
+| Audit Logs | Full | View | No | No | No | No | No |
+| Financial Data | Full | Full | Limited | Limited | No | No | No |
+
+#### Warehouse & Purchasing Roles
+
+| Feature/Module | Purchasing Mgr | Purchasing | Warehouse Mgr | Warehouse Personnel |
+|----------------|----------------|------------|---------------|---------------------|
+| Executive Dashboard | View | No | View | No |
+| Analytics & Reports | Limited | No | Limited | No |
+| Work Orders | View | No | View | No |
+| Inventory | View | View | Full | Full |
+| CRM | No | No | No | No |
+| Dispatch | No | No | No | No |
+| Purchasing | Full | Create/Track | Create | No |
+| User Management | No | No | No | No |
+| System Settings | No | No | No | No |
+| Audit Logs | No | No | No | No |
+| Financial Data | Limited | No | Limited | No |
+
+#### Support Roles
+
+| Feature/Module | Accounting | Sales/CRM | Viewer/Analyst |
+|----------------|------------|-----------|----------------|
+| Executive Dashboard | Full | View | View |
+| Analytics & Reports | Full | Limited | View |
+| Work Orders | View | Create | View |
+| Inventory | View | View | View |
+| CRM | View | Full | View |
+| Dispatch | View | No | View |
+| Purchasing | View | No | View |
+| User Management | No | No | No |
+| System Settings | No | No | No |
+| Audit Logs | Full (Financial) | No | No |
+| Financial Data | Full | Limited | View |
+
+**Legend:**
+- **Full**: Complete CRUD access and management
+- **Create**: Can create but limited edit/delete
+- **View**: Read-only access
+- **Limited**: Restricted subset of features
+- **Own Only**: Access only to items assigned to user
+- **Own+Team**: Access to own and team members' items
+- **Scanner**: Mobile scanner access only
+- **Create/Track**: Can create and track but not approve
+- **No**: No access to this feature
 
 ---
 
@@ -1972,6 +2095,7 @@ Target performance metrics:
 |---------|------|--------|---------|
 | 1.0 | 2025-10-18 | System | Initial comprehensive plan created |
 | 1.1 | 2025-10-18 | System | Added zero dollar work order and call back tracking throughout plan:<br>- Added zero dollar WO and call back KPIs<br>- Integrated into all dashboard sections<br>- Added dedicated analytics endpoints<br>- Updated database schema with new columns<br>- Added labor tracking table<br>- Created detailed API response examples<br>- Added financial impact tracking |
+| 1.2 | 2025-10-18 | System | Restructured user roles and permissions:<br>- Renamed: Inventory Manager → Warehouse Manager<br>- Removed: Manager role<br>- Added: Field Manager, Lead Dispatch, Lead Tech<br>- Added: Purchasing Manager, Purchasing<br>- Added: Warehouse Personnel<br>- Added: Accounting role<br>- Reorganized permission matrix into 3 tables for clarity<br>- Updated all role descriptions and permission details |
 
 ---
 
