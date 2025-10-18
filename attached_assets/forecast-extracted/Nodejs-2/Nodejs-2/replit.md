@@ -97,19 +97,14 @@ The app is configured to start automatically with the "HVAC App" workflow. If yo
 The following environment variables are configured:
 - `DATABASE_URL` - PostgreSQL connection string
 - `PORT` - Backend port (3000)
-- `VITE_API_URL` - API base URL (/api/v1 - proxied to backend)
+- `VITE_API_URL` - API base URL (/api - proxied to backend)
 
 ## API Endpoints
 
-All endpoints are prefixed with `/api/v1`.
-
-### Documentation
-- **Swagger UI**: Available at `/api/v1/docs` - Interactive API documentation with bearer auth support
-
 ### Authentication
-- `POST /api/v1/auth/register` - Register new user
-- `POST /api/v1/auth/login` - Login
-- `GET /api/v1/auth/me` - Get current user
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - Login
+- `GET /auth/me` - Get current user
 
 ### Work Orders
 - `GET /work-orders/:tenantId` - List work orders
@@ -145,43 +140,19 @@ All endpoints are prefixed with `/api/v1`.
 - Chat: AI-powered assistant
 
 ## Recent Changes
+- October 18, 2025: Initial setup
+  - Extracted project from zip file
+  - Set up PostgreSQL database with Prisma
+  - Installed all dependencies
+  - Fixed duplicate imports in App.tsx
+  - Fixed syntax errors in Inventory.tsx and CRM.tsx
+  - Configured Vite to bind to 0.0.0.0:5000 for Replit compatibility
+  - Set up workflow to run frontend on port 5000
+  - Started backend in background on port 3000
 
-### October 18, 2025 - Latest Session
-- **API Versioning**: Upgraded API from `/api` to `/api/v1`
-  - Updated backend global prefix to `api/v1`
-  - Updated frontend axios client base URL to `/api/v1`
-- **Swagger Documentation**: Added interactive API docs
-  - Installed `@nestjs/swagger@^7.0.0` (compatible with NestJS 10)
-  - Configured Swagger UI at `/api/v1/docs` with bearer auth support
-  - Added API documentation with title, description, and versioning
-- **Frontend API Client Wrapper**: Created abstraction layer
-  - Added `frontend/src/api/client.ts` with helper functions
-  - Added `frontend/src/api/client-config.ts` for configuration
-  - Updated Forecast page to use new client wrapper
-  - Implemented dynamic imports to prevent Vite build-time errors
-- **Bug Fixes**:
-  - Fixed Vite import analysis errors with optional OpenAPI client
-  - Resolved NestJS/Swagger version compatibility issues
-  - Fixed duplicate menu items in Sidebar component
-
-### October 18, 2025 - Initial Setup
-- Extracted project from zip file
-- Set up PostgreSQL database with Prisma
-- Installed all dependencies
-- Fixed duplicate imports in App.tsx
-- Fixed syntax errors in Inventory.tsx and CRM.tsx
-- Configured Vite with `allowedHosts: true` for Replit proxy compatibility
-- Set up workflow to run frontend on port 5000
-- Started backend in background on port 3000
-- Fixed authentication service to handle tenant relationships
-- Created demo user (admin@demo.com / demo123)
-
-## Technical Notes
-- **Multi-tenant Architecture**: All data is scoped by tenant ID
-- **API Versioning**: All routes prefixed with `/api/v1` for future compatibility
-- **Swagger Docs**: Full API documentation at `/api/v1/docs` with auth support
-- **Role-based Access Control**: Permissions system for user authorization
-- **Stock Ledger System**: Tracks all inventory movements
-- **Barcode Generation**: Uses bwip-js library
-- **Frontend API Client**: Optional wrapper with fallback to axios
-- **401 Auto-redirect**: Automatically redirects to login on token expiration
+## Notes
+- The application uses a multi-tenant architecture
+- All API routes are prefixed with `/api` (configured in Vite proxy)
+- The backend uses role-based access control
+- Stock movements are tracked in a ledger system
+- The barcode module uses bwip-js for generation

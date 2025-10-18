@@ -22,6 +22,5 @@ async function bootstrap() {
   await app.listen(port);
   console.log(`✅ Backend server running on port ${port}`);
   console.log(`✅ API available at http://localhost:${port}/api/v1`);
-  console.log(`✅ Swagger docs at http://localhost:${port}/api/v1/docs`);
 }
 bootstrap();

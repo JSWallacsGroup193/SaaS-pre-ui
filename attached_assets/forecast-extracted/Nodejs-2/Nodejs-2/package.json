@@ -1,0 +1,23 @@
+{
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "./dev.sh",
+    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "start": "node backend/dist/main.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  },
+  "dependencies": {
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/swagger": "^11.2.1",
+    "@nestjs/throttler": "^6.4.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "swagger-ui-express": "^5.0.1"
+  }
+}
