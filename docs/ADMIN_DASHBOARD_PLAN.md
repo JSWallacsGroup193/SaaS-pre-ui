@@ -1,0 +1,1713 @@
+# Admin Dashboard Plan - HVAC Management System
+
+## Document Information
+- **Version**: 1.0
+- **Last Updated**: October 18, 2025
+- **Status**: Planning Phase
+
+---
+
+## Table of Contents
+1. [Executive Summary](#executive-summary)
+2. [Dashboard Overview](#dashboard-overview)
+3. [Key Performance Indicators (KPIs)](#key-performance-indicators-kpis)
+4. [Dashboard Sections](#dashboard-sections)
+5. [User Roles & Permissions](#user-roles--permissions)
+6. [Data Visualizations](#data-visualizations)
+7. [Technical Architecture](#technical-architecture)
+8. [API Requirements](#api-requirements)
+9. [UI/UX Design Guidelines](#uiux-design-guidelines)
+10. [Implementation Phases](#implementation-phases)
+11. [Future Enhancements](#future-enhancements)
+
+---
+
+## Executive Summary
+
+The Admin Dashboard serves as the central command center for the HVAC Management System, providing real-time insights into business operations, system health, and key performance metrics. It enables administrators to monitor, analyze, and manage all aspects of the HVAC business including work orders, inventory, customer relationships, technician dispatch, and financial performance.
+
+### Primary Objectives
+- **Real-time Monitoring**: Provide instant visibility into business operations and system performance
+- **Data-Driven Decisions**: Enable informed decision-making through comprehensive analytics and reporting
+- **Operational Efficiency**: Streamline administrative tasks and workflow management
+- **System Health**: Monitor application performance, database status, and system resources
+- **User Management**: Centralized control over users, roles, and permissions
+- **Business Intelligence**: Generate actionable insights from operational data
+
+---
+
+## Dashboard Overview
+
+### Main Dashboard Layout
+
+#### Top-Level Structure
+```
+┌─────────────────────────────────────────────────────────────┐
+│ Header: Logo | Search | Notifications | User Profile        │
+├─────────────────────────────────────────────────────────────┤
+│         │                                                    │
+│ Sidebar │              Main Dashboard Area                  │
+│  Menu   │                                                    │
+│         │  ┌──────────────┐ ┌──────────────┐               │
+│         │  │ KPI Card 1   │ │ KPI Card 2   │               │
+│         │  └──────────────┘ └──────────────┘               │
+│         │                                                    │
+│         │  ┌──────────────────────────────────────┐         │
+│         │  │ Chart/Graph Area                     │         │
+│         │  └──────────────────────────────────────┘         │
+│         │                                                    │
+│         │  ┌──────────────┐ ┌──────────────┐               │
+│         │  │ Recent Items │ │ Activity Feed│               │
+│         │  └──────────────┘ └──────────────┘               │
+└─────────────────────────────────────────────────────────────┘
+```
+
+#### Sidebar Navigation
+- **Dashboard** (Home)
+- **Analytics & Reports**
+  - Business Analytics
+  - Financial Reports
+  - Operational Reports
+  - Custom Reports
+- **Work Order Management**
+  - Active Work Orders
+  - Work Order Status Board
+  - Technician Performance
+- **Inventory Management**
+  - Stock Overview
+  - Low Stock Alerts
+  - Inventory Valuation
+  - Warehouse Analytics
+- **CRM Analytics**
+  - Customer Overview
+  - Lead Pipeline
+  - Sales Performance
+  - Customer Retention
+- **Dispatch Management**
+  - Schedule Overview
+  - Technician Utilization
+  - Route Optimization
+- **System Administration**
+  - User Management
+  - Role & Permissions
+  - System Settings
+  - Audit Logs
+- **System Monitoring**
+  - Application Health
+  - Database Metrics
+  - Performance Analytics
+  - Error Logs
+- **Financial Dashboard**
+  - Revenue Analytics
+  - Expense Tracking
+  - Profitability Analysis
+  - Purchase Order Analytics
+
+---
+
+## Key Performance Indicators (KPIs)
+
+### Business KPIs
+
+#### 1. Work Order Metrics
+- **Total Active Work Orders**: Count of open/in-progress work orders
+- **Work Order Completion Rate**: Percentage of completed work orders (daily/weekly/monthly)
+- **Average Time to Complete**: Mean time from creation to completion
+- **Overdue Work Orders**: Count and percentage of past-due work orders
+- **First-Time Fix Rate**: Percentage of work orders completed in one visit
+- **Customer Satisfaction Score**: Average rating from completed work orders
+
+#### 2. Revenue & Financial Metrics
+- **Total Revenue**: Sum of completed work order values (daily/weekly/monthly/yearly)
+- **Revenue by Service Type**: Breakdown of revenue by work order categories
+- **Average Work Order Value**: Mean revenue per work order
+- **Outstanding Invoices**: Total value of unpaid invoices
+- **Accounts Receivable Aging**: Distribution of unpaid invoices by age
+- **Profitability by Job**: Margin analysis per work order
+
+#### 3. Inventory Metrics
+- **Total Inventory Value**: Current valuation of all on-hand stock
+- **Stock Turnover Ratio**: Inventory movement efficiency
+- **Low Stock Items**: Count of SKUs below reorder point
+- **Out of Stock Items**: Count of SKUs with zero on-hand quantity
+- **Inventory Accuracy**: Percentage match between physical and system counts
+- **Average Days to Restock**: Mean time from order to receipt
+
+#### 4. Customer Metrics (CRM)
+- **Total Active Customers**: Count of accounts with activity in last 90 days
+- **New Customers**: Count of newly created accounts (daily/weekly/monthly)
+- **Customer Retention Rate**: Percentage of repeat customers
+- **Lead Conversion Rate**: Percentage of leads converted to accounts
+- **Customer Lifetime Value**: Average revenue per customer over time
+- **Active Leads in Pipeline**: Count of leads by stage
+
+#### 5. Technician & Dispatch Metrics
+- **Technician Utilization Rate**: Percentage of scheduled vs available time
+- **Average Jobs per Technician**: Work orders completed per technician per period
+- **On-Time Arrival Rate**: Percentage of appointments met on time
+- **Travel Time vs Service Time**: Ratio of travel to productive work
+- **Technician Revenue**: Total revenue generated per technician
+- **Overtime Hours**: Total overtime logged by all technicians
+
+#### 6. Purchasing Metrics
+- **Open Purchase Orders**: Count and value of pending POs
+- **Purchase Order Cycle Time**: Average time from creation to fulfillment
+- **Vendor Performance**: On-time delivery rates by vendor
+- **Total Purchasing Spend**: Sum of all purchase order values (monthly/yearly)
+- **Cost Variance**: Actual vs budgeted purchasing costs
+
+### System Performance KPIs
+
+#### 1. Application Health
+- **System Uptime**: Percentage of time system is operational
+- **API Response Time**: Average latency for API endpoints
+- **Error Rate**: Count and percentage of failed requests
+- **Active Users**: Current logged-in user count
+- **Database Query Performance**: Average query execution time
+- **Background Job Queue**: Pending and failed job counts
+
+#### 2. User Engagement
+- **Daily Active Users (DAU)**: Unique users per day
+- **Weekly Active Users (WAU)**: Unique users per week
+- **Monthly Active Users (MAU)**: Unique users per month
+- **Average Session Duration**: Mean time users spend in the system
+- **Most Used Features**: Page views by module
+- **Mobile vs Desktop Usage**: Device type distribution
+
+---
+
+## Dashboard Sections
+
+### 1. Executive Dashboard (Main View)
+
+**Purpose**: High-level overview for business owners and executives
+
+**Components**:
+- **KPI Summary Cards** (Top Row)
+  - Today's Revenue
+  - Active Work Orders
+  - Technicians on Duty
+  - Customer Satisfaction Score
+  
+- **Revenue Trend Chart** (Primary Chart)
+  - Line graph showing daily/weekly/monthly revenue trends
+  - Comparison with previous period
+  - Filterable by date range
+  
+- **Work Order Status Distribution** (Pie Chart)
+  - Breakdown by status: Open, In Progress, Completed, On Hold, Cancelled
+  - Click to drill down into specific status
+  
+- **Top Performing Technicians** (Table/Card)
+  - List of technicians by revenue generated
+  - Completion rate and customer ratings
+  
+- **Recent Activity Feed** (Right Sidebar)
+  - Real-time updates on work orders, inventory alerts, new leads
+  - Clickable links to detailed views
+  
+- **Upcoming Appointments** (Calendar Widget)
+  - Next 7 days of scheduled work orders
+  - Color-coded by priority/status
+
+### 2. Analytics & Reports Dashboard
+
+**Purpose**: Detailed business intelligence and custom reporting
+
+**Components**:
+
+#### Business Analytics
+- **Revenue Analytics**
+  - Revenue by time period (day, week, month, quarter, year)
+  - Revenue by service type/category
+  - Revenue by customer segment
+  - Year-over-year comparison
+  - Revenue forecasting based on historical data
+  
+- **Work Order Analytics**
+  - Completion rate trends
+  - Average time to complete by service type
+  - Cancellation rate analysis
+  - Rework rate (repeat visits)
+  - Geographic distribution heat map
+  
+- **Customer Analytics**
+  - Customer acquisition trends
+  - Customer lifetime value distribution
+  - Churn rate analysis
+  - Customer segmentation (high-value, at-risk, new)
+  - Repeat business rate
+  
+- **Technician Performance**
+  - Productivity metrics by technician
+  - Revenue generated per technician
+  - Customer satisfaction by technician
+  - Overtime analysis
+  - Skills utilization
+
+#### Financial Reports
+- **Profit & Loss Statement**
+  - Revenue summary
+  - Cost of goods sold (COGS from inventory)
+  - Operating expenses
+  - Net profit/loss
+  - Filterable by date range
+  
+- **Accounts Receivable Report**
+  - Outstanding invoices by age (30, 60, 90+ days)
+  - Customer payment history
+  - Collection trends
+  
+- **Inventory Valuation Report**
+  - Current stock value by warehouse
+  - Stock movement summary
+  - Inventory write-offs/adjustments
+  - FIFO/LIFO calculations
+  
+- **Purchase Order Summary**
+  - Total spend by vendor
+  - Purchase trends over time
+  - Open vs closed PO analysis
+
+#### Custom Report Builder
+- **Drag-and-Drop Report Designer**
+  - Select data sources (work orders, inventory, CRM, etc.)
+  - Choose metrics and dimensions
+  - Apply filters and date ranges
+  - Select visualization type (table, chart, graph)
+  - Save and schedule reports
+  - Export to PDF, Excel, CSV
+
+### 3. Work Order Management Dashboard
+
+**Purpose**: Comprehensive work order tracking and management
+
+**Components**:
+- **Work Order Status Board** (Kanban View)
+  - Columns: New, Assigned, In Progress, On Hold, Completed, Cancelled
+  - Drag-and-drop to change status
+  - Color-coded by priority
+  - Card shows: WO number, customer, technician, scheduled date
+  
+- **Work Order Calendar View**
+  - Full calendar with scheduled appointments
+  - Filter by technician, status, service type
+  - Click to view/edit work order
+  
+- **Work Order Metrics Panel**
+  - Total WOs by status (with percentages)
+  - Average completion time
+  - Overdue work orders (red alert)
+  - First-time fix rate
+  
+- **Service Type Distribution**
+  - Bar chart showing work orders by category (Installation, Repair, Maintenance, etc.)
+  
+- **Technician Workload View**
+  - List of technicians with assigned work order count
+  - Visual indicator of capacity (e.g., progress bar showing % booked)
+  - Click to view technician's schedule
+  
+- **Recent Work Order Activity**
+  - Table of latest work order updates
+  - Filters: All, Created, Updated, Completed
+  - Quick actions: View, Edit, Reassign
+
+### 4. Inventory Management Dashboard
+
+**Purpose**: Real-time inventory visibility and control
+
+**Components**:
+- **Inventory Overview Cards**
+  - Total Inventory Value ($)
+  - Total SKU Count
+  - Low Stock Items (count with alert)
+  - Out of Stock Items (count with critical alert)
+  
+- **Stock Level Chart**
+  - Bar chart showing on-hand quantity by category
+  - Color-coded: Green (healthy), Yellow (low), Red (out of stock)
+  
+- **Top Moving Items** (Table)
+  - SKUs with highest movement in last 30 days
+  - Shows: SKU, description, quantity moved, current on-hand
+  
+- **Low Stock Alerts** (Alert Panel)
+  - List of SKUs below reorder point
+  - Suggested reorder quantities
+  - Quick action: Create Purchase Order
+  
+- **Warehouse Breakdown**
+  - Inventory distribution across warehouses
+  - Pie chart or bar chart by location
+  - Click to drill down into warehouse details
+  
+- **Recent Stock Movements** (Activity Log)
+  - Latest stock ledger entries
+  - Shows: Date, SKU, quantity, movement type (IN/OUT), warehouse
+  - Filterable by warehouse, SKU, movement type
+  
+- **Inventory Turnover Analysis**
+  - Chart showing turnover ratio by category
+  - Identifies slow-moving and fast-moving inventory
+  
+- **Demand Forecast Integration**
+  - Projected stock needs based on forecast
+  - Comparison: Current stock vs forecasted demand
+  - Reorder recommendations
+
+### 5. CRM Analytics Dashboard
+
+**Purpose**: Customer relationship insights and sales pipeline management
+
+**Components**:
+- **CRM Overview Cards**
+  - Total Active Accounts
+  - Total Contacts
+  - Active Leads
+  - Lead Conversion Rate (%)
+  
+- **Lead Pipeline Funnel**
+  - Visualization of leads by stage (New, Qualified, Proposal, Negotiation, Won, Lost)
+  - Count and value at each stage
+  - Conversion rate between stages
+  
+- **Customer Acquisition Trend**
+  - Line graph showing new accounts over time
+  - Month-over-month growth rate
+  
+- **Top Customers by Revenue** (Table)
+  - List of highest-value customers
+  - Total lifetime revenue
+  - Last activity date
+  - Quick action: View account details
+  
+- **Customer Retention Analysis**
+  - Retention rate by cohort
+  - Churn rate trends
+  - At-risk customers (no activity in X days)
+  
+- **Lead Source Analysis**
+  - Pie chart showing lead origin (Referral, Website, Social, Phone, etc.)
+  - Conversion rate by source
+  
+- **Recent CRM Activity**
+  - Latest notes, leads created, accounts updated
+  - Activity timeline
+
+### 6. Dispatch Management Dashboard
+
+**Purpose**: Optimize technician scheduling and routing
+
+**Components**:
+- **Dispatch Calendar Overview**
+  - Weekly/daily view of technician schedules
+  - Color-coded by technician
+  - Shows: Time slots, work order assignments, travel time
+  
+- **Technician Utilization Chart**
+  - Bar chart showing % of scheduled time per technician
+  - Highlights over/under-utilized technicians
+  
+- **Route Map Visualization**
+  - Interactive map showing technician locations and routes
+  - Optimized route suggestions
+  - Real-time traffic integration (future enhancement)
+  
+- **Dispatch Metrics Panel**
+  - On-time arrival rate
+  - Average travel time
+  - Jobs per technician per day
+  - Schedule adherence rate
+  
+- **Available Slots Finder**
+  - Tool to find next available appointment slots
+  - Filter by technician, service type, location
+  - Quick scheduling capability
+  
+- **Overtime Alert Panel**
+  - List of technicians approaching or in overtime
+  - Total overtime hours this week/month
+
+### 7. System Administration Dashboard
+
+**Purpose**: User management, security, and system configuration
+
+**Components**:
+
+#### User Management
+- **User List Table**
+  - All system users with: Name, Email, Role, Status, Last Login
+  - Search and filter capabilities
+  - Actions: Edit, Deactivate, Reset Password, View Activity
+  
+- **User Activity Overview**
+  - Active users right now
+  - Login history
+  - Failed login attempts (security monitoring)
+  
+- **Create User Form** (Modal)
+  - User details: Name, email, password
+  - Assign role and permissions
+  - Set tenant association (multi-tenant)
+  - Account activation toggle
+
+#### Role & Permissions Management
+- **Role List**
+  - Predefined roles: Admin, Manager, Technician, Dispatcher, Viewer
+  - Custom role creation
+  - Permission matrix by role
+  
+- **Permission Editor**
+  - Granular permissions by module (Work Orders, Inventory, CRM, etc.)
+  - CRUD permissions (Create, Read, Update, Delete)
+  - Special permissions (Approve, Export, Admin)
+
+#### System Settings
+- **General Settings**
+  - Company information
+  - Time zone and locale
+  - Currency settings
+  - Date/time format preferences
+  
+- **Email Configuration**
+  - SMTP settings
+  - Email templates
+  - Notification preferences
+  
+- **Integration Settings**
+  - API key management
+  - Third-party integrations (OpenAI, payment gateways, etc.)
+  - Webhook configurations
+  
+- **Security Settings**
+  - Password policy
+  - Session timeout
+  - Two-factor authentication toggle
+  - CORS whitelist
+
+#### Audit Logs
+- **Activity Log Table**
+  - Timestamp, User, Action, Resource, IP Address
+  - Filter by: User, action type, date range, module
+  - Export audit trail
+  
+- **Change History**
+  - Track all data modifications
+  - Before/after values
+  - Compliance and debugging
+
+### 8. System Monitoring Dashboard
+
+**Purpose**: Real-time application health and performance monitoring
+
+**Components**:
+
+#### Application Health Overview
+- **Health Status Cards**
+  - API Status (Green/Red indicator)
+  - Database Status (connection pool stats)
+  - Queue Status (pending/failed jobs)
+  - Cache Status (hit rate, memory usage)
+  
+- **Uptime Monitor**
+  - Current uptime percentage
+  - Uptime history chart (last 30 days)
+  - Downtime incidents log
+
+#### Performance Metrics
+- **API Response Time Chart**
+  - Line graph of average response time over time
+  - Breakdown by endpoint
+  - 95th/99th percentile latency
+  
+- **Database Performance**
+  - Query execution time trends
+  - Slow query log
+  - Connection pool utilization
+  - Database size and growth
+  
+- **Error Rate Monitor**
+  - Count of errors over time
+  - Error breakdown by type (4xx, 5xx)
+  - Recent error log with stack traces
+
+#### System Resources
+- **Server Metrics**
+  - CPU usage (current and trend)
+  - Memory usage (current and trend)
+  - Disk usage
+  - Network I/O
+  
+- **Background Jobs**
+  - Queue length over time
+  - Job processing rate
+  - Failed jobs with retry status
+  - Job type breakdown
+
+#### Logs Viewer
+- **Application Logs**
+  - Real-time log stream
+  - Filter by: Level (Info, Warn, Error), timestamp, module
+  - Search functionality
+  - Export logs
+  
+- **Access Logs**
+  - HTTP request logs
+  - Filter by: Status code, endpoint, user
+  - Performance insights
+
+### 9. Financial Dashboard
+
+**Purpose**: Financial insights and budget management
+
+**Components**:
+- **Revenue Summary Cards**
+  - Today's Revenue
+  - This Week's Revenue
+  - This Month's Revenue
+  - Year-to-Date Revenue
+  
+- **Revenue Trend Chart**
+  - Multi-line graph: Daily, weekly, monthly comparisons
+  - Year-over-year overlay
+  - Revenue targets and actuals
+  
+- **Revenue by Service Type**
+  - Pie chart or stacked bar chart
+  - Shows contribution of each service category
+  
+- **Accounts Receivable Summary**
+  - Total outstanding amount
+  - Aging buckets (Current, 30, 60, 90+ days)
+  - Overdue percentage
+  
+- **Purchasing & Expenses**
+  - Total purchasing spend
+  - Budget vs actual comparison
+  - Top vendors by spend
+  - Expense trends
+  
+- **Profitability Analysis**
+  - Gross margin by service type
+  - Net profit trend
+  - Cost breakdown (labor, materials, overhead)
+  
+- **Cash Flow Overview** (Future Enhancement)
+  - Cash inflow vs outflow
+  - Projected cash position
+  - Working capital analysis
+
+---
+
+## User Roles & Permissions
+
+### Role Hierarchy
+
+#### 1. Super Admin
+- **Full System Access**: Complete control over all features and data
+- **Permissions**:
+  - User management (create, edit, delete users)
+  - Role and permission configuration
+  - System settings and configuration
+  - Multi-tenant management
+  - Access to all modules and dashboards
+  - Audit log viewing
+  - Database operations
+  - API key management
+  
+#### 2. Admin
+- **Business Management**: Manage operations without system configuration
+- **Permissions**:
+  - View all dashboards
+  - Manage work orders, inventory, CRM, purchasing
+  - Create/edit users (cannot delete or change roles)
+  - View reports and analytics
+  - Export data
+  - Cannot: Modify system settings, manage roles, access audit logs
+  
+#### 3. Manager
+- **Operational Oversight**: Monitor and manage daily operations
+- **Permissions**:
+  - View executive, analytics, and operational dashboards
+  - Manage work orders and dispatch
+  - Approve purchase orders
+  - View inventory and CRM data
+  - Generate reports
+  - Cannot: User management, system settings, financial data (limited access)
+  
+#### 4. Dispatcher
+- **Scheduling Focus**: Manage technician schedules and work order assignments
+- **Permissions**:
+  - Full access to dispatch dashboard
+  - Create and assign work orders
+  - View technician schedules and availability
+  - Update work order status
+  - View basic inventory (parts availability)
+  - Cannot: Financial data, system administration, user management
+  
+#### 5. Technician
+- **Field Operations**: Access to assigned work orders and mobile features
+- **Permissions**:
+  - View own assigned work orders
+  - Update work order status and notes
+  - Record time and materials used
+  - Scanner access for inventory
+  - View customer information (limited)
+  - Cannot: Dashboard access, create work orders, view other technicians' data
+  
+#### 6. Inventory Manager
+- **Stock Control**: Manage inventory and purchasing
+- **Permissions**:
+  - Full access to inventory dashboard
+  - Manage SKUs, warehouses, bins
+  - Process stock movements
+  - Create purchase orders
+  - View inventory reports
+  - Cannot: Work order management, CRM, user administration
+  
+#### 7. Sales/CRM User
+- **Customer Relations**: Manage leads and customer accounts
+- **Permissions**:
+  - Full access to CRM dashboard
+  - Manage accounts, contacts, leads, notes
+  - Create work orders for customers
+  - View revenue by customer
+  - Generate CRM reports
+  - Cannot: Inventory, purchasing, system administration
+  
+#### 8. Viewer/Analyst
+- **Read-Only Access**: View dashboards and reports without modification
+- **Permissions**:
+  - View-only access to dashboards
+  - Generate and export reports
+  - View analytics
+  - Cannot: Create, edit, or delete any data
+
+### Permission Matrix
+
+| Feature/Module | Super Admin | Admin | Manager | Dispatcher | Technician | Inventory Mgr | Sales/CRM | Viewer |
+|----------------|-------------|-------|---------|------------|------------|---------------|-----------|--------|
+| Executive Dashboard | Full | Full | View | View | No | View | View | View |
+| Analytics & Reports | Full | Full | View | Limited | No | Limited | Limited | View |
+| Work Orders | Full | Full | Full | Full | Own Only | View | Create | View |
+| Inventory | Full | Full | View | Limited | Scanner | Full | View | View |
+| CRM | Full | Full | View | View | View | No | Full | View |
+| Dispatch | Full | Full | Full | Full | Own Only | No | No | View |
+| Purchasing | Full | Full | Approve | No | No | Full | No | View |
+| User Management | Full | Limited | No | No | No | No | No | No |
+| System Settings | Full | No | No | No | No | No | No | No |
+| Audit Logs | Full | View | No | No | No | No | No | No |
+| Financial Data | Full | Full | Limited | No | No | Limited | Limited | View |
+
+---
+
+## Data Visualizations
+
+### Chart Types & Usage
+
+#### 1. Line Charts
+- **Use Cases**: Trends over time
+- **Examples**:
+  - Revenue trends (daily, weekly, monthly)
+  - Work order completion rate over time
+  - API response time trends
+  - Customer acquisition trends
+- **Features**:
+  - Multi-line comparisons (this year vs last year)
+  - Zoom and pan capabilities
+  - Tooltips with detailed data
+  - Downloadable as image/PDF
+
+#### 2. Bar Charts
+- **Use Cases**: Comparisons across categories
+- **Examples**:
+  - Work orders by service type
+  - Technician performance comparison
+  - Revenue by category
+  - Inventory levels by warehouse
+- **Features**:
+  - Horizontal and vertical orientations
+  - Stacked and grouped variations
+  - Click to drill down
+  - Color-coded by threshold
+
+#### 3. Pie/Donut Charts
+- **Use Cases**: Part-to-whole relationships
+- **Examples**:
+  - Work order status distribution
+  - Lead source breakdown
+  - Expense category distribution
+  - Inventory value by category
+- **Features**:
+  - Percentage labels
+  - Interactive legends
+  - Slice highlighting
+  - Center value display (donut)
+
+#### 4. Area Charts
+- **Use Cases**: Volume trends over time
+- **Examples**:
+  - Cumulative revenue
+  - Stock levels over time
+  - Work order volume trends
+- **Features**:
+  - Stacked area for multi-series
+  - Gradient fills
+  - Baseline comparisons
+
+#### 5. Gauge/Meter Charts
+- **Use Cases**: Single metric with target/threshold
+- **Examples**:
+  - Technician utilization (0-100%)
+  - Customer satisfaction score
+  - System uptime percentage
+  - Inventory turnover ratio
+- **Features**:
+  - Color zones (red, yellow, green)
+  - Target indicator
+  - Current vs target comparison
+
+#### 6. Heat Maps
+- **Use Cases**: Geographic or time-based density
+- **Examples**:
+  - Work order density by location
+  - System usage by time of day
+  - Technician schedule availability
+- **Features**:
+  - Color intensity by value
+  - Tooltips with exact values
+  - Zoom and filter capabilities
+
+#### 7. Funnel Charts
+- **Use Cases**: Sequential process stages
+- **Examples**:
+  - Lead pipeline (stages to conversion)
+  - Work order workflow (new to completed)
+- **Features**:
+  - Conversion rate between stages
+  - Drop-off highlighting
+  - Click to view details
+
+#### 8. Tables/Data Grids
+- **Use Cases**: Detailed data display
+- **Examples**:
+  - Work order list
+  - User management table
+  - Audit logs
+  - Inventory list
+- **Features**:
+  - Sortable columns
+  - Filterable rows
+  - Pagination
+  - Export to CSV/Excel
+  - Inline editing (where applicable)
+  - Row actions (view, edit, delete)
+
+#### 9. Sparklines
+- **Use Cases**: Inline micro-charts in tables/cards
+- **Examples**:
+  - Mini trend in KPI cards
+  - Quick performance indicators in tables
+- **Features**:
+  - Compact size
+  - Shows trend without axes
+  - Tooltip on hover
+
+#### 10. Kanban Boards
+- **Use Cases**: Status-based workflow visualization
+- **Examples**:
+  - Work order status board
+  - Lead pipeline stages
+- **Features**:
+  - Drag-and-drop cards
+  - Swimlanes for categorization
+  - Card detail previews
+  - Status totals
+
+### Visualization Library Recommendations
+- **Recharts**: React-friendly, simple charts (recommended for MVP)
+- **Chart.js**: Versatile, lightweight, excellent documentation
+- **D3.js**: Complex, custom visualizations (for advanced needs)
+- **Apache ECharts**: Feature-rich, interactive charts
+- **Nivo**: React-based D3 wrapper, beautiful defaults
+
+---
+
+## Technical Architecture
+
+### Frontend Architecture
+
+#### Technology Stack
+- **Framework**: React 18+ with TypeScript
+- **Build Tool**: Vite
+- **State Management**: Zustand (current) + React Query for server state
+- **Routing**: React Router v6
+- **UI Components**: 
+  - Existing: Card, Sidebar, TopBar
+  - New: Dashboard grid system, chart components, data tables
+- **Charting**: Recharts (recommended) or Chart.js
+- **Styling**: CSS Modules or Tailwind CSS
+- **Date Handling**: date-fns or Day.js
+- **Data Tables**: TanStack Table (React Table v8)
+- **Icons**: Lucide React or Heroicons
+
+#### Component Structure
+```
+frontend/src/
+├── components/
+│   ├── dashboard/
+│   │   ├── DashboardLayout.tsx
+│   │   ├── KPICard.tsx
+│   │   ├── DashboardGrid.tsx
+│   │   └── widgets/
+│   │       ├── RevenueChart.tsx
+│   │       ├── WorkOrderStatusChart.tsx
+│   │       ├── ActivityFeed.tsx
+│   │       ├── TechnicianTable.tsx
+│   │       └── ...
+│   ├── charts/
+│   │   ├── LineChart.tsx
+│   │   ├── BarChart.tsx
+│   │   ├── PieChart.tsx
+│   │   ├── GaugeChart.tsx
+│   │   └── ...
+│   ├── tables/
+│   │   ├── DataTable.tsx
+│   │   ├── TableFilters.tsx
+│   │   ├── TablePagination.tsx
+│   │   └── ...
+│   ├── admin/
+│   │   ├── UserManagement.tsx
+│   │   ├── RoleEditor.tsx
+│   │   ├── AuditLogViewer.tsx
+│   │   └── ...
+│   └── monitoring/
+│       ├── HealthStatus.tsx
+│       ├── PerformanceChart.tsx
+│       ├── ErrorLogViewer.tsx
+│       └── ...
+├── pages/
+│   ├── Dashboard.tsx (update existing)
+│   ├── Analytics.tsx (new)
+│   ├── Admin.tsx (new)
+│   ├── Monitoring.tsx (new)
+│   └── ...
+├── hooks/
+│   ├── useKPI.ts
+│   ├── useDashboardData.ts
+│   ├── useRealTimeUpdates.ts
+│   └── ...
+└── api/
+    ├── dashboard.ts
+    ├── analytics.ts
+    ├── admin.ts
+    └── monitoring.ts
+```
+
+#### State Management Strategy
+- **Global State (Zustand)**:
+  - User authentication and session
+  - User preferences (theme, dashboard layout)
+  - UI state (sidebar collapsed, filters)
+  
+- **Server State (React Query)**:
+  - Dashboard data and KPIs
+  - Analytics and reports
+  - Real-time updates with polling/WebSockets
+  - Cache management for better performance
+  - Automatic refetch on window focus
+  
+- **Local State (React useState)**:
+  - Component-specific UI state
+  - Form inputs
+  - Temporary filters
+
+#### Real-Time Updates
+- **Polling Strategy**: Short-interval polling for critical metrics (30-60 seconds)
+- **WebSocket Support** (Future): Real-time push for instant updates
+- **Optimistic Updates**: Update UI immediately, sync with server
+- **Background Refresh**: React Query stale-while-revalidate pattern
+
+### Backend Architecture
+
+#### New API Endpoints Required
+
+##### Dashboard Endpoints
+```typescript
+// Executive Dashboard
+GET /api/v1/dashboard/executive
+  - Returns: KPI summary, revenue trends, work order stats, recent activity
+  - Query params: dateRange, tenantId
+
+GET /api/v1/dashboard/kpis
+  - Returns: All KPIs with current values and trends
+  - Query params: metric[], period (day/week/month/year)
+
+// Analytics Endpoints
+GET /api/v1/analytics/revenue
+  - Returns: Revenue data by period, service type, customer
+  - Query params: startDate, endDate, groupBy, filterBy
+
+GET /api/v1/analytics/workorders
+  - Returns: Work order analytics and trends
+  - Query params: startDate, endDate, status, technician, serviceType
+
+GET /api/v1/analytics/inventory
+  - Returns: Inventory analytics, turnover, valuation
+  - Query params: warehouse, category
+
+GET /api/v1/analytics/crm
+  - Returns: Customer and lead analytics
+  - Query params: startDate, endDate, segment
+
+GET /api/v1/analytics/dispatch
+  - Returns: Dispatch and technician analytics
+  - Query params: startDate, endDate, technician
+
+// Reports Endpoints
+GET /api/v1/reports/financial
+  - Returns: Financial reports (P&L, AR, etc.)
+  - Query params: reportType, startDate, endDate, format (json/pdf/excel)
+
+POST /api/v1/reports/custom
+  - Body: Report configuration (metrics, filters, grouping)
+  - Returns: Custom report data
+
+GET /api/v1/reports/export/:reportId
+  - Returns: Report file (PDF, Excel, CSV)
+
+// Admin Endpoints
+GET /api/v1/admin/users
+  - Returns: List of all users with roles and status
+  - Query params: page, limit, search, role, status
+
+POST /api/v1/admin/users
+  - Body: User creation data
+  - Returns: Created user
+
+PUT /api/v1/admin/users/:userId
+  - Body: User update data
+  - Returns: Updated user
+
+DELETE /api/v1/admin/users/:userId
+  - Returns: Success confirmation
+
+GET /api/v1/admin/roles
+  - Returns: List of roles with permissions
+
+PUT /api/v1/admin/roles/:roleId
+  - Body: Role permission updates
+  - Returns: Updated role
+
+GET /api/v1/admin/audit-logs
+  - Returns: Audit log entries
+  - Query params: page, limit, userId, action, startDate, endDate
+
+GET /api/v1/admin/settings
+  - Returns: System settings
+
+PUT /api/v1/admin/settings
+  - Body: Settings updates
+  - Returns: Updated settings
+
+// Monitoring Endpoints
+GET /api/v1/monitoring/health-detailed
+  - Returns: Detailed health status (API, DB, cache, queue)
+
+GET /api/v1/monitoring/performance
+  - Returns: Performance metrics (response times, error rates)
+  - Query params: startDate, endDate
+
+GET /api/v1/monitoring/errors
+  - Returns: Recent error logs
+  - Query params: page, limit, level, startDate, endDate
+
+GET /api/v1/monitoring/system-resources
+  - Returns: Server resources (CPU, memory, disk)
+
+GET /api/v1/monitoring/background-jobs
+  - Returns: Queue status and job stats
+```
+
+#### Database Schema Additions
+
+##### Users Table (if not exists)
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  role_id UUID REFERENCES roles(id),
+  status VARCHAR(20) DEFAULT 'active', -- active, inactive, suspended
+  last_login_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+##### Roles Table
+```sql
+CREATE TABLE roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  permissions JSONB, -- {"workorders": ["create", "read", "update"], ...}
+  is_system_role BOOLEAN DEFAULT false,
+  tenant_id UUID,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+##### Audit Logs Table
+```sql
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id UUID NOT NULL,
+  user_id UUID REFERENCES users(id),
+  action VARCHAR(100) NOT NULL, -- create, update, delete, login, etc.
+  resource_type VARCHAR(100), -- workorder, inventory, user, etc.
+  resource_id UUID,
+  old_values JSONB,
+  new_values JSONB,
+  ip_address VARCHAR(50),
+  user_agent TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+```
+
+##### Dashboard Preferences Table
+```sql
+CREATE TABLE dashboard_preferences (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  dashboard_type VARCHAR(50), -- executive, analytics, etc.
+  layout_config JSONB, -- Widget positions and sizes
+  filters JSONB, -- Saved filters
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, dashboard_type)
+);
+```
+
+##### System Metrics Table (for historical tracking)
+```sql
+CREATE TABLE system_metrics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  metric_type VARCHAR(100) NOT NULL, -- api_response_time, error_rate, etc.
+  metric_value DECIMAL,
+  tags JSONB, -- {endpoint: "/api/v1/workorders", method: "GET"}
+  recorded_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_system_metrics_type_time ON system_metrics(metric_type, recorded_at DESC);
+```
+
+#### NestJS Module Structure
+```
+backend/src/modules/
+├── dashboard/
+│   ├── dashboard.controller.ts
+│   ├── dashboard.service.ts
+│   ├── dashboard.module.ts
+│   └── dto/
+│       ├── kpi-query.dto.ts
+│       └── dashboard-response.dto.ts
+├── analytics/
+│   ├── analytics.controller.ts
+│   ├── analytics.service.ts
+│   ├── analytics.module.ts
+│   └── dto/
+├── admin/
+│   ├── users/
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   └── dto/
+│   ├── roles/
+│   │   ├── roles.controller.ts
+│   │   ├── roles.service.ts
+│   │   └── dto/
+│   ├── audit/
+│   │   ├── audit.controller.ts
+│   │   ├── audit.service.ts
+│   │   └── dto/
+│   └── admin.module.ts
+└── monitoring/
+    ├── monitoring.controller.ts
+    ├── monitoring.service.ts
+    ├── monitoring.module.ts
+    └── dto/
+```
+
+#### Caching Strategy
+- **Redis Cache** (Future Enhancement):
+  - Cache KPI calculations (TTL: 1-5 minutes)
+  - Cache dashboard queries
+  - Invalidate on data updates
+  
+- **In-Memory Cache** (Current):
+  - Use NestJS cache-manager
+  - Cache frequently accessed data
+  - Set appropriate TTLs based on data volatility
+
+#### Performance Optimization
+- **Database Indexing**:
+  - Index all foreign keys
+  - Index commonly filtered columns (status, date, tenant_id)
+  - Composite indexes for complex queries
+  
+- **Query Optimization**:
+  - Use database views for complex KPI calculations
+  - Aggregate queries with proper grouping
+  - Limit result sets with pagination
+  
+- **Materialized Views** (Future):
+  - Pre-calculate expensive aggregations
+  - Refresh on schedule or triggers
+  
+- **Background Processing**:
+  - Calculate complex analytics asynchronously
+  - Store results in cache or dedicated table
+  - Use queue module for heavy computations
+
+#### Security Considerations
+- **Authentication**: JWT tokens with refresh mechanism
+- **Authorization**: Role-based access control on all endpoints
+- **Audit Logging**: Track all sensitive operations
+- **Rate Limiting**: Prevent API abuse
+- **Input Validation**: Validate all inputs with DTOs and class-validator
+- **SQL Injection Prevention**: Use Prisma ORM (parameterized queries)
+- **XSS Protection**: Sanitize outputs, use Helmet middleware
+- **CORS**: Configure allowed origins
+
+---
+
+## API Requirements
+
+### Dashboard API Response Formats
+
+#### Executive Dashboard Response
+```json
+{
+  "kpis": {
+    "todayRevenue": {
+      "value": 15420.50,
+      "currency": "USD",
+      "trend": "+12.5%",
+      "comparison": "vs yesterday"
+    },
+    "activeWorkOrders": {
+      "value": 48,
+      "trend": "+5",
+      "comparison": "vs yesterday"
+    },
+    "techniciansOnDuty": {
+      "value": 12,
+      "available": 8,
+      "busy": 4
+    },
+    "customerSatisfaction": {
+      "value": 4.7,
+      "max": 5,
+      "trend": "+0.2",
+      "sampleSize": 45
+    }
+  },
+  "revenueTrend": {
+    "labels": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "datasets": [
+      {
+        "label": "This Week",
+        "data": [12500, 13200, 11800, 14500, 15420, 16200, 14800]
+      },
+      {
+        "label": "Last Week",
+        "data": [11200, 12100, 10900, 13200, 13700, 14800, 13500]
+      }
+    ]
+  },
+  "workOrderStatus": [
+    {"status": "Open", "count": 12, "percentage": 25},
+    {"status": "In Progress", "count": 28, "percentage": 58.3},
+    {"status": "Completed", "count": 8, "percentage": 16.7}
+  ],
+  "topTechnicians": [
+    {
+      "id": "tech-001",
+      "name": "John Smith",
+      "revenue": 8500,
+      "completionRate": 95,
+      "rating": 4.9,
+      "jobsCompleted": 24
+    }
+  ],
+  "recentActivity": [
+    {
+      "id": "act-001",
+      "type": "workorder_completed",
+      "description": "Work Order #1234 completed by John Smith",
+      "timestamp": "2025-10-18T14:30:00Z",
+      "link": "/workorders/1234"
+    }
+  ],
+  "upcomingAppointments": [
+    {
+      "id": "wo-1235",
+      "customer": "ABC Corp",
+      "technician": "John Smith",
+      "scheduledAt": "2025-10-18T16:00:00Z",
+      "serviceType": "Maintenance",
+      "priority": "medium"
+    }
+  ]
+}
+```
+
+#### Analytics Response (Revenue)
+```json
+{
+  "summary": {
+    "totalRevenue": 125400.50,
+    "periodStart": "2025-10-01",
+    "periodEnd": "2025-10-18",
+    "growth": "+18.3%",
+    "comparisonPeriod": "Previous month same dates"
+  },
+  "byPeriod": [
+    {"date": "2025-10-01", "revenue": 6500.00},
+    {"date": "2025-10-02", "revenue": 7200.00}
+  ],
+  "byServiceType": [
+    {"serviceType": "Installation", "revenue": 45000, "count": 15, "avgValue": 3000},
+    {"serviceType": "Repair", "revenue": 38000, "count": 45, "avgValue": 844},
+    {"serviceType": "Maintenance", "revenue": 42400, "count": 78, "avgValue": 543}
+  ],
+  "byCustomerSegment": [
+    {"segment": "Enterprise", "revenue": 65000, "customerCount": 8},
+    {"segment": "Small Business", "revenue": 45000, "customerCount": 32},
+    {"segment": "Residential", "revenue": 15400, "customerCount": 54}
+  ]
+}
+```
+
+### Query Parameter Standards
+- **Date Ranges**: `startDate`, `endDate` (ISO 8601 format)
+- **Pagination**: `page` (1-based), `limit` (default: 50, max: 1000)
+- **Sorting**: `sortBy`, `sortOrder` (asc/desc)
+- **Filtering**: Use specific field names (e.g., `status`, `technician`, `warehouse`)
+- **Tenant Isolation**: Include `tenantId` in JWT, not query params
+
+### Error Response Format
+```json
+{
+  "statusCode": 400,
+  "message": "Invalid date range",
+  "error": "Bad Request",
+  "timestamp": "2025-10-18T15:00:00Z",
+  "path": "/api/v1/analytics/revenue"
+}
+```
+
+---
+
+## UI/UX Design Guidelines
+
+### Design Principles
+1. **Clarity**: Information should be easy to understand at a glance
+2. **Hierarchy**: Most important data should be most prominent
+3. **Consistency**: Uniform styling, spacing, and interaction patterns
+4. **Responsiveness**: Works well on desktop, tablet, and mobile
+5. **Accessibility**: WCAG 2.1 Level AA compliance
+6. **Performance**: Fast load times, smooth interactions
+
+### Color Scheme
+- **Primary**: Blue (#0066CC) - Actions, links, primary CTAs
+- **Success**: Green (#28A745) - Positive metrics, completed states
+- **Warning**: Yellow/Orange (#FFC107) - Warnings, moderate alerts
+- **Danger**: Red (#DC3545) - Errors, critical alerts, overdue items
+- **Neutral**: Grays (#F8F9FA to #343A40) - Backgrounds, text, borders
+- **Info**: Light Blue (#17A2B8) - Informational messages
+
+### Typography
+- **Headings**: 
+  - H1: 32px, bold (page titles)
+  - H2: 24px, semi-bold (section headers)
+  - H3: 18px, semi-bold (subsections)
+- **Body**: 14px, regular (default text)
+- **Small**: 12px (captions, labels)
+- **Font Family**: System fonts (sans-serif) for performance
+
+### Spacing
+- **Grid System**: 8px base unit
+- **Card Padding**: 16px (mobile), 24px (desktop)
+- **Section Spacing**: 24px between dashboard sections
+- **Component Spacing**: 8px-16px within components
+
+### KPI Card Design
+```
+┌────────────────────────┐
+│ 📊 METRIC NAME         │
+│                        │
+│     $15,420            │ <- Large, bold value
+│     +12.5% ↑           │ <- Trend indicator
+│     vs yesterday       │ <- Context
+│ ───────────────────    │
+│ [Sparkline Chart]      │ <- Optional mini chart
+└────────────────────────┘
+```
+
+### Chart Design Guidelines
+- **Colors**: Use consistent color palette, avoid overuse
+- **Labels**: Clear, concise axis labels and legends
+- **Tooltips**: Show detailed data on hover
+- **Responsive**: Adapt to container size
+- **Loading States**: Show skeleton or spinner while loading
+- **Empty States**: Helpful message when no data available
+- **Export**: Option to download chart as image
+
+### Table Design
+- **Headers**: Sticky headers for long tables
+- **Sorting**: Click column headers to sort
+- **Filtering**: Filter inputs above table
+- **Pagination**: Show page numbers and total count
+- **Row Actions**: Dropdown menu or icon buttons
+- **Hover State**: Highlight row on hover
+- **Zebra Striping**: Alternate row colors for readability
+
+### Responsive Breakpoints
+- **Mobile**: < 768px (stacked layout, simplified charts)
+- **Tablet**: 768px - 1024px (2-column grid)
+- **Desktop**: > 1024px (full dashboard grid)
+
+### Loading & Error States
+- **Loading**: 
+  - Skeleton screens for initial load
+  - Spinner for data refresh
+  - Progress bar for long operations
+- **Error**:
+  - Clear error message
+  - Retry button
+  - Fallback to last known good data if applicable
+- **Empty**:
+  - Friendly message
+  - Action to add data (if applicable)
+  - Illustration or icon
+
+### Accessibility
+- **Keyboard Navigation**: All interactive elements accessible via keyboard
+- **Screen Readers**: Proper ARIA labels and roles
+- **Color Contrast**: Minimum 4.5:1 for text, 3:1 for UI components
+- **Focus Indicators**: Visible focus state for all focusable elements
+- **Alt Text**: All images and charts have descriptive alt text
+
+---
+
+## Implementation Phases
+
+### Phase 1: Foundation (Weeks 1-2)
+**Goal**: Set up basic dashboard infrastructure
+
+**Tasks**:
+1. **Backend Setup**
+   - Create dashboard, analytics, admin modules
+   - Implement basic authentication and authorization middleware
+   - Set up Prisma models for users, roles, audit logs
+   - Create initial KPI calculation functions
+   
+2. **Frontend Setup**
+   - Set up dashboard route and layout component
+   - Create reusable chart components (Line, Bar, Pie)
+   - Build KPI card component
+   - Implement dashboard grid system
+   
+3. **API Development**
+   - `/api/v1/dashboard/executive` endpoint
+   - `/api/v1/dashboard/kpis` endpoint
+   - Basic error handling and validation
+
+**Deliverables**:
+- Basic executive dashboard with 4-6 KPI cards
+- One working chart (revenue trend)
+- Responsive layout
+- Authentication-protected routes
+
+### Phase 2: Core Analytics (Weeks 3-4)
+**Goal**: Implement work order and inventory analytics
+
+**Tasks**:
+1. **Work Order Analytics**
+   - Status distribution chart
+   - Completion rate trends
+   - Technician performance table
+   - Work order calendar view
+   
+2. **Inventory Analytics**
+   - Stock level overview
+   - Low stock alerts
+   - Recent movements table
+   - Inventory valuation
+   
+3. **API Expansion**
+   - `/api/v1/analytics/workorders`
+   - `/api/v1/analytics/inventory`
+   - Query optimization for large datasets
+
+**Deliverables**:
+- Work order management dashboard
+- Inventory dashboard with alerts
+- 5-7 new charts and visualizations
+
+### Phase 3: CRM & Dispatch Analytics (Weeks 5-6)
+**Goal**: Add customer and dispatch insights
+
+**Tasks**:
+1. **CRM Analytics**
+   - Lead pipeline funnel
+   - Customer acquisition trends
+   - Top customers table
+   - Customer retention metrics
+   
+2. **Dispatch Analytics**
+   - Technician utilization chart
+   - Schedule overview calendar
+   - Route visualization (basic)
+   - On-time performance metrics
+   
+3. **API Development**
+   - `/api/v1/analytics/crm`
+   - `/api/v1/analytics/dispatch`
+
+**Deliverables**:
+- CRM analytics dashboard
+- Dispatch management dashboard
+- Customer and technician insights
+
+### Phase 4: Admin & Monitoring (Weeks 7-8)
+**Goal**: System administration and health monitoring
+
+**Tasks**:
+1. **User Management**
+   - User list table with CRUD operations
+   - Role and permission editor
+   - User activity tracking
+   
+2. **System Monitoring**
+   - Health status dashboard
+   - Performance metrics charts
+   - Error log viewer
+   - Background job monitoring
+   
+3. **Audit Logging**
+   - Implement audit log interceptor
+   - Audit log viewer with filters
+   - Export functionality
+   
+4. **API Development**
+   - `/api/v1/admin/*` endpoints
+   - `/api/v1/monitoring/*` endpoints
+
+**Deliverables**:
+- Full admin dashboard
+- System monitoring dashboard
+- Audit trail functionality
+
+### Phase 5: Reporting & Financial (Weeks 9-10)
+**Goal**: Advanced reporting and financial dashboards
+
+**Tasks**:
+1. **Financial Dashboard**
+   - Revenue summary cards
+   - Accounts receivable summary
+   - Expense tracking integration
+   - Profitability analysis
+   
+2. **Report Builder**
+   - Custom report configuration UI
+   - Report generation engine
+   - Export to PDF, Excel, CSV
+   - Scheduled reports (future)
+   
+3. **API Development**
+   - `/api/v1/reports/*` endpoints
+   - Report export service
+
+**Deliverables**:
+- Financial analytics dashboard
+- Custom report builder
+- Export functionality
+
+### Phase 6: Polish & Optimization (Weeks 11-12)
+**Goal**: Performance optimization and UX refinement
+
+**Tasks**:
+1. **Performance Optimization**
+   - Implement caching strategy
+   - Optimize database queries
+   - Add query result pagination
+   - Lazy loading for charts
+   
+2. **UX Enhancements**
+   - Dashboard customization (widget positioning)
+   - User preferences (saved filters, date ranges)
+   - Dark mode support
+   - Improved mobile experience
+   
+3. **Real-Time Updates**
+   - Implement polling for critical metrics
+   - WebSocket support for notifications (future)
+   
+4. **Documentation**
+   - API documentation in Swagger
+   - User guide for dashboards
+   - Admin documentation
+
+**Deliverables**:
+- Optimized, production-ready dashboards
+- Customization features
+- Complete documentation
+
+---
+
+## Future Enhancements
+
+### Short-Term (3-6 months)
+1. **AI-Powered Insights**
+   - Anomaly detection (unusual patterns in data)
+   - Predictive analytics (forecast future trends)
+   - Intelligent recommendations (e.g., optimal reorder points)
+   
+2. **Advanced Visualizations**
+   - Geographic heat maps with real-time data
+   - 3D charts for multi-dimensional analysis
+   - Network graphs for relationship visualization
+   
+3. **Mobile App**
+   - Native iOS/Android apps
+   - Offline mode support
+   - Push notifications for critical alerts
+   
+4. **Real-Time Collaboration**
+   - WebSocket-based live updates
+   - Shared dashboard sessions
+   - Commenting on charts and metrics
+   
+5. **Enhanced Export & Sharing**
+   - Automated report scheduling
+   - Email distribution lists
+   - Public dashboard sharing (with auth)
+
+### Medium-Term (6-12 months)
+1. **Advanced Forecasting**
+   - Machine learning models for demand prediction
+   - Revenue forecasting with confidence intervals
+   - Technician workload prediction
+   
+2. **Integrated Business Intelligence**
+   - Data warehouse integration
+   - ETL pipelines for external data sources
+   - Advanced SQL query builder
+   
+3. **White-Label Customization**
+   - Custom branding per tenant
+   - Configurable dashboard templates
+   - Custom KPI definitions
+   
+4. **Advanced Security**
+   - Two-factor authentication (2FA)
+   - Single sign-on (SSO) integration
+   - IP whitelisting
+   - Advanced audit trail with video recording
+   
+5. **API Marketplace**
+   - Third-party integrations (QuickBooks, Salesforce, etc.)
+   - Webhook support for external systems
+   - Public API for partners
+
+### Long-Term (12+ months)
+1. **AI Virtual Assistant**
+   - Natural language queries ("Show me revenue for last month")
+   - Voice-activated dashboard control
+   - Automated insight generation
+   
+2. **Augmented Reality (AR)**
+   - AR overlays for field technicians
+   - Interactive 3D facility maps
+   
+3. **Blockchain Integration**
+   - Immutable audit trails
+   - Smart contracts for automated payments
+   
+4. **Global Multi-Tenancy**
+   - Multi-region support
+   - Compliance with international regulations (GDPR, CCPA)
+   - Multi-currency and multi-language
+
+---
+
+## Appendix
+
+### A. Glossary of Terms
+- **KPI**: Key Performance Indicator - a measurable value that demonstrates effectiveness
+- **DAU/WAU/MAU**: Daily/Weekly/Monthly Active Users
+- **COGS**: Cost of Goods Sold
+- **AR**: Accounts Receivable
+- **P&L**: Profit and Loss statement
+- **FIFO/LIFO**: First-In-First-Out / Last-In-First-Out inventory methods
+- **Churn Rate**: Percentage of customers who stop doing business
+- **Conversion Rate**: Percentage of leads that become customers
+- **Utilization Rate**: Percentage of available time that is productively used
+
+### B. Sample Data for Testing
+Use the following sample data ranges for realistic testing:
+- **Work Orders**: 1,000-5,000 records spanning 12 months
+- **Inventory**: 500-1,000 SKUs across 3-5 warehouses
+- **Customers**: 200-500 accounts, 1,000-2,000 contacts
+- **Technicians**: 10-20 users
+- **Stock Movements**: 5,000-10,000 transactions
+
+### C. Performance Benchmarks
+Target performance metrics:
+- **API Response Time**: < 200ms for dashboard endpoints (P95)
+- **Page Load Time**: < 2 seconds for initial dashboard load
+- **Chart Render Time**: < 500ms for complex visualizations
+- **Database Query Time**: < 100ms for KPI calculations
+- **Real-Time Update Latency**: < 5 seconds for polling updates
+
+### D. Browser Support
+- **Modern Browsers**: Latest 2 versions of Chrome, Firefox, Safari, Edge
+- **Mobile**: iOS Safari 14+, Chrome Mobile 90+
+- **Not Supported**: Internet Explorer
+
+### E. Accessibility Compliance
+- **Standard**: WCAG 2.1 Level AA
+- **Tools**: Use aXe, Lighthouse for testing
+- **Testing**: Manual keyboard navigation and screen reader testing
+
+---
+
+## Change Log
+
+| Version | Date | Author | Changes |
+|---------|------|--------|---------|
+| 1.0 | 2025-10-18 | System | Initial comprehensive plan created |
+
+---
+
+## Approval & Sign-Off
+
+This plan document serves as the blueprint for implementing the Admin Dashboard for the HVAC Management System. All stakeholders should review and approve before development begins.
+
+**Stakeholders**:
+- [ ] Product Owner
+- [ ] Development Team Lead
+- [ ] UX/UI Designer
+- [ ] Database Administrator
+- [ ] Quality Assurance Lead
+
+---
+
+**End of Admin Dashboard Plan**
