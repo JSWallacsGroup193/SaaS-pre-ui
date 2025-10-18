@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "packageRules": [
+    {
+      "matchManagers": [
+        "npm"
+      ],
+      "rangeStrategy": "bump"
+    },
+    {
+      "matchPackageNames": [
+        "nestjs",
+        "@nestjs/*",
+        "prisma",
+        "@prisma/client"
+      ],
+      "groupName": "Nest/Prisma deps"
+    }
+  ]
+}
