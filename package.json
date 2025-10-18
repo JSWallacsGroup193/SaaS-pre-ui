@@ -1,0 +1,15 @@
+{
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "./dev.sh",
+    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "start": "node backend/dist/main.js"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
+  }
+}
