@@ -15,11 +15,14 @@ A full-stack HVAC (Heating, Ventilation, and Air Conditioning) management applic
   - Work Order management
   - CRM (Accounts, Contacts, Leads, Notes)
   - Inventory tracking (SKUs, Warehouses, Bins, Stock Ledger)
+  - **Barcode Scanner** - Exact and fuzzy matching for SKU lookup
   - Purchasing and Purchase Orders
   - Dispatch scheduling
   - Barcode generation and label printing
   - Demand forecasting
   - AI-powered chat assistant
+  - **Health & Metrics** - Monitoring endpoints for uptime and performance
+  - **Queue Module** - Background job processing infrastructure
 
 ### Frontend (React + Vite)
 - **Framework**: React with TypeScript
@@ -34,12 +37,19 @@ A full-stack HVAC (Heating, Ventilation, and Air Conditioning) management applic
   - Work Orders
   - CRM
   - Inventory
+  - **SKU Detail** - Individual SKU view with on-hand quantities
   - Purchasing
   - Dispatch
   - Labels
   - Forecast
   - Scanner
   - AI Chat
+- **Components**:
+  - **ErrorBoundary** - Graceful error handling
+  - Card, Sidebar, TopBar
+- **Hooks**:
+  - **useRetry** - Automatic retry logic for failed API calls
+  - useAuth
 
 ## Getting Started
 
@@ -165,6 +175,13 @@ All endpoints are prefixed with `/api/v1`.
 - `GET /inventory/bins` - List bins
 - `POST /inventory/bins` - Create bin
 
+### Scanner
+- `GET /scanner/:barcode` - Scan SKU by barcode or name (exact + fuzzy matching)
+
+### Monitoring
+- `GET /health` - Health check endpoint (returns `{ status: 'ok' }`)
+- `GET /metrics` - Application metrics (uptime, memory, Node version)
+
 ### Other Features
 - Barcode generation: `GET /barcodes/:text`
 - Labels: `GET /labels/:skuId`
@@ -174,6 +191,25 @@ All endpoints are prefixed with `/api/v1`.
 - Chat: AI-powered assistant
 
 ## Recent Changes
+
+### October 18, 2025 - Improvements Integration
+- **Scanner Module**: Added barcode scanning with exact and fuzzy matching
+  - New endpoint: `GET /api/v1/scanner/:barcode` - Scan SKU by barcode or name
+  - Fuzzy search fallback: Searches description and name fields
+  - Comprehensive E2E tests for scanner functionality
+- **Health & Metrics**: Added monitoring endpoints for production observability
+  - `/health` endpoint for liveness/readiness checks
+  - `/metrics` endpoint with process stats (uptime, memory, Node version)
+- **Queue Module**: Infrastructure for background job processing
+- **Frontend Enhancements**:
+  - Added ErrorBoundary component for graceful error handling
+  - Added useRetry hook for automatic API retry logic
+  - Added SkuDetail page for detailed SKU viewing
+- **Documentation**:
+  - Added RUNBOOK.md with operational procedures
+  - Added DEPRECATION.md with API versioning policy
+  - Added renovate.json for automated dependency updates
+- **Testing**: Added E2E tests for scanner module
 
 ### October 18, 2025 - Production-Ready Enhancements
 - **Testing Infrastructure**:
