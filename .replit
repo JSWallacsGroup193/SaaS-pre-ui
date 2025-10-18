@@ -12,7 +12,7 @@ channel = "stable-24_11"
 run = ["bash", "-c", "cd backend && npm run start:prod"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["bash", "-c", "cd frontend && npm ci && npm run build && cd ../backend && npm ci && npm run build"]
+build = ["bash", "-c", "(cd frontend && npm ci && npm run build) && (cd backend && npm ci && npm run build)"]
 
 [agent]
 expertMode = true
@@ -44,9 +44,3 @@ waitForPort = 5000
 [[ports]]
 localPort = 3000
 externalPort = 3000
-
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-
