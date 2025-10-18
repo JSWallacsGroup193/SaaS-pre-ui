@@ -14,6 +14,8 @@ The frontend is built with React and Vite, utilizing Zustand for state managemen
 ### Technical Implementations
 The backend is developed using NestJS with TypeScript, leveraging Prisma as the ORM for a PostgreSQL database. It features JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules include Work Order Management, CRM (Accounts, Contacts, Leads, Notes), Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity calculation), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports both exact and fuzzy matching for SKU lookups, and a queue module is integrated for background job processing. Health and metrics endpoints (`/health`, `/metrics`) are provided for monitoring. API versioning is implemented with a `/api/v1` prefix, and Swagger UI is available for interactive API documentation.
 
+The frontend uses Vite with proper TypeScript configuration, including `vite-env.d.ts` for environment variable typing support (`import.meta.env`).
+
 ### Feature Specifications
 - **Authentication**: JWT-based user authentication and authorization.
 - **Work Order Management**: Creation, tracking, and status updates for HVAC work orders.
