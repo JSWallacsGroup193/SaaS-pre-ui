@@ -98,6 +98,33 @@ The following environment variables are configured:
 - `DATABASE_URL` - PostgreSQL connection string
 - `PORT` - Backend port (3000)
 - `VITE_API_URL` - API base URL (/api/v1 - proxied to backend)
+- `CORS_ORIGIN` - CORS allowed origins (default: http://localhost:5000)
+- `JWT_SECRET` - JWT token secret for authentication
+
+## Testing & CI/CD
+
+### Running Tests
+```bash
+cd backend && npm test              # Run all tests
+cd backend && npm run test:watch    # Watch mode
+cd backend && npm run test:cov      # With coverage
+```
+
+### OpenAPI Generation
+Generate the OpenAPI specification and typed frontend client:
+```bash
+cd backend && npm run openapi:gen   # Generates backend/openapi.json
+cd frontend && npm run api:gen      # Generates typed API client in frontend/src/api
+```
+
+### CI/CD
+- **GitHub Actions**: `.github/workflows/ci.yml` runs on every push/PR
+- **Pipeline Steps**:
+  1. Backend tests with Jest
+  2. OpenAPI spec generation
+  3. Typed API client generation
+  4. Frontend build/typecheck
+  5. OpenAPI drift detection
 
 ## API Endpoints
 
@@ -105,6 +132,7 @@ All endpoints are prefixed with `/api/v1`.
 
 ### Documentation
 - **Swagger UI**: Available at `/api/v1/docs` - Interactive API documentation with bearer auth support
+- **OpenAPI JSON**: Available at `/api/v1/api-json` - Machine-readable spec
 
 ### Authentication
 - `POST /api/v1/auth/register` - Register new user
@@ -146,6 +174,30 @@ All endpoints are prefixed with `/api/v1`.
 
 ## Recent Changes
 
+### October 18, 2025 - Production-Ready Enhancements
+- **Testing Infrastructure**:
+  - Added Jest test framework with ts-jest
+  - Configured Prisma test environment for isolated testing
+  - Added test scripts: `test`, `test:watch`, `test:cov`
+- **CI/CD Pipeline**:
+  - Added GitHub Actions workflow (`.github/workflows/ci.yml`)
+  - Automated: backend tests, OpenAPI generation, frontend build, drift detection
+- **OpenAPI Client Generation**:
+  - Added `openapi:gen` script to generate OpenAPI spec from NestJS code
+  - Added `api:gen` script to generate typed frontend client
+  - Generated 647-line OpenAPI specification
+- **Security Enhancements**:
+  - Added Helmet middleware for security headers
+  - Implemented CORS whitelist (configurable via CORS_ORIGIN)
+  - Proper port configuration (backend: 3000, frontend: 5000)
+- **Dependencies Added**:
+  - Backend: helmet, jest, ts-jest, supertest, @nestjs/testing, pg, @types/pg
+  - Frontend: openapi-typescript-codegen
+- **Bug Fixes**:
+  - Fixed port conflicts between frontend and backend
+  - Updated CORS default to match frontend origin (localhost:5000)
+  - Fixed CI workflow build command
+
 ### October 18, 2025 - Latest Session
 - **API Versioning**: Upgraded API from `/api` to `/api/v1`
   - Updated backend global prefix to `api/v1`
@@ -177,11 +229,28 @@ All endpoints are prefixed with `/api/v1`.
 - Created demo user (admin@demo.com / demo123)
 
 ## Technical Notes
-- **Multi-tenant Architecture**: All data is scoped by tenant ID
-- **API Versioning**: All routes prefixed with `/api/v1` for future compatibility
-- **Swagger Docs**: Full API documentation at `/api/v1/docs` with auth support
-- **Role-based Access Control**: Permissions system for user authorization
+
+### Architecture
+- **Multi-tenant**: All data scoped by tenant ID
+- **API Versioning**: Routes prefixed with `/api/v1` for future compatibility
+- **Role-based Access Control**: Permissions system for authorization
 - **Stock Ledger System**: Tracks all inventory movements
+
+### Security
+- **Helmet**: Security headers middleware enabled
+- **CORS Whitelist**: Configurable allowed origins (env: CORS_ORIGIN)
+- **JWT Authentication**: Secure token-based auth
+- **Input Validation**: Global validation pipe with class-validator
+- **Rate Limiting**: Throttling enabled via @nestjs/throttler
+
+### Frontend Features
+- **Generated API Client**: Optional typed client with fetch (from OpenAPI)
+- **Axios Fallback**: Axios used when generated client unavailable
+- **401 Auto-redirect**: Automatic redirect to login on token expiration
+
+### Development Tools
+- **Swagger UI**: Interactive API docs at `/api/v1/docs`
+- **OpenAPI Generation**: Automated spec generation from code
+- **Jest Testing**: Unit test framework with Prisma test environment
+- **GitHub Actions**: Automated CI/CD pipeline
 - **Barcode Generation**: Uses bwip-js library
-- **Frontend API Client**: Optional wrapper with fallback to axios
-- **401 Auto-redirect**: Automatically redirects to login on token expiration
