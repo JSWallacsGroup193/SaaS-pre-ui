@@ -8,7 +8,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000;
   await app.listen(port);
   console.log(`✅ Backend server running on port ${port}`);
   console.log(`✅ API available at http://localhost:${port}/api`);
