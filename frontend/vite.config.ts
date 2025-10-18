@@ -8,6 +8,7 @@ export default defineConfig({
     port: 5000, 
     host: '0.0.0.0',
     hmr: false,
+    allowedHosts: true,
     proxy: { '/api': 'http://localhost:3000' } 
   },
   define: { 'process.env': {} }
