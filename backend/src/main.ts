@@ -6,7 +6,9 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.use(helmet());
+  app.use(helmet({
+    contentSecurityPolicy: false,
+  }));
   app.enableCors({ origin: (origin, cb) => {
     const allow = (process.env.CORS_ORIGIN || 'http://localhost:5000').split(',').map(s=>s.trim());
     if (!origin || allow.includes(origin)) return cb(null, true);
@@ -28,9 +30,9 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
-  console.log(`✅ Backend server running on port ${port}`);
-  console.log(`✅ API available at http://0.0.0.0:${port}/api/v1`);
-  console.log(`✅ Swagger docs at http://0.0.0.0:${port}/api/v1/docs`);
-  console.log(`✅ Root health check at http://0.0.0.0:${port}/`);
+  console.log(`✅ HVAC Management System running on port ${port}`);
+  console.log(`✅ Web Application: http://0.0.0.0:${port}/`);
+  console.log(`✅ API: http://0.0.0.0:${port}/api/v1`);
+  console.log(`✅ Swagger docs: http://0.0.0.0:${port}/api/v1/docs`);
 }
 bootstrap();
