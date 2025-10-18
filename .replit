@@ -12,7 +12,7 @@ channel = "stable-24_11"
 run = ["bash", "-c", "cd backend && npm run start:prod"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["bash", "-c", "cd frontend && npm ci && npm run build && cd .. && cd backend && npm ci && npm run build"]
+build = ["bash", "build.sh"]
 
 [agent]
 expertMode = true
