@@ -9,12 +9,26 @@ const prisma = new PrismaClient();
 export class AuthService {
   constructor(private readonly jwtService: JwtService) {}
 
-  async register(email: string, password: string, tenantId: string) {
+  async register(email: string, password: string, tenantId?: string) {
     const hashed = await bcrypt.hash(password, 10);
+    
+    // If no tenantId provided, create a default tenant
+    let finalTenantId = tenantId;
+    if (!finalTenantId) {
+      const tenant = await prisma.tenant.create({
+        data: { name: 'Default Organization' },
+      });
+      finalTenantId = tenant.id;
+    }
+    
     const user = await prisma.user.create({
-      data: { email, password: hashed, tenantId },
+      data: { 
+        email, 
+        password: hashed, 
+        tenant: { connect: { id: finalTenantId } }
+      },
     });
-    return this.sign(user.id, tenantId);
+    return this.sign(user.id, finalTenantId);
   }
 
   async login(email: string, password: string) {

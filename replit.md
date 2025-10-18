@@ -53,7 +53,7 @@ The workflow "HVAC App" runs the frontend, while the backend is started separate
 ### Login Credentials
 Use the following demo credentials to log in:
 - **Email**: admin@demo.com
-- **Password**: (use demo password)
+- **Password**: demo123
 
 ## Database
 
