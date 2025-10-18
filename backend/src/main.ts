@@ -4,9 +4,15 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { SpaFilter } from './spa.filter';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Serve static files from frontend/dist
+  app.use(express.static(join(__dirname, '..', '..', '..', 'frontend', 'dist')));
+  
   app.use(helmet({
     contentSecurityPolicy: false,
   }));
