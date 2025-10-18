@@ -11,6 +11,7 @@ import { PermissionsGuard } from './permissions.guard';
   imports: [
     ConfigModule,
     JwtModule.registerAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (cfg: ConfigService) => ({
         secret: cfg.get<string>('JWT_SECRET', 'hvac-secret'),
