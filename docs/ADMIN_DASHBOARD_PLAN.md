@@ -1,9 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.0
+- **Version**: 1.1
 - **Last Updated**: October 18, 2025
 - **Status**: Planning Phase
+- **Recent Changes**: Added zero dollar work orders and call back tracking
 
 ---
 
@@ -116,14 +117,30 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 - **Overdue Work Orders**: Count and percentage of past-due work orders
 - **First-Time Fix Rate**: Percentage of work orders completed in one visit
 - **Customer Satisfaction Score**: Average rating from completed work orders
+- **Zero Dollar Work Orders**: Count and percentage of work orders with $0 revenue
+  - Tracked by service type (warranty, goodwill, diagnostic, etc.)
+  - Trend analysis to identify patterns
+  - Impact on technician productivity
+- **Call Back Rate**: Percentage of work orders requiring return visits
+  - Call backs within 7, 14, and 30 days
+  - Call back reasons (same issue, related issue, new issue)
+  - Call back rate by technician and service type
+  - Cost impact of call backs (labor + materials)
 
 #### 2. Revenue & Financial Metrics
 - **Total Revenue**: Sum of completed work order values (daily/weekly/monthly/yearly)
 - **Revenue by Service Type**: Breakdown of revenue by work order categories
-- **Average Work Order Value**: Mean revenue per work order
+- **Average Work Order Value**: Mean revenue per work order (excluding zero dollar WOs)
+- **Billable vs Non-Billable Work Orders**: Count and percentage split
+- **Zero Dollar Work Order Impact**: 
+  - Total count and percentage of all work orders
+  - Labor hours spent on zero dollar work
+  - Opportunity cost analysis
+  - Reason code breakdown (warranty, goodwill, callback, diagnostic, training)
 - **Outstanding Invoices**: Total value of unpaid invoices
 - **Accounts Receivable Aging**: Distribution of unpaid invoices by age
 - **Profitability by Job**: Margin analysis per work order
+- **Revenue Recovery from Call Backs**: Additional revenue from callback work orders
 
 #### 3. Inventory Metrics
 - **Total Inventory Value**: Current valuation of all on-hand stock
@@ -146,7 +163,9 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 - **Average Jobs per Technician**: Work orders completed per technician per period
 - **On-Time Arrival Rate**: Percentage of appointments met on time
 - **Travel Time vs Service Time**: Ratio of travel to productive work
-- **Technician Revenue**: Total revenue generated per technician
+- **Technician Revenue**: Total revenue generated per technician (billable work)
+- **Technician Call Back Rate**: Call backs per technician with trend analysis
+- **Zero Dollar Work by Technician**: Hours and count of non-billable work per technician
 - **Overtime Hours**: Total overtime logged by all technicians
 
 #### 6. Purchasing Metrics
@@ -198,6 +217,17 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Breakdown by status: Open, In Progress, Completed, On Hold, Cancelled
   - Click to drill down into specific status
   
+- **Billable vs Non-Billable Work** (Secondary KPI Card)
+  - Percentage of billable work orders
+  - Count of zero dollar work orders
+  - Trend indicator
+  
+- **Call Back Alert Card** (Quality Metric)
+  - Current call back rate percentage
+  - Count of active call backs this week/month
+  - Color-coded alert (Green <5%, Yellow 5-10%, Red >10%)
+  - Comparison to previous period
+  
 - **Top Performing Technicians** (Table/Card)
   - List of technicians by revenue generated
   - Completion rate and customer ratings
@@ -230,6 +260,19 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Cancellation rate analysis
   - Rework rate (repeat visits)
   - Geographic distribution heat map
+  - **Zero Dollar Work Order Analysis**:
+    - Trend over time (daily/weekly/monthly)
+    - Breakdown by reason code
+    - Percentage of total work orders
+    - Impact on revenue and productivity
+    - Top customers with zero dollar work
+  - **Call Back Analysis**:
+    - Call back rate trends
+    - Call back reasons categorization
+    - Time between original and call back work order
+    - Call back rate by service type
+    - Call back rate by technician
+    - Financial impact (cost of rework)
   
 - **Customer Analytics**
   - Customer acquisition trends
@@ -244,12 +287,17 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Customer satisfaction by technician
   - Overtime analysis
   - Skills utilization
+  - **Call back rate by technician** with peer comparison
+  - **Zero dollar work distribution** per technician
+  - **First-time fix rate** by technician (inverse of call backs)
 
 #### Financial Reports
 - **Profit & Loss Statement**
-  - Revenue summary
+  - Revenue summary (billable work only)
+  - Non-billable work cost (zero dollar work orders)
   - Cost of goods sold (COGS from inventory)
   - Operating expenses
+  - Call back costs (labor + materials for rework)
   - Net profit/loss
   - Filterable by date range
   
@@ -286,8 +334,10 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 - **Work Order Status Board** (Kanban View)
   - Columns: New, Assigned, In Progress, On Hold, Completed, Cancelled
   - Drag-and-drop to change status
-  - Color-coded by priority
+  - Color-coded by priority and type
   - Card shows: WO number, customer, technician, scheduled date
+  - Visual indicators: 💰 (billable), $0 (zero dollar), 🔄 (call back)
+  - Filter by: All, Billable Only, Zero Dollar, Call Backs
   
 - **Work Order Calendar View**
   - Full calendar with scheduled appointments
@@ -299,9 +349,21 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Average completion time
   - Overdue work orders (red alert)
   - First-time fix rate
+  - **Zero Dollar Work Orders**:
+    - Count and percentage (This Week/Month)
+    - Trend indicator vs previous period
+    - Breakdown by reason code (Warranty, Goodwill, Call Back, Diagnostic, Other)
+    - Quick filter to view zero dollar WOs only
+  - **Call Back Metrics**:
+    - Active call backs count
+    - Call back rate percentage
+    - Average time to call back
+    - Call back reason distribution
   
 - **Service Type Distribution**
-  - Bar chart showing work orders by category (Installation, Repair, Maintenance, etc.)
+  - Bar chart showing work orders by category (Installation, Repair, Maintenance, Call Back, etc.)
+  - Stacked bars showing billable vs zero dollar within each category
+  - Click to filter dashboard by service type
   
 - **Technician Workload View**
   - List of technicians with assigned work order count
@@ -310,8 +372,24 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   
 - **Recent Work Order Activity**
   - Table of latest work order updates
-  - Filters: All, Created, Updated, Completed
+  - Filters: All, Created, Updated, Completed, Zero Dollar, Call Backs
   - Quick actions: View, Edit, Reassign
+  - Highlighted rows for call backs and zero dollar work orders
+  
+- **Zero Dollar Work Order Details Table**
+  - Dedicated view for all zero dollar work orders
+  - Columns: WO#, Customer, Technician, Date, Reason Code, Original WO (if call back), Labor Hours
+  - Sortable and filterable
+  - Export capability
+  - Link to related work orders
+  
+- **Call Back Tracking Panel**
+  - List of all call backs with original work order reference
+  - Call back reason dropdown/tags
+  - Days since original work order
+  - Technician comparison (original vs call back)
+  - Cost tracking (labor + materials)
+  - Resolution status
 
 ### 4. Inventory Management Dashboard
 
@@ -563,10 +641,11 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 
 **Components**:
 - **Revenue Summary Cards**
-  - Today's Revenue
+  - Today's Revenue (Billable Work)
   - This Week's Revenue
   - This Month's Revenue
   - Year-to-Date Revenue
+  - Non-Billable Work Cost (Zero Dollar WOs)
   
 - **Revenue Trend Chart**
   - Multi-line graph: Daily, weekly, monthly comparisons
@@ -576,6 +655,28 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 - **Revenue by Service Type**
   - Pie chart or stacked bar chart
   - Shows contribution of each service category
+  - Separate visualization for billable vs zero dollar work volume
+  
+- **Zero Dollar Work Order Cost Analysis**
+  - Total labor hours on zero dollar work
+  - Calculated cost (hours × labor rate)
+  - Percentage of total operating costs
+  - Trend over time (monthly)
+  - Breakdown by reason code:
+    - Warranty work
+    - Goodwill/customer satisfaction
+    - Call backs (rework)
+    - Diagnostics (free estimates)
+    - Training/demo
+    - Other
+  - Cost recovery opportunities
+  
+- **Call Back Financial Impact**
+  - Total cost of call backs (labor + materials)
+  - Revenue impact (lost opportunity cost)
+  - Call back cost trend over time
+  - Cost per call back (average)
+  - Comparison to revenue (call back cost as % of total revenue)
   
 - **Accounts Receivable Summary**
   - Total outstanding amount
@@ -951,7 +1052,17 @@ GET /api/v1/analytics/revenue
 
 GET /api/v1/analytics/workorders
   - Returns: Work order analytics and trends
-  - Query params: startDate, endDate, status, technician, serviceType
+  - Query params: startDate, endDate, status, technician, serviceType, includeZeroDollar, isCallback
+
+GET /api/v1/analytics/workorders/zero-dollar
+  - Returns: Zero dollar work order analysis
+  - Query params: startDate, endDate, reasonCode, technician
+  - Returns: Count, trend, breakdown by reason, labor hours, cost impact
+
+GET /api/v1/analytics/workorders/callbacks
+  - Returns: Call back analysis and metrics
+  - Query params: startDate, endDate, technician, serviceType
+  - Returns: Call back rate, reasons, time between visits, financial impact
 
 GET /api/v1/analytics/inventory
   - Returns: Inventory analytics, turnover, valuation
@@ -1028,6 +1139,22 @@ GET /api/v1/monitoring/system-resources
 
 GET /api/v1/monitoring/background-jobs
   - Returns: Queue status and job stats
+
+// Work Order Type Tracking Endpoints
+GET /api/v1/workorders/zero-dollar
+  - Returns: List of zero dollar work orders
+  - Query params: page, limit, startDate, endDate, reasonCode, technician
+
+GET /api/v1/workorders/callbacks
+  - Returns: List of callback work orders with original WO references
+  - Query params: page, limit, startDate, endDate, technician, resolved
+
+POST /api/v1/workorders/:workOrderId/mark-callback
+  - Body: { originalWorkOrderId, callbackReason, notes }
+  - Returns: Updated work order with callback flag
+
+GET /api/v1/workorders/:workOrderId/callback-history
+  - Returns: All callbacks related to a specific work order
 ```
 
 #### Database Schema Additions
@@ -1105,6 +1232,54 @@ CREATE TABLE system_metrics (
 );
 
 CREATE INDEX idx_system_metrics_type_time ON system_metrics(metric_type, recorded_at DESC);
+```
+
+##### Work Orders Table Updates (Add columns to existing table)
+```sql
+-- Add columns to existing work_orders table for zero dollar and callback tracking
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS is_billable BOOLEAN DEFAULT true;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS is_zero_dollar BOOLEAN DEFAULT false;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS zero_dollar_reason VARCHAR(50); 
+  -- Enum: 'warranty', 'goodwill', 'callback', 'diagnostic', 'training', 'other'
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS is_callback BOOLEAN DEFAULT false;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS original_work_order_id UUID REFERENCES work_orders(id);
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS callback_reason VARCHAR(100);
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS callback_resolution_notes TEXT;
+ALTER TABLE work_orders ADD COLUMN IF NOT EXISTS service_type VARCHAR(50);
+  -- Enum: 'installation', 'repair', 'maintenance', 'callback', 'diagnostic', 'emergency', 'other'
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_work_orders_billable ON work_orders(is_billable, tenant_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_zero_dollar ON work_orders(is_zero_dollar, tenant_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_work_orders_callback ON work_orders(is_callback, tenant_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_work_orders_original ON work_orders(original_work_order_id);
+CREATE INDEX IF NOT EXISTS idx_work_orders_service_type ON work_orders(service_type, tenant_id);
+
+-- Add constraint to ensure callback work orders have original_work_order_id
+ALTER TABLE work_orders ADD CONSTRAINT check_callback_has_original 
+  CHECK (
+    (is_callback = false) OR 
+    (is_callback = true AND original_work_order_id IS NOT NULL)
+  );
+```
+
+##### Work Order Labor Tracking Table (for zero dollar cost calculation)
+```sql
+CREATE TABLE IF NOT EXISTS work_order_labor (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  work_order_id UUID REFERENCES work_orders(id) ON DELETE CASCADE,
+  technician_id UUID NOT NULL,
+  hours_worked DECIMAL(5,2) NOT NULL,
+  labor_rate DECIMAL(10,2), -- Rate at time of work
+  labor_cost DECIMAL(10,2), -- Calculated: hours * rate
+  date_worked DATE NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_work_order_labor_wo ON work_order_labor(work_order_id);
+CREATE INDEX idx_work_order_labor_tech ON work_order_labor(technician_id);
 ```
 
 #### NestJS Module Structure
@@ -1291,6 +1466,104 @@ backend/src/modules/
     {"segment": "Small Business", "revenue": 45000, "customerCount": 32},
     {"segment": "Residential", "revenue": 15400, "customerCount": 54}
   ]
+}
+```
+
+#### Zero Dollar Work Order Analytics Response
+```json
+{
+  "summary": {
+    "totalZeroDollarWOs": 45,
+    "percentageOfAllWOs": 15.2,
+    "totalLaborHours": 127.5,
+    "estimatedCost": 6375.00,
+    "trend": "+3.2%",
+    "comparisonPeriod": "Previous month"
+  },
+  "byReasonCode": [
+    {"reason": "warranty", "count": 18, "percentage": 40, "laborHours": 52.5, "cost": 2625.00},
+    {"reason": "goodwill", "count": 12, "percentage": 26.7, "laborHours": 38.0, "cost": 1900.00},
+    {"reason": "callback", "count": 8, "percentage": 17.8, "laborHours": 22.0, "cost": 1100.00},
+    {"reason": "diagnostic", "count": 5, "percentage": 11.1, "laborHours": 12.0, "cost": 600.00},
+    {"reason": "training", "count": 2, "percentage": 4.4, "laborHours": 3.0, "cost": 150.00}
+  ],
+  "trend": [
+    {"date": "2025-10-01", "count": 2, "laborHours": 6.5},
+    {"date": "2025-10-02", "count": 3, "laborHours": 9.0},
+    {"date": "2025-10-03", "count": 1, "laborHours": 3.5}
+  ],
+  "topCustomers": [
+    {"customerId": "cust-001", "customerName": "ABC Corp", "zeroDollarWOs": 5, "reason": "warranty"},
+    {"customerId": "cust-002", "customerName": "XYZ Inc", "zeroDollarWOs": 3, "reason": "goodwill"}
+  ],
+  "byTechnician": [
+    {"technicianId": "tech-001", "name": "John Smith", "count": 8, "laborHours": 28.5, "percentageOfWorkload": 12.5},
+    {"technicianId": "tech-002", "name": "Jane Doe", "count": 6, "laborHours": 22.0, "percentageOfWorkload": 10.8}
+  ]
+}
+```
+
+#### Call Back Analytics Response
+```json
+{
+  "summary": {
+    "totalCallbacks": 32,
+    "callbackRate": 6.8,
+    "callbackRateTarget": 5.0,
+    "status": "warning",
+    "trend": "-1.2%",
+    "comparisonPeriod": "Previous month",
+    "totalCost": 4800.00,
+    "avgCostPerCallback": 150.00
+  },
+  "callbacksByTimeframe": [
+    {"timeframe": "0-7 days", "count": 18, "percentage": 56.3},
+    {"timeframe": "8-14 days", "count": 8, "percentage": 25.0},
+    {"timeframe": "15-30 days", "count": 6, "percentage": 18.7}
+  ],
+  "callbackReasons": [
+    {"reason": "same_issue_unresolved", "count": 15, "percentage": 46.9, "cost": 2250.00},
+    {"reason": "related_issue", "count": 10, "percentage": 31.3, "cost": 1500.00},
+    {"reason": "parts_failed", "count": 5, "percentage": 15.6, "cost": 750.00},
+    {"reason": "new_issue", "count": 2, "percentage": 6.2, "cost": 300.00}
+  ],
+  "byServiceType": [
+    {"serviceType": "repair", "total": 120, "callbacks": 15, "callbackRate": 12.5},
+    {"serviceType": "installation", "total": 80, "callbacks": 8, "callbackRate": 10.0},
+    {"serviceType": "maintenance", "total": 95, "callbacks": 9, "callbackRate": 9.5}
+  ],
+  "byTechnician": [
+    {
+      "technicianId": "tech-001",
+      "name": "John Smith",
+      "totalJobs": 45,
+      "callbacks": 2,
+      "callbackRate": 4.4,
+      "avgDaysToCallback": 8.5,
+      "status": "excellent"
+    },
+    {
+      "technicianId": "tech-003",
+      "name": "Bob Wilson",
+      "totalJobs": 38,
+      "callbacks": 7,
+      "callbackRate": 18.4,
+      "avgDaysToCallback": 6.2,
+      "status": "needs_improvement"
+    }
+  ],
+  "trend": [
+    {"date": "2025-10-01", "totalWOs": 12, "callbacks": 1, "rate": 8.3},
+    {"date": "2025-10-02", "totalWOs": 15, "callbacks": 2, "rate": 13.3},
+    {"date": "2025-10-03", "totalWOs": 10, "callbacks": 0, "rate": 0}
+  ],
+  "financialImpact": {
+    "totalCallbackCost": 4800.00,
+    "laborCost": 3200.00,
+    "materialCost": 1600.00,
+    "lostOpportunityCost": 8500.00,
+    "percentageOfRevenue": 3.8
+  }
 }
 ```
 
@@ -1660,6 +1933,10 @@ backend/src/modules/
 - **Churn Rate**: Percentage of customers who stop doing business
 - **Conversion Rate**: Percentage of leads that become customers
 - **Utilization Rate**: Percentage of available time that is productively used
+- **Zero Dollar Work Order**: A work order with no billable revenue ($0), including warranty work, goodwill service, callbacks, diagnostics, or training
+- **Call Back**: A return visit required to address an issue from a previous work order, either the same problem, a related issue, or parts failure
+- **First-Time Fix Rate**: Percentage of work orders completed successfully on the first visit (inverse of callback rate)
+- **Billable vs Non-Billable**: Classification of work orders based on whether they generate revenue or not
 
 ### B. Sample Data for Testing
 Use the following sample data ranges for realistic testing:
@@ -1694,6 +1971,7 @@ Target performance metrics:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | 2025-10-18 | System | Initial comprehensive plan created |
+| 1.1 | 2025-10-18 | System | Added zero dollar work order and call back tracking throughout plan:<br>- Added zero dollar WO and call back KPIs<br>- Integrated into all dashboard sections<br>- Added dedicated analytics endpoints<br>- Updated database schema with new columns<br>- Added labor tracking table<br>- Created detailed API response examples<br>- Added financial impact tracking |
 
 ---
 
