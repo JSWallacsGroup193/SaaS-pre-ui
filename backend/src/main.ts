@@ -25,9 +25,10 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/docs', app, document, { swaggerOptions: { persistAuthorization: true } });
 
   const port = process.env.PORT || 3000;
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
   console.log(`✅ Backend server running on port ${port}`);
-  console.log(`✅ API available at http://localhost:${port}/api/v1`);
-  console.log(`✅ Swagger docs at http://localhost:${port}/api/v1/docs`);
+  console.log(`✅ API available at http://0.0.0.0:${port}/api/v1`);
+  console.log(`✅ Swagger docs at http://0.0.0.0:${port}/api/v1/docs`);
+  console.log(`✅ Root health check at http://0.0.0.0:${port}/`);
 }
 bootstrap();

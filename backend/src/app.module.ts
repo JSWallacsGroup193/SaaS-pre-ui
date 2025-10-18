@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { RootHealthController } from './root-health.controller';
 import { HealthController } from './health.controller';
 import { MetricsController } from './metrics.controller';
 
@@ -44,7 +45,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     ScannerModule,
     QueueModule,
   ],
-  controllers: [AppController, HealthController, MetricsController],
+  controllers: [AppController, RootHealthController, HealthController, MetricsController],
   providers: [AppService, PrismaService],
 })
 export class AppModule implements NestModule {
