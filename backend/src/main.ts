@@ -12,7 +12,9 @@ async function bootstrap() {
     if (!origin || allow.includes(origin)) return cb(null, true);
     return cb(new Error('CORS blocked'), false);
   }, credentials: true });
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api/v1', {
+    exclude: ['/'],
+  });
   app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
 
   const swaggerConfig = new DocumentBuilder()
