@@ -55,38 +55,47 @@ The frontend uses Vite with proper TypeScript configuration, including `vite-env
 
 ### Replit Autoscale Deployment
 
-The application is configured for Replit Autoscale deployment with automatic Prisma client generation.
+The application is configured as a **full-stack SaaS platform** for Replit Autoscale deployment. The backend serves both the React frontend web application and the REST API.
 
 **Build Configuration:**
 ```bash
-cd backend && npm ci && npm run build
+cd frontend && npm ci && npm run build && cd ../backend && npm ci && npm run build
 ```
 
 The build process:
-1. **`npm ci`** - Clean install of dependencies from package-lock.json
-2. **Automatic Prisma Generate** - The `postinstall` script in `backend/package.json` automatically runs `prisma generate` after installing dependencies
-3. **`npm run build`** - Compiles TypeScript to JavaScript using NestJS CLI
+1. **Frontend Build** - `cd frontend && npm ci && npm run build`
+   - Installs frontend dependencies
+   - Builds the React app for production (outputs to `frontend/dist`)
+   - Uses `.env.production` to set `VITE_API_URL=/api/v1`
+2. **Backend Build** - `cd ../backend && npm ci && npm run build`
+   - Installs backend dependencies
+   - Automatic Prisma Generate via `postinstall` script
+   - Compiles TypeScript to JavaScript using NestJS CLI
+   - Configured to serve frontend static files from `frontend/dist`
 
 **Run Configuration:**
 ```bash
 cd backend && npm run start:prod
 ```
-This starts the production server using `node dist/src/main.js`
+This starts the NestJS production server which:
+- Serves the React web application at `/`
+- Serves the REST API at `/api/v1`
+- Uses `node dist/src/main.js`
 
-**Health Check Endpoint:**
-The deployment monitors the root endpoint `/` which returns:
-```json
-{"status":"ok","message":"HVAC Management System API"}
-```
+**Accessing the Application:**
+After deployment, your URL will serve:
+- **Web Application** - `https://your-app.replit.app/` - Full React SaaS interface
+- **API Endpoints** - `https://your-app.replit.app/api/v1/*` - REST API
+- **Swagger Docs** - `https://your-app.replit.app/api/v1/docs` - Interactive API documentation
 
-Additional health endpoints:
-- `GET /` - Root health check (HTTP 200)
-- `GET /api/v1/health` - Versioned health check
+**Health Check Endpoints:**
+- `GET /api/v1/health` - API health check (returns `{"status":"ok"}`)
 - `GET /api/v1/metrics` - Application metrics (uptime, memory, Node.js version)
 
 **Port Configuration:**
 - Backend binds to `0.0.0.0:3000` for external access
-- Replit automatically maps internal port 3000 to external port 80
+- Serves both frontend web app and API from port 3000
+- Replit automatically maps internal port 3000 to external port 443 (HTTPS)
 
 **Required Environment Variables:**
 Configure these in your Replit deployment settings:

@@ -1,6 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AppService } from './app.service';
 import { ApiExcludeEndpoint } from '@nestjs/swagger';
+import { join } from 'path';
 
 @Controller()
 export class AppController {
@@ -8,7 +10,7 @@ export class AppController {
 
   @Get()
   @ApiExcludeEndpoint()
-  getHealth() {
-    return { status: 'ok', message: 'HVAC Management System API' };
+  getRoot(@Res() res: Response): void {
+    res.sendFile(join(__dirname, '..', '..', '..', 'frontend', 'dist', 'index.html'));
   }
 }
