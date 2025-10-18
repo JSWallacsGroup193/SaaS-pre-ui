@@ -192,6 +192,32 @@ All endpoints are prefixed with `/api/v1`.
 
 ## Recent Changes
 
+### October 18, 2025 - Code Quality & Development Tools
+- **ESLint**: Comprehensive linting for code quality and consistency
+  - Configured with TypeScript, React, and best practices plugins
+  - Supports eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-jsx-a11y
+  - Root command: `npm run lint` (check) and `npm run lint:fix` (auto-fix)
+- **Prettier**: Automated code formatting across all file types
+  - Configured for consistent code style (semi, double quotes, 100 char width)
+  - Root command: `npm run format` (format) and `npm run format:check` (dry-run)
+  - Formats JS, TS, JSX, TSX, JSON, MD, YAML, CSS, HTML
+- **Lint-Staged**: Pre-commit hooks for automated code quality checks
+  - Automatically runs Prettier and ESLint on staged files before commit
+  - Configured via `.husky/pre-commit` hook (reference only on Replit)
+- **Node Version Management**: Added `.nvmrc` specifying Node LTS
+  - Ensures consistent Node version across environments
+- **Environment Template**: Added `.env.example` with all required variables
+  - Template for CORS_ORIGIN, DATABASE_URL, JWT_SECRET, NODE_ENV, OPENAI_API_KEY, PORT
+- **Package Organization**: Removed workspace configuration for cleaner dependency management
+  - Backend and frontend dependencies now fully isolated
+  - Prevents npm hoisting issues and module resolution conflicts
+- **Configuration Files**:
+  - `.eslintrc.json` - ESLint rules and plugins
+  - `.eslintignore` - ESLint exclusions
+  - `.prettierrc.json` - Prettier formatting rules
+  - `.prettierignore` - Prettier exclusions
+  - `.nvmrc` - Node version specification
+
 ### October 18, 2025 - Improvements Integration
 - **Scanner Module**: Added barcode scanning with exact and fuzzy matching
   - New endpoint: `GET /api/v1/scanner/:barcode` - Scan SKU by barcode or name
@@ -300,3 +326,7 @@ All endpoints are prefixed with `/api/v1`.
 - **Jest Testing**: Unit test framework with Prisma test environment
 - **GitHub Actions**: Automated CI/CD pipeline
 - **Barcode Generation**: Uses bwip-js library
+- **ESLint**: Code linting for TypeScript, React, and Node.js (`npm run lint`, `npm run lint:fix`)
+- **Prettier**: Automated code formatting (`npm run format`, `npm run format:check`)
+- **Lint-Staged**: Pre-commit hooks for code quality (configured but not active on Replit)
+- **Node Version**: Managed via `.nvmrc` (LTS)
