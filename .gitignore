@@ -131,3 +131,9 @@ dist
 
 # Replit debugger
 .breakpoints
+
+# Turbo cache
+.turbo/
+
+# Parcel cache
+.parcel-cache/

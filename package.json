@@ -7,10 +7,31 @@
   "scripts": {
     "dev": "./dev.sh",
     "build": "cd frontend && npm run build && cd ../backend && npm run build",
-    "start": "node backend/dist/main.js"
+    "start": "node backend/dist/main.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier -w .",
+    "format:check": "prettier -c .",
+    "test": "node --test",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^9.0.0"
+    "concurrently": "^9.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-n": "^17.0.0",
+    "husky": "^9.0.0",
+    "lint-staged": "^15.2.0",
+    "typescript": "^5.4.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@types/node": "^20.0.0",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-jsx-a11y": "^6.8.0"
   },
   "dependencies": {
     "@nestjs/config": "^4.0.2",
@@ -19,5 +40,14 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "swagger-ui-express": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "lint-staged": {
+    "*.{js,cjs,mjs,ts,tsx,jsx,json,md,yml,yaml,css,scss,html}": [
+      "prettier -w",
+      "eslint --fix"
+    ]
   }
 }
