@@ -8,7 +8,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
   app.enableCors({ origin: (origin, cb) => {
-    const allow = (process.env.CORS_ORIGIN || 'http://localhost:5000').split(',').map(s=>s.trim());
+    const allow = (process.env.CORS_ORIGIN || 'http://localhost:5173').split(',').map(s=>s.trim());
     if (!origin || allow.includes(origin)) return cb(null, true);
     return cb(new Error('CORS blocked'), false);
   }, credentials: true });
@@ -24,10 +24,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/v1/docs', app, document, { swaggerOptions: { persistAuthorization: true } });
 
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 5000;
   await app.listen(port);
   console.log(`✅ Backend server running on port ${port}`);
   console.log(`✅ API available at http://localhost:${port}/api/v1`);
-  console.log(`✅ Swagger docs at http://localhost:${port}/api/v1/docs`);
 }
 bootstrap();
