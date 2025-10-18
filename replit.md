@@ -155,13 +155,14 @@ All endpoints are prefixed with `/api/v1`.
 - `POST /crm/notes` - Create note
 
 ### Inventory
-- `GET /inventory/skus/:tenantId` - List SKUs
+- `GET /inventory/skus` - List SKUs (includes calculated on-hand quantities)
 - `POST /inventory/skus` - Create SKU
-- `GET /inventory/ledger/:tenantId` - Stock ledger
+- `GET /inventory/skus/:id/onhand` - Get on-hand quantity for specific SKU
+- `GET /inventory/ledger` - Stock ledger
 - `POST /inventory/ledger` - Record stock movement
-- `GET /inventory/warehouses/:tenantId` - List warehouses
+- `GET /inventory/warehouses` - List warehouses
 - `POST /inventory/warehouses` - Create warehouse
-- `GET /inventory/bins/:tenantId` - List bins
+- `GET /inventory/bins` - List bins
 - `POST /inventory/bins` - Create bin
 
 ### Other Features
@@ -198,7 +199,16 @@ All endpoints are prefixed with `/api/v1`.
   - Updated CORS default to match frontend origin (localhost:5000)
   - Fixed CI workflow build command
 
-### October 18, 2025 - Latest Session
+### October 18, 2025 - Inventory On-Hand Feature
+- **Inventory On-Hand Tracking**: Added real-time inventory quantity calculations
+  - New endpoint: `GET /api/v1/inventory/skus/:id/onhand` - Returns calculated on-hand quantity
+  - Enhanced SKU listing: All SKUs now include `onHand` field in responses
+  - Stock ledger aggregation: Calculates on-hand as (IN movements - OUT movements)
+  - Efficient implementation: Uses Prisma groupBy for optimized database queries
+  - Tenant-safe queries: All aggregations properly scoped by tenant ID
+  - Swagger documentation: Added OpenAPI specs for new endpoint
+
+### October 18, 2025 - API Versioning & Documentation
 - **API Versioning**: Upgraded API from `/api` to `/api/v1`
   - Updated backend global prefix to `api/v1`
   - Updated frontend axios client base URL to `/api/v1`
