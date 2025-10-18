@@ -136,6 +136,48 @@ cd frontend && npm run api:gen      # Generates typed API client in frontend/src
   4. Frontend build/typecheck
   5. OpenAPI drift detection
 
+## Deployment
+
+### Replit Deployment (Autoscale)
+The application is configured for Replit Autoscale deployment with the following settings:
+
+**Build Command:**
+```bash
+cd backend && npm install && npx prisma generate && npm run build
+```
+
+**Run Command:**
+```bash
+cd backend && npm run start:prod
+```
+
+**Health Check:**
+- The backend exposes a health check endpoint at `/` (root) that returns:
+  ```json
+  {"status":"ok","message":"HVAC Management System API"}
+  ```
+- Additional health endpoints:
+  - `GET /api/v1/health` - Versioned health check
+  - `GET /api/v1/metrics` - Application metrics
+
+**Port Configuration:**
+- Backend runs on port 3000 (bound to `0.0.0.0` for external access)
+- Deployment automatically maps internal port to external port 80
+
+**Environment Variables:**
+Ensure the following environment variables are set in the Replit deployment:
+- `DATABASE_URL` - PostgreSQL connection string
+- `JWT_SECRET` - JWT token secret
+- `PORT` - Backend port (default: 3000)
+- `CORS_ORIGIN` - Allowed CORS origins (optional)
+- `OPENAI_API_KEY` - OpenAI API key for chat feature (optional)
+
+**Deployment Steps:**
+1. Click the **Deploy** button in Replit
+2. Configure environment variables in deployment settings
+3. Deploy as Autoscale (recommended for APIs)
+4. Monitor deployment health at the root `/` endpoint
+
 ## API Endpoints
 
 All endpoints are prefixed with `/api/v1`.
