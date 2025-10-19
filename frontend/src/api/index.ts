@@ -12,4 +12,6 @@ export type { CreateSkuDto } from './models/CreateSkuDto';
 
 export { DefaultService } from './services/DefaultService';
 export { InventoryService } from './services/InventoryService';
+export { MonitoringService } from './services/MonitoringService';
 export { PurchasingService } from './services/PurchasingService';
+export { ScannerService } from './services/ScannerService';

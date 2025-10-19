@@ -84,4 +84,20 @@ export class InventoryService {
             url: '/inventory/bins',
         });
     }
+    /**
+     * @param id
+     * @returns any
+     * @throws ApiError
+     */
+    public static inventoryControllerGetOnHand(
+        id: string,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/inventory/skus/{id}/onhand',
+            path: {
+                'id': id,
+            },
+        });
+    }
 }

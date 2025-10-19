@@ -10,16 +10,6 @@ export class DefaultService {
      * @returns any
      * @throws ApiError
      */
-    public static appControllerGetHello(): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/',
-        });
-    }
-    /**
-     * @returns any
-     * @throws ApiError
-     */
     public static authControllerRegister(): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',

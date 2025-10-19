@@ -1,15 +1,51 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
+    "/health": {
       "get": {
-        "operationId": "AppController_getHello",
+        "operationId": "HealthController_get",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "status": "ok"
+                  }
+                }
+              }
+            }
           }
-        }
+        },
+        "tags": [
+          "monitoring"
+        ]
+      }
+    },
+    "/metrics": {
+      "get": {
+        "operationId": "MetricsController_metrics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "uptime": 12345,
+                    "timestamp": "2025-10-18T00:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "monitoring"
+        ]
       }
     },
     "/auth/register": {
@@ -425,6 +461,43 @@
         ]
       }
     },
+    "/inventory/skus/{id}/onhand": {
+      "get": {
+        "operationId": "InventoryController_getOnHand",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "onHand": 42
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "inventory"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
     "/purchasing": {
       "get": {
         "operationId": "PurchasingController_getAll",
@@ -585,6 +658,48 @@
             "description": ""
           }
         }
+      }
+    },
+    "/scanner/{barcode}": {
+      "get": {
+        "operationId": "ScannerController_scan",
+        "parameters": [
+          {
+            "name": "barcode",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "found": true,
+                    "sku": {
+                      "id": "sku1",
+                      "name": "Filter MERV-13",
+                      "barcode": "123"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "scanner"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
       }
     }
   },
