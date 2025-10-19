@@ -11,6 +11,12 @@ I prefer simple language and detailed explanations. I want iterative development
 ### UI/UX Decisions
 The frontend is a React application built with Vite, utilizing Zustand for state management and React Router for navigation. It features a global ErrorBoundary and a suite of reusable components (Card, Sidebar, TopBar). The application provides a seamless user experience across modules such as Login, Dashboard, Work Orders, CRM, Inventory, SKU Details, Purchasing, Dispatch, Labels, Forecast, Scanner, Field Tools, and AI Chat.
 
+**Performance Optimizations:**
+- **Lazy Loading**: All 21 Field Tools calculators are lazy-loaded using React.lazy(), loading only when users click on them, significantly reducing initial bundle size.
+- **Route-Based Code Splitting**: Main application routes (Dashboard, Work Orders, CRM, Inventory, etc.) are code-split and loaded on-demand, improving initial page load time.
+- **Component Memoization**: Frequently rendered components (SaveToWorkOrder, Sidebar navigation items) are optimized with React.memo to prevent unnecessary re-renders.
+- **Loading States**: Suspense boundaries with loading spinners provide smooth transitions during lazy component loads.
+
 ### Technical Implementations
 The backend is developed with NestJS and TypeScript, using Prisma as the ORM for a PostgreSQL database. It incorporates JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules handle Work Order Management, CRM, Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports exact and fuzzy SKU matching. The system includes a queue module for background job processing, health and metrics endpoints for monitoring, and API versioning (`/api/v1`) with Swagger UI for documentation. The frontend is configured with Vite for TypeScript support and environment variable handling.
 
