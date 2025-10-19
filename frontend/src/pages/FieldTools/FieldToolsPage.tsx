@@ -16,8 +16,12 @@ import CombustionAnalysisTool from './components/CombustionAnalysisTool';
 import ExpansionTankSizer from './components/ExpansionTankSizer';
 import HydronicFlowCalculator from './components/HydronicFlowCalculator';
 import RadiantHeatingCalculator from './components/RadiantHeatingCalculator';
+import PsychrometricCalculator from './components/PsychrometricCalculator';
+import TonnageCalculator from './components/TonnageCalculator';
+import HVACUnitConverter from './components/HVACUnitConverter';
+import HeatLoadCalculator from './components/HeatLoadCalculator';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -149,6 +153,34 @@ export default function FieldToolsPage() {
       icon: '🏠',
       description: 'Design radiant floor heating systems',
       component: RadiantHeatingCalculator
+    },
+    {
+      id: 'psychrometric',
+      name: 'Psychrometric',
+      icon: '🌡️',
+      description: 'Dew point, wet bulb, humidity calculations',
+      component: PsychrometricCalculator
+    },
+    {
+      id: 'tonnage',
+      name: 'Tonnage Converter',
+      icon: '⚖️',
+      description: 'Convert BTU/hr to tons and vice versa',
+      component: TonnageCalculator
+    },
+    {
+      id: 'unit-converter',
+      name: 'Unit Converter',
+      icon: '🔄',
+      description: 'Convert between HVAC units',
+      component: HVACUnitConverter
+    },
+    {
+      id: 'heat-load',
+      name: 'Heat Load (Manual J)',
+      icon: '📐',
+      description: 'Estimate heating and cooling requirements',
+      component: HeatLoadCalculator
     }
   ];
 
