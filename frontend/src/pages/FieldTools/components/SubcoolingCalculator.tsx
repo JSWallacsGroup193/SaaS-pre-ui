@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Refrigerant, saturationTempMap } from '../utils/refrigerantPTData';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function SubcoolingCalculator() {
   const [liquidTemp, setLiquidTemp] = useState<number | ''>('');
@@ -144,6 +145,15 @@ export default function SubcoolingCalculator() {
             <li>• High subcooling (&gt;15°F) may indicate overcharge or restriction</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Subcooling Calculator"
+            category="refrigeration"
+            inputs={{ liquidTemp, liquidPressure, refrigerant }}
+            results={{ subcooling: result.subcool, saturationTemp: result.satTemp, status: result.status }}
+          />
+        )}
       </div>
     </div>
   );

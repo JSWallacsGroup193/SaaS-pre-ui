@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 type ClimateZone = 'hot' | 'moderate' | 'cold';
 type Insulation = 'poor' | 'average' | 'good';
@@ -296,6 +297,15 @@ export default function HeatLoadCalculator() {
             For commercial projects or precise sizing, always perform a full Manual J calculation.
           </p>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Heat Load Calculator (Manual J)"
+            category="utilities"
+            inputs={{ squareFeet, climateZone, insulation, ceilingHeight, windows }}
+            results={{ heatingLoad: result.heatingLoad, coolingLoad: result.coolingLoad, heatingTonnage: result.heatingTonnage, coolingTonnage: result.coolingTonnage, cfmRequired: result.cfmRequired }}
+          />
+        )}
       </div>
     </div>
   );

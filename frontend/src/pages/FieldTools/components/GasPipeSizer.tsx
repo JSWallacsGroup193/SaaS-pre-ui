@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 type PipeType = 'black' | 'csst';
 
@@ -184,6 +185,15 @@ export default function GasPipeSizer() {
             Gas pipe installation must comply with local codes. Always have gas work performed by a licensed professional. This calculator provides estimates only.
           </p>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Gas Pipe Sizer"
+            category="gas"
+            inputs={{ btuLoad: btus, pipeLength: length, pipeType }}
+            results={{ recommendedSize: result.size, pipeTypeName: result.pipeType }}
+          />
+        )}
       </div>
     </div>
   );

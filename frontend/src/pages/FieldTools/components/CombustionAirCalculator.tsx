@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function CombustionAirCalculator() {
   const [volume, setVolume] = useState<number | ''>('');
@@ -183,6 +184,15 @@ export default function CombustionAirCalculator() {
             of appliance input. Example: A 100,000 BTU furnace needs 5,000 ft³ (e.g., 10' × 10' × 50' room).
           </p>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Combustion Air Calculator"
+            category="gas"
+            inputs={{ roomVolume: volume, totalBTU: btus, numberOfOpenings: openings }}
+            results={{ requiredVolume: result.required, availableVolume: result.available, status: result.status, needsOpenings: result.needsOpenings }}
+          />
+        )}
       </div>
     </div>
   );

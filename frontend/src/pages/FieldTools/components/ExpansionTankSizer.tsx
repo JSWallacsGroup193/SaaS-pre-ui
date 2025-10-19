@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function ExpansionTankSizer() {
   const [systemVolume, setSystemVolume] = useState<number | ''>('');
@@ -194,6 +195,15 @@ export default function ExpansionTankSizer() {
             <li>• Piping: 1-2 gallons per 100 feet (varies by pipe size)</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Expansion Tank Sizer"
+            category="hydronic"
+            inputs={{ systemVolume, fillPressure, maxPressure, fillTemp, maxTemp }}
+            results={{ tankSize: result.tankSize, acceptanceVolume: result.acceptanceVolume, expansionRate: result.expansionRate }}
+          />
+        )}
       </div>
     </div>
   );

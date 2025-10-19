@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function CapacitorTestTool() {
   const [rated, setRated] = useState<number | ''>('');
@@ -90,6 +91,15 @@ export default function CapacitorTestTool() {
               <p>Measured Value: {measured} µF</p>
             </div>
           </div>
+        )}
+
+        {status && (
+          <SaveToWorkOrder
+            calculatorType="Capacitor Test"
+            category="electrical"
+            inputs={{ ratedCapacitance: rated, measuredCapacitance: measured }}
+            results={{ status, tolerance, acceptableRange: { min: Number(rated) - (tolerance || 0), max: Number(rated) + (tolerance || 0) } }}
+          />
         )}
       </div>
     </div>

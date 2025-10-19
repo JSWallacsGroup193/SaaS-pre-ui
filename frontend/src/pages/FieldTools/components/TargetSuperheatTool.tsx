@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function TargetSuperheatTool() {
   const [wetBulb, setWetBulb] = useState<number | ''>('');
@@ -106,6 +107,15 @@ export default function TargetSuperheatTool() {
             Always consult manufacturer specifications when available.
           </p>
         </div>
+
+        {result !== null && (
+          <SaveToWorkOrder
+            calculatorType="Target Superheat Calculator"
+            category="refrigeration"
+            inputs={{ indoorWetBulb: wetBulb, outdoorDryBulb: dryBulb }}
+            results={{ targetSuperheat: result }}
+          />
+        )}
       </div>
     </div>
   );

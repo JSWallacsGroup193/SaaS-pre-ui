@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 const COPPER_RESISTIVITY = 12.9;
 
@@ -167,6 +168,15 @@ export default function VoltageDropTool() {
             <li>• Based on copper wire at 75°C</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Voltage Drop Calculator"
+            category="electrical"
+            inputs={{ voltage, amps, distance, phase }}
+            results={{ voltageDrop: result.vd, percentageDrop: result.vdPct, wireRecommendation: result.wire, acceptable: result.acceptable }}
+          />
+        )}
       </div>
     </div>
   );

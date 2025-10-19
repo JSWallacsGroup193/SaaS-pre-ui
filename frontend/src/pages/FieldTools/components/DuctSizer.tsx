@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 type DuctShape = 'round' | 'rectangular';
 
@@ -174,6 +175,15 @@ export default function DuctSizer() {
             <li>• Higher velocity = smaller duct but more noise</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Duct Sizer"
+            category="airflow"
+            inputs={{ cfm, velocity, shape }}
+            results={{ area: result.area, diameter: result.diameter, width: result.width, height: result.height, velocityStatus: result.velocityStatus }}
+          />
+        )}
       </div>
     </div>
   );

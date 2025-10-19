@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function HydronicFlowCalculator() {
   const [btuh, setBtuh] = useState<number | ''>('');
@@ -158,6 +159,15 @@ export default function HydronicFlowCalculator() {
             <li>• Minimum velocity: 2 ft/sec (to ensure proper circulation)</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Hydronic Flow Calculator"
+            category="hydronic"
+            inputs={{ btuh, deltaT }}
+            results={{ gpm: result.gpm, velocityWarning: result.velocityWarning, pumpSize: result.pumpSize }}
+          />
+        )}
       </div>
     </div>
   );

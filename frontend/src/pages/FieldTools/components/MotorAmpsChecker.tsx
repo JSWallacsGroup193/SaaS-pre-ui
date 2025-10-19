@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function MotorAmpsChecker() {
   const [measured, setMeasured] = useState<number | ''>('');
@@ -121,6 +122,15 @@ export default function MotorAmpsChecker() {
             <li>• <strong className="text-red-600">&gt;100%:</strong> Overload condition - check immediately</li>
           </ul>
         </div>
+
+        {loadPercent !== null && status && (
+          <SaveToWorkOrder
+            calculatorType="Motor Amps Checker"
+            category="electrical"
+            inputs={{ measuredAmps: measured, ratedLoadAmps: rla }}
+            results={{ loadPercent, status, statusMessage: getStatusMessage(status) }}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 type FloorType = 'concrete' | 'wood' | 'tile';
 
@@ -209,6 +210,15 @@ export default function RadiantHeatingCalculator() {
             <li>• <strong>Carpet:</strong> Reduces output by 20-30%, use closer tube spacing</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Radiant Floor Heating Calculator"
+            category="hydronic"
+            inputs={{ roomArea, heatLoss, floorType, waterTemp }}
+            results={{ tubeLength: result.tubeLength, tubeSpacing: result.tubeSpacing, flowRate: result.flowRate, surfaceTemp: result.surfaceTemp, outputPerSqFt: result.outputPerSqFt }}
+          />
+        )}
       </div>
     </div>
   );

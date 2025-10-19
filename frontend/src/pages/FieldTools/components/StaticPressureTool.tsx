@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function StaticPressureTool() {
   const [supply, setSupply] = useState<number | ''>('');
@@ -132,6 +133,15 @@ export default function StaticPressureTool() {
             <li>• Always use absolute values for ESP calculation</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Static Pressure Tool"
+            category="airflow"
+            inputs={{ supplyPressure: supply, returnPressure: returnP }}
+            results={{ totalESP: result.totalESP, status: result.status }}
+          />
+        )}
       </div>
     </div>
   );

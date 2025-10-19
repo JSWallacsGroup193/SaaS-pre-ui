@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { calculateDewPoint, calculateWetBulb, calculateRelativeHumidity } from '../utils/psychrometricUtils';
+import { calculateDewPoint, calculateWetBulb } from '../utils/psychrometricUtils';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function PsychrometricCalculator() {
   const [dryBulb, setDryBulb] = useState<number | ''>('');
@@ -181,6 +182,15 @@ export default function PsychrometricCalculator() {
             <li>• <strong>Application:</strong> Use for AC sizing, dehumidification needs, comfort analysis</li>
           </ul>
         </div>
+
+        {result && (
+          <SaveToWorkOrder
+            calculatorType="Psychrometric Calculator"
+            category="utilities"
+            inputs={{ dryBulb, relativeHumidity }}
+            results={{ dewPoint: result.dewPoint, wetBulb: result.wetBulb, grainsMoisture: result.grainsMoisture, enthalpy: result.enthalpy }}
+          />
+        )}
       </div>
     </div>
   );
