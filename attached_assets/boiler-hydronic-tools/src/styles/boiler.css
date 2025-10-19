@@ -1,0 +1,12 @@
+input, select, button {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+button {
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}

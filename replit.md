@@ -23,12 +23,13 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Dispatch**: Scheduling and management of technician dispatch.
 - **Forecasting**: Demand forecasting capabilities.
 - **Barcode System**: Generation and scanning for inventory, supporting exact and fuzzy matching.
-- **Field Tools**: 14 professional HVAC calculators for field technicians, including:
+- **Field Tools**: 17 professional HVAC calculators for field technicians across 5 specialties:
     - Electrical (Ohm's Law, Capacitor Test, Motor Amps, Voltage Drop)
     - Refrigeration (Superheat, Subcooling, Target Superheat, PT Chart)
     - Airflow (CFM, Duct Sizer, Static Pressure)
     - Gas/Combustion (Gas Pipe Sizer, Combustion Air, Combustion Analysis)
-    All tools are mobile-responsive and adhere to industry standards (NEC, NFPA 54, ACCA).
+    - Hydronic/Boiler (Expansion Tank Sizer, Hydronic Flow Calculator, Radiant Floor Heating)
+    All tools are mobile-responsive and adhere to industry standards (NEC, NFPA 54, ACCA, ASHRAE).
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.

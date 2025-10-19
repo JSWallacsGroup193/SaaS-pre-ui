@@ -13,8 +13,11 @@ import StaticPressureTool from './components/StaticPressureTool';
 import GasPipeSizer from './components/GasPipeSizer';
 import CombustionAirCalculator from './components/CombustionAirCalculator';
 import CombustionAnalysisTool from './components/CombustionAnalysisTool';
+import ExpansionTankSizer from './components/ExpansionTankSizer';
+import HydronicFlowCalculator from './components/HydronicFlowCalculator';
+import RadiantHeatingCalculator from './components/RadiantHeatingCalculator';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -125,6 +128,27 @@ export default function FieldToolsPage() {
       icon: '🔬',
       description: 'Reference values for combustion testing',
       component: CombustionAnalysisTool
+    },
+    {
+      id: 'expansion-tank',
+      name: 'Expansion Tank Sizer',
+      icon: '💧',
+      description: 'Size expansion tanks for closed systems',
+      component: ExpansionTankSizer
+    },
+    {
+      id: 'hydronic-flow',
+      name: 'Hydronic Flow',
+      icon: '🌊',
+      description: 'Calculate GPM and pump sizing for hydronic systems',
+      component: HydronicFlowCalculator
+    },
+    {
+      id: 'radiant-heating',
+      name: 'Radiant Floor',
+      icon: '🏠',
+      description: 'Design radiant floor heating systems',
+      component: RadiantHeatingCalculator
     }
   ];
 

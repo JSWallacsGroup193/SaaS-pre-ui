@@ -1,0 +1,10 @@
+model BoilerLog {
+  id         String   @id @default(uuid())
+  type       String   // 'expansion-tank' | 'delta-t-pump' | 'pipe-flow'
+  inputs     Json
+  result     Json
+  synced     Boolean  @default(false)
+  timestamp  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
