@@ -10,7 +10,13 @@ export class CrmService {
   }
 
   async createAccount(data: { tenantId: string; name: string }) {
-    return prisma.account.create({ data });
+    const accountNumber = `ACC-${Date.now()}`;
+    return prisma.account.create({ 
+      data: {
+        ...data,
+        accountNumber,
+      }
+    });
   }
 
   async getContacts(tenantId: string) {

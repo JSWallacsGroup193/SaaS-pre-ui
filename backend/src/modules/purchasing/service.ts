@@ -20,7 +20,13 @@ export class PurchasingService {
   }
 
   async createPO(data: { tenantId: string; skuId: string; quantity: number }) {
-    return this.prisma.purchaseOrder.create({ data });
+    const poNumber = `PO-${Date.now()}`;
+    return this.prisma.purchaseOrder.create({ 
+      data: {
+        ...data,
+        poNumber,
+      }
+    });
   }
 
   async receivePO(id: string) {

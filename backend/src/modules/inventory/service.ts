@@ -48,7 +48,13 @@ export class InventoryService {
   }
 
   async createSKU(data: { tenantId: string; name: string; description?: string; barcode?: string }) {
-    return this.prisma.sKU.create({ data });
+    const sku = `SKU-${Date.now()}`;
+    return this.prisma.sKU.create({ 
+      data: {
+        ...data,
+        sku,
+      }
+    });
   }
 
   async getWarehouses(tenantId: string) {
@@ -56,7 +62,13 @@ export class InventoryService {
   }
 
   async createWarehouse(data: { tenantId: string; name: string }) {
-    return this.prisma.warehouse.create({ data });
+    const code = `WH-${Date.now()}`;
+    return this.prisma.warehouse.create({ 
+      data: {
+        ...data,
+        code,
+      }
+    });
   }
 
   async getBins(tenantId: string) {

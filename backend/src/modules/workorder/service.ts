@@ -10,7 +10,13 @@ export class WorkOrderService {
   }
 
   async create(data: { tenantId: string, title: string, description?: string }) {
-    return prisma.workOrder.create({ data });
+    const number = `WO-${Date.now()}`;
+    return prisma.workOrder.create({ 
+      data: {
+        ...data,
+        number,
+      }
+    });
   }
 
   async updateStatus(id: string, status: WorkOrderStatus) {
