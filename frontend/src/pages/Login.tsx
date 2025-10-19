@@ -25,9 +25,9 @@ export default function Login() {
       <form onSubmit={submit} style={{background:'#fff',padding:24,borderRadius:8,boxShadow:'0 1px 3px rgba(0,0,0,.12)',minWidth:320}}>
         <h2 style={{marginTop:0}}>Sign in</h2>
         <label>Email</label>
-        <input value={email} onChange={e=>setEmail(e.target.value)} style={{width:'100%',padding:'8px',margin:'6px 0 12px',border:'1px solid #e5e7eb',borderRadius:6}} />
+        <input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:'100%',padding:'8px',margin:'6px 0 12px',border:'1px solid #e5e7eb',borderRadius:6}} />
         <label>Password</label>
-        <input type="password" value={password} onChange={e=>setPassword(e.target.value)} style={{width:'100%',padding:'8px',margin:'6px 0 12px',border:'1px solid #e5e7eb',borderRadius:6}} />
+        <input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} style={{width:'100%',padding:'8px',margin:'6px 0 12px',border:'1px solid #e5e7eb',borderRadius:6}} />
         {error && <div style={{color:'#b91c1c',marginBottom:8}}>{error}</div>}
         <button type="submit" style={{width:'100%',padding:'10px',border:'none',borderRadius:6,background:'#2563eb',color:'#fff',cursor:'pointer'}}>Login</button>
       </form>
