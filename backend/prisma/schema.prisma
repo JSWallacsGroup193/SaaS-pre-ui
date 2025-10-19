@@ -83,6 +83,9 @@ model Tenant {
   notifications  Notification[]
   activityLogs   ActivityLog[]
   customReports  CustomReport[]
+  tasks          Task[]
+  comments       Comment[]
+  tags           Tag[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -2303,4 +2306,164 @@ model SmsTemplate {
   
   @@index([tenantId])
   @@index([templateType])
+}
+
+// ============================================================================
+// PHASE 1: SECURITY & TRACKING (7 NEW TABLES)
+// ============================================================================
+
+// Security: Login attempt tracking for brute force protection
+model LoginAttempt {
+  id             String   @id @default(uuid())
+  
+  email          String
+  ipAddress      String?
+  userAgent      String?
+  
+  success        Boolean  @default(false)
+  failureReason  String?  // "invalid_password", "account_locked", "account_not_found"
+  
+  attemptedAt    DateTime @default(now())
+  
+  @@index([email])
+  @@index([ipAddress])
+  @@index([attemptedAt])
+}
+
+// Security: Password change history for compliance
+model PasswordHistory {
+  id             String   @id @default(uuid())
+  userId         String
+  
+  passwordHash   String
+  changedAt      DateTime @default(now())
+  changeReason   String?  // "user_requested", "admin_reset", "expired", "compromised"
+  changedBy      String?  // User ID who made the change
+  
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([changedAt])
+}
+
+// Organization: Team membership with roles
+model TeamMember {
+  id             String   @id @default(uuid())
+  teamId         String
+  userId         String
+  
+  role           String   @default("member") // "leader", "member", "observer"
+  joinedAt       DateTime @default(now())
+  
+  isActive       Boolean  @default(true)
+  
+  team           Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([teamId, userId])
+  @@index([teamId])
+  @@index([userId])
+}
+
+// Management: Task/todo management system
+model Task {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  title          String
+  description    String?
+  
+  assigneeId     String?
+  createdBy      String
+  
+  status         String   @default("pending") // "pending", "in_progress", "completed", "cancelled"
+  priority       String   @default("medium") // "low", "medium", "high", "urgent"
+  
+  dueDate        DateTime?
+  completedAt    DateTime?
+  
+  // Relations
+  entityType     String?  // "work_order", "account", etc.
+  entityId       String?  // Related entity ID
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  assignee       User?    @relation(fields: [assigneeId], references: [id])
+  
+  @@index([tenantId])
+  @@index([assigneeId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Management: Comments on any entity
+model Comment {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  entityType     String   // "work_order", "account", "task", etc.
+  entityId       String
+  
+  content        String
+  createdBy      String
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([createdBy])
+}
+
+// Management: Tagging system for categorization
+model Tag {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  color          String?  // Hex color for UI
+  description    String?
+  
+  category       String?  // "customer", "work_order", "inventory"
+  
+  isActive       Boolean  @default(true)
+  
+  createdAt      DateTime @default(now())
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@unique([tenantId, name])
+  @@index([tenantId])
+  @@index([category])
+}
+
+// Tracking: User activity log for audit trails
+model ActivityLog {
+  id             String   @id @default(uuid())
+  tenantId       String
+  userId         String?
+  
+  action         String   // "created", "updated", "deleted", "viewed"
+  entityType     String   // "work_order", "account", "invoice"
+  entityId       String?
+  
+  description    String?
+  metadata       Json?    // Additional context
+  
+  ipAddress      String?
+  userAgent      String?
+  
+  createdAt      DateTime @default(now())
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  user           User?    @relation(fields: [userId], references: [id])
+  
+  @@index([tenantId])
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
 }
