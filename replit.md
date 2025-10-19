@@ -7,18 +7,24 @@ This project is a full-stack HVAC (Heating, Ventilation, and Air Conditioning) m
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
 
 ## Recent Work
-- **✅ FIELD TOOLS MODULE LIVE (Oct 19, 2025)**: Successfully integrated professional HVAC calculators for field technicians
-  - **4 Professional Calculators**: Ohm's Law, Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator
+- **✅ FIELD TOOLS MODULE COMPLETE (Oct 19, 2025)**: Successfully integrated 8 professional HVAC calculators for field technicians
+  - **8 Professional Calculators**: 4 Electrical + 4 Refrigeration tools
   - **Mobile-Responsive Design**: Optimized for tablets and phones used in the field
-  - **Industry Standards**: All calculations follow NEC guidelines and HVAC best practices
-  - **Calculator Features**:
+  - **Industry Standards**: All calculations follow NEC guidelines, Ohm's Law, and refrigeration best practices
+  - **Electrical Calculators**:
     - **Ohm's Law Calculator**: Calculates V, I, R, and Power (enter any 2 values)
     - **Capacitor Test Tool**: Tests capacitors with ±10% tolerance, instant PASS/FAIL results
     - **Motor Amps Checker**: Checks motor load percentage with color-coded status (Normal/Warning/Overload)
     - **Voltage Drop Calculator**: Calculates voltage drop and wire sizing for single/three-phase systems
+  - **Refrigeration Calculators**:
+    - **Superheat Calculator**: Measure superheat for refrigerant charge diagnosis (R-22/R-410A)
+    - **Subcooling Calculator**: Measure subcooling for charge verification (R-22/R-410A)
+    - **Target Superheat Tool**: Calculate ideal superheat based on wet/dry bulb temps
+    - **PT Chart**: Pressure-Temperature reference for R-22 and R-410A refrigerants
   - **User Experience**: Clean card-based interface with back navigation and coming soon roadmap
   - **Route**: Accessible via `/field-tools` in the sidebar navigation
-  - **File Structure**: `frontend/src/pages/FieldTools/` with modular calculator components
+  - **File Structure**: `frontend/src/pages/FieldTools/{components,utils}` with modular components
+  - **System Status**: ✅ Running with 0 errors
 - **🎉 DATABASE EXPANSION COMPLETE (Oct 19, 2025)**: Successfully expanded database from 45 to 69 enterprise tables
   - **Total Migration Time**: 9.61 seconds (3 phases) with zero breaking changes
   - **Phase 1** (2.36s): Security & Collaboration - LoginAttempt, PasswordHistory, TeamMember, Task, Comment, Tag, ActivityLog
@@ -79,7 +85,10 @@ The frontend uses Vite with proper TypeScript configuration, including `vite-env
 - **Dispatch**: Scheduling and management of technician dispatch slots.
 - **Forecasting**: Demand forecasting capabilities.
 - **Barcode System**: Generation and scanning of barcodes for inventory management, supporting exact and fuzzy matching.
-- **Field Tools**: Professional HVAC calculators for field technicians including Ohm's Law Calculator, Capacitor Test Tool, Motor Amps Checker, and Voltage Drop Calculator. Mobile-responsive design following NEC standards and Ohm's Law principles.
+- **Field Tools**: 8 professional HVAC calculators for field technicians:
+  - **Electrical Tools**: Ohm's Law Calculator, Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator (NEC compliant)
+  - **Refrigeration Tools**: Superheat Calculator, Subcooling Calculator, Target Superheat Tool, PT Chart (R-22/R-410A)
+  - Mobile-responsive design optimized for tablets and phones used in the field.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.
