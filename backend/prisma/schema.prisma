@@ -78,6 +78,12 @@ model Tenant {
   tags           Tag[]
   activityLogs   ActivityLog[]
   
+  // Phase 2 relations
+  kpiSnapshots   KPISnapshot[]
+  dashboards     Dashboard[]
+  customReports  CustomReport[]
+  notifications  Notification[]
+  
   @@index([subdomain])
   @@index([isActive])
 }
@@ -167,6 +173,10 @@ model User {
   tasksCreated    Task[]         @relation("TasksCreated")
   comments        Comment[]
   activityLogs    ActivityLog[]
+  
+  // Phase 2 relations
+  notifications          Notification[]
+  notificationPreference NotificationPreference?
   
   @@index([tenantId])
   @@index([email])
@@ -1689,4 +1699,219 @@ model ActivityLog {
   @@index([userId])
   @@index([entityType, entityId])
   @@index([createdAt])
+}
+
+// ============================================================================
+// PHASE 2: ANALYTICS & REPORTING (7 NEW TABLES)
+// ============================================================================
+
+// Analytics: KPI snapshots for tracking business metrics over time
+model KPISnapshot {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  snapshotDate   DateTime @default(now())
+  
+  // Work order metrics
+  totalWorkOrders       Int      @default(0)
+  completedWorkOrders   Int      @default(0)
+  pendingWorkOrders     Int      @default(0)
+  averageCompletionTime Float?   // In hours
+  
+  // Revenue metrics
+  totalRevenue          Decimal  @default(0) @db.Decimal(10,2)
+  outstandingInvoices   Decimal  @default(0) @db.Decimal(10,2)
+  collectionRate        Float?   // Percentage
+  
+  // Inventory metrics
+  totalSKUs             Int      @default(0)
+  lowStockItems         Int      @default(0)
+  inventoryValue        Decimal  @default(0) @db.Decimal(10,2)
+  
+  // Customer metrics
+  totalCustomers        Int      @default(0)
+  activeCustomers       Int      @default(0)
+  newCustomers          Int      @default(0)
+  
+  // Custom metrics
+  customMetrics         Json?    // Additional flexible metrics
+  
+  createdAt             DateTime @default(now())
+  
+  tenant                Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([snapshotDate])
+}
+
+// Analytics: Custom dashboards for different users/roles
+model Dashboard {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  description    String?
+  
+  ownerId        String?  // User who created it
+  isDefault      Boolean  @default(false)
+  isPublic       Boolean  @default(false) // Shared with all users
+  
+  layout         Json?    // Dashboard layout configuration
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  widgets        DashboardWidget[]
+  
+  @@index([tenantId])
+  @@index([ownerId])
+}
+
+// Analytics: Individual widgets within dashboards
+model DashboardWidget {
+  id             String   @id @default(uuid())
+  dashboardId    String
+  
+  widgetType     String   // "chart", "metric", "table", "calendar"
+  title          String
+  
+  dataSource     String   // "work_orders", "revenue", "inventory"
+  config         Json     // Widget-specific configuration
+  
+  position       Json?    // {x, y, width, height}
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  dashboard      Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
+  
+  @@index([dashboardId])
+}
+
+// Reporting: User-created custom reports
+model CustomReport {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  description    String?
+  
+  reportType     String   // "work_order", "financial", "inventory", "custom"
+  
+  // Report configuration
+  columns        Json     // Selected columns/fields
+  filters        Json?    // Filter criteria
+  groupBy        Json?    // Grouping configuration
+  sortBy         Json?    // Sort configuration
+  
+  createdBy      String
+  isPublic       Boolean  @default(false)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  schedules      ReportSchedule[]
+  
+  @@index([tenantId])
+  @@index([createdBy])
+  @@index([reportType])
+}
+
+// Reporting: Scheduled report generation and delivery
+model ReportSchedule {
+  id             String   @id @default(uuid())
+  reportId       String
+  
+  name           String
+  frequency      String   // "daily", "weekly", "monthly", "custom"
+  cronExpression String?  // For custom schedules
+  
+  recipients     Json     // Array of email addresses
+  format         String   @default("pdf") // "pdf", "xlsx", "csv"
+  
+  isActive       Boolean  @default(true)
+  lastRun        DateTime?
+  nextRun        DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  report         CustomReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  
+  @@index([reportId])
+  @@index([isActive])
+  @@index([nextRun])
+}
+
+// Notifications: In-app notifications for users
+model Notification {
+  id             String   @id @default(uuid())
+  tenantId       String
+  userId         String
+  
+  title          String
+  message        String
+  
+  type           String   // "info", "success", "warning", "error"
+  category       String?  // "work_order", "invoice", "system"
+  
+  // Related entity
+  entityType     String?
+  entityId       String?
+  
+  isRead         Boolean  @default(false)
+  readAt         DateTime?
+  
+  actionUrl      String?  // Link to related page
+  
+  createdAt      DateTime @default(now())
+  expiresAt      DateTime? // Auto-delete after expiry
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Notifications: User notification preferences
+model NotificationPreference {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  
+  // Email notifications
+  emailEnabled           Boolean  @default(true)
+  emailWorkOrders        Boolean  @default(true)
+  emailInvoices          Boolean  @default(true)
+  emailReports           Boolean  @default(true)
+  emailSystemAlerts      Boolean  @default(true)
+  
+  // In-app notifications
+  inAppEnabled           Boolean  @default(true)
+  inAppWorkOrders        Boolean  @default(true)
+  inAppInvoices          Boolean  @default(true)
+  inAppReports           Boolean  @default(true)
+  inAppSystemAlerts      Boolean  @default(true)
+  
+  // SMS notifications
+  smsEnabled             Boolean  @default(false)
+  smsWorkOrders          Boolean  @default(false)
+  smsInvoices            Boolean  @default(false)
+  smsSystemAlerts        Boolean  @default(true)
+  
+  // Digest settings
+  dailyDigest            Boolean  @default(false)
+  weeklyDigest           Boolean  @default(false)
+  digestTime             String?  // "08:00" format
+  
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  
+  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
 }
