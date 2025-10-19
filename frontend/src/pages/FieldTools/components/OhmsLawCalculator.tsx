@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function OhmsLawCalculator() {
   const [V, setV] = useState<number | ''>('');
@@ -102,31 +103,40 @@ export default function OhmsLawCalculator() {
         </div>
 
         {result && (
-          <div className="p-4 rounded-md bg-blue-50 border border-blue-200">
-            <h3 className="font-bold text-lg mb-3 text-blue-900">Calculation Results:</h3>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white p-3 rounded border border-blue-100">
-                <div className="text-sm text-gray-600">Voltage (V)</div>
-                <div className="text-2xl font-bold text-blue-700">{result.V.toFixed(2)} V</div>
-              </div>
+          <>
+            <div className="p-4 rounded-md bg-blue-50 border border-blue-200">
+              <h3 className="font-bold text-lg mb-3 text-blue-900">Calculation Results:</h3>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white p-3 rounded border border-blue-100">
+                  <div className="text-sm text-gray-600">Voltage (V)</div>
+                  <div className="text-2xl font-bold text-blue-700">{result.V.toFixed(2)} V</div>
+                </div>
 
-              <div className="bg-white p-3 rounded border border-blue-100">
-                <div className="text-sm text-gray-600">Current (I)</div>
-                <div className="text-2xl font-bold text-blue-700">{result.I.toFixed(2)} A</div>
-              </div>
+                <div className="bg-white p-3 rounded border border-blue-100">
+                  <div className="text-sm text-gray-600">Current (I)</div>
+                  <div className="text-2xl font-bold text-blue-700">{result.I.toFixed(2)} A</div>
+                </div>
 
-              <div className="bg-white p-3 rounded border border-blue-100">
-                <div className="text-sm text-gray-600">Resistance (R)</div>
-                <div className="text-2xl font-bold text-blue-700">{result.R.toFixed(2)} Ω</div>
-              </div>
+                <div className="bg-white p-3 rounded border border-blue-100">
+                  <div className="text-sm text-gray-600">Resistance (R)</div>
+                  <div className="text-2xl font-bold text-blue-700">{result.R.toFixed(2)} Ω</div>
+                </div>
 
-              <div className="bg-white p-3 rounded border border-blue-100">
-                <div className="text-sm text-gray-600">Power (P)</div>
-                <div className="text-2xl font-bold text-blue-700">{result.P.toFixed(2)} W</div>
+                <div className="bg-white p-3 rounded border border-blue-100">
+                  <div className="text-sm text-gray-600">Power (P)</div>
+                  <div className="text-2xl font-bold text-blue-700">{result.P.toFixed(2)} W</div>
+                </div>
               </div>
             </div>
-          </div>
+
+            <SaveToWorkOrder
+              calculatorType="Ohm's Law"
+              category="electrical"
+              inputs={{ voltage: V, current: I, resistance: R }}
+              results={result}
+            />
+          </>
         )}
 
         <div className="bg-gray-50 p-4 rounded-md text-sm text-gray-600">

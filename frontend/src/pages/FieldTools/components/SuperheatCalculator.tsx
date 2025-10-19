@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Refrigerant, saturationTempMap } from '../utils/refrigerantPTData';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function SuperheatCalculator() {
   const [suctionTemp, setSuctionTemp] = useState<number | ''>('');
@@ -119,33 +120,47 @@ export default function SuperheatCalculator() {
         </div>
 
         {result && (
-          <div className={`p-4 rounded-md border ${result.delta <= 5 ? 'bg-green-50 border-green-300' : 'bg-yellow-50 border-yellow-300'}`}>
-            <h3 className="font-bold text-lg mb-3">Results:</h3>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Saturation Temperature:</span>
-                <span className="text-lg font-bold">{result.satTemp.toFixed(1)}°F</span>
-              </div>
+          <>
+            <div className={`p-4 rounded-md border ${result.delta <= 5 ? 'bg-green-50 border-green-300' : 'bg-yellow-50 border-yellow-300'}`}>
+              <h3 className="font-bold text-lg mb-3">Results:</h3>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Saturation Temperature:</span>
+                  <span className="text-lg font-bold">{result.satTemp.toFixed(1)}°F</span>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Actual Superheat:</span>
-                <span className={`text-xl font-bold ${result.delta <= 5 ? 'text-green-700' : 'text-yellow-700'}`}>
-                  {result.actualSH.toFixed(1)}°F
-                </span>
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Actual Superheat:</span>
+                  <span className={`text-xl font-bold ${result.delta <= 5 ? 'text-green-700' : 'text-yellow-700'}`}>
+                    {result.actualSH.toFixed(1)}°F
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Target:</span>
-                <span className="text-lg">{targetSH}°F</span>
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Target:</span>
+                  <span className="text-lg">{targetSH}°F</span>
+                </div>
 
-              <div className="pt-2 border-t border-gray-300">
-                <p className="font-medium mb-1">Status:</p>
-                <p className="text-lg">{result.status}</p>
+                <div className="pt-2 border-t border-gray-300">
+                  <p className="font-medium mb-1">Status:</p>
+                  <p className="text-lg">{result.status}</p>
+                </div>
               </div>
             </div>
-          </div>
+
+            <SaveToWorkOrder
+              calculatorType="Superheat"
+              category="refrigeration"
+              inputs={{
+                refrigerant,
+                suctionTemp,
+                suctionPressure,
+                targetSH
+              }}
+              results={result}
+            />
+          </>
         )}
 
         <div className="bg-gray-50 p-4 rounded-md text-sm text-gray-600">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { SaveToWorkOrder } from './SaveToWorkOrder';
 
 export default function CFMCalculator() {
   const [btuh, setBtuh] = useState<number | ''>('');
@@ -93,35 +94,47 @@ export default function CFMCalculator() {
         </div>
 
         {result && (
-          <div className={`p-4 rounded-md border ${
-            result.status.includes('Normal') ? 'bg-green-50 border-green-300' : 'bg-yellow-50 border-yellow-300'
-          }`}>
-            <h3 className="font-bold text-lg mb-3">Results:</h3>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Required Airflow:</span>
-                <span className="text-xl font-bold text-blue-700">
-                  {result.cfm.toFixed(0)} CFM
-                </span>
-              </div>
+          <>
+            <div className={`p-4 rounded-md border ${
+              result.status.includes('Normal') ? 'bg-green-50 border-green-300' : 'bg-yellow-50 border-yellow-300'
+            }`}>
+              <h3 className="font-bold text-lg mb-3">Results:</h3>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">Required Airflow:</span>
+                  <span className="text-xl font-bold text-blue-700">
+                    {result.cfm.toFixed(0)} CFM
+                  </span>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">System Size:</span>
-                <span className="text-lg font-bold">{result.tons.toFixed(1)} tons</span>
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">System Size:</span>
+                  <span className="text-lg font-bold">{result.tons.toFixed(1)} tons</span>
+                </div>
 
-              <div className="flex justify-between items-center">
-                <span className="font-medium">CFM per Ton:</span>
-                <span className="text-lg">{(result.cfm / result.tons).toFixed(0)} CFM/ton</span>
-              </div>
+                <div className="flex justify-between items-center">
+                  <span className="font-medium">CFM per Ton:</span>
+                  <span className="text-lg">{(result.cfm / result.tons).toFixed(0)} CFM/ton</span>
+                </div>
 
-              <div className="pt-2 border-t border-gray-300">
-                <p className="font-medium mb-1">Status:</p>
-                <p className="text-lg">{result.status}</p>
+                <div className="pt-2 border-t border-gray-300">
+                  <p className="font-medium mb-1">Status:</p>
+                  <p className="text-lg">{result.status}</p>
+                </div>
               </div>
             </div>
-          </div>
+
+            <SaveToWorkOrder
+              calculatorType="CFM Calculator"
+              category="airflow"
+              inputs={{
+                btuh,
+                deltaT
+              }}
+              results={result}
+            />
+          </>
         )}
 
         <div className="bg-gray-50 p-4 rounded-md text-sm text-gray-600">
