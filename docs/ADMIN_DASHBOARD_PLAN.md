@@ -1,10 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.6
+- **Version**: 2.0
 - **Last Updated**: October 19, 2025
-- **Status**: Planning Phase
-- **Recent Changes**: Added 12 advanced permission system recommendations and enhancements
+- **Status**: Planning Phase - Enterprise-Ready
+- **Recent Changes**: Comprehensive security, usability, and integration enhancements added
 
 ---
 
@@ -4690,6 +4690,2311 @@ class AuditLogService {
 
 ---
 
+## Critical Security Enhancements
+
+After comprehensive review, the following security features must be added to meet enterprise standards:
+
+### 1. Advanced Authentication & Identity
+
+#### Single Sign-On (SSO) Integration
+**Priority**: Must Have
+
+**Supported Protocols**:
+```typescript
+interface SSOConfig {
+  provider: 'saml' | 'oidc' | 'oauth2';
+  name: string;
+  enabled: boolean;
+  config: SAMLConfig | OIDCConfig | OAuth2Config;
+}
+
+interface SAMLConfig {
+  entryPoint: string;  // IdP login URL
+  issuer: string;      // SP entity ID
+  cert: string;        // IdP certificate
+  wantAssertionsSigned: boolean;
+  attributeMapping: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    groups?: string;
+  };
+}
+
+interface OIDCConfig {
+  issuer: string;
+  clientId: string;
+  clientSecret: string;
+  authorizationURL: string;
+  tokenURL: string;
+  userInfoURL: string;
+  scopes: string[];
+}
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE sso_providers (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID REFERENCES tenants(id),
+  provider_type VARCHAR(20) NOT NULL,  -- 'saml', 'oidc', 'oauth2'
+  name VARCHAR(100) NOT NULL,
+  enabled BOOLEAN DEFAULT true,
+  config JSONB NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sso_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  provider_id UUID REFERENCES sso_providers(id),
+  session_id VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_session_id (session_id)
+);
+```
+
+**Benefits**:
+- Enterprise customer requirement
+- Centralized authentication management
+- Reduced password fatigue
+- Automatic user provisioning from IdP
+- Support for Microsoft Azure AD, Okta, Google Workspace, OneLogin
+
+---
+
+#### Multi-Factor Authentication (MFA)
+
+**Priority**: Must Have
+
+**Supported MFA Methods**:
+```typescript
+type MFAMethod = 'totp' | 'sms' | 'email' | 'u2f' | 'webauthn';
+
+interface UserMFAConfig {
+  userId: string;
+  mfaEnabled: boolean;
+  enforcedByPolicy: boolean;  // Admin can enforce MFA
+  methods: Array<{
+    type: MFAMethod;
+    enabled: boolean;
+    isPrimary: boolean;
+    identifier?: string;  // Phone number or email
+    secret?: string;      // TOTP secret (encrypted)
+    backupCodes?: string[];  // Encrypted recovery codes
+    deviceInfo?: {
+      name: string;
+      registeredAt: Date;
+      lastUsed: Date;
+    };
+  }>;
+}
+
+interface MFAPolicy {
+  tenantId: string;
+  enforceForRoles: string[];  // Require MFA for specific roles
+  enforceForPermissions: string[];  // Require MFA for sensitive permissions
+  allowedMethods: MFAMethod[];
+  backupCodesCount: number;
+  totpWindow: number;  // Time window in seconds
+}
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE mfa_configurations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) UNIQUE,
+  mfa_enabled BOOLEAN DEFAULT false,
+  enforced_by_policy BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE mfa_methods (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  method_type VARCHAR(20) NOT NULL,  -- 'totp', 'sms', 'email', 'u2f', 'webauthn'
+  is_enabled BOOLEAN DEFAULT true,
+  is_primary BOOLEAN DEFAULT false,
+  identifier VARCHAR(255),  -- Phone or email
+  secret TEXT,  -- Encrypted TOTP secret
+  device_name VARCHAR(100),
+  device_info JSONB,
+  backup_codes TEXT[],  -- Encrypted recovery codes
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_used_at TIMESTAMP,
+  UNIQUE(user_id, method_type, identifier)
+);
+
+CREATE TABLE mfa_policies (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID REFERENCES tenants(id),
+  enforce_for_roles JSONB,  -- Array of role IDs
+  enforce_for_permissions JSONB,  -- Array of permission names
+  allowed_methods JSONB,  -- Array of allowed MFA methods
+  backup_codes_count INTEGER DEFAULT 10,
+  totp_window INTEGER DEFAULT 30,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**API Endpoints**:
+```typescript
+// Setup MFA
+POST /api/v1/auth/mfa/setup
+Body: { method: MFAMethod }
+Response: { secret: string, qrCode: string, backupCodes: string[] }
+
+// Verify MFA setup
+POST /api/v1/auth/mfa/verify-setup
+Body: { method: MFAMethod, code: string }
+
+// Login with MFA
+POST /api/v1/auth/login
+Body: { email: string, password: string }
+Response: { requiresMFA: boolean, sessionId?: string, methods?: MFAMethod[] }
+
+POST /api/v1/auth/mfa/verify
+Body: { sessionId: string, code: string, method: MFAMethod }
+Response: { token: string }
+
+// Manage MFA
+GET /api/v1/users/:userId/mfa
+DELETE /api/v1/users/:userId/mfa/:methodId
+POST /api/v1/users/:userId/mfa/regenerate-backup-codes
+```
+
+**Benefits**:
+- Required for compliance (SOX, PCI-DSS)
+- Protects against credential compromise
+- Supports hardware security keys (U2F/WebAuthn)
+- Backup codes for account recovery
+- Can enforce MFA for specific roles or permissions
+
+---
+
+#### Session Management
+
+**Priority**: Must Have
+
+**Session Security Features**:
+```typescript
+interface SessionConfig {
+  idleTimeout: number;      // Inactivity timeout (minutes)
+  absoluteTimeout: number;  // Maximum session duration (hours)
+  refreshTokenRotation: boolean;
+  singleDeviceOnly: boolean;
+  requireReauthForSensitive: string[];  // Permissions requiring re-auth
+}
+
+interface UserSession {
+  id: string;
+  userId: string;
+  deviceId: string;
+  deviceInfo: {
+    userAgent: string;
+    browser: string;
+    os: string;
+    ip: string;
+    location?: string;
+  };
+  accessToken: string;
+  refreshToken: string;
+  createdAt: Date;
+  lastActivityAt: Date;
+  expiresAt: Date;
+  isActive: boolean;
+}
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE user_sessions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  device_id VARCHAR(255) NOT NULL,
+  device_info JSONB NOT NULL,
+  access_token_hash VARCHAR(255) NOT NULL,  -- Hashed token
+  refresh_token_hash VARCHAR(255) NOT NULL,  -- Hashed token
+  ip_address VARCHAR(45),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_activity_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  is_active BOOLEAN DEFAULT true,
+  INDEX idx_user_active (user_id, is_active),
+  INDEX idx_token_hash (access_token_hash)
+);
+
+CREATE TABLE session_policies (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID REFERENCES tenants(id),
+  idle_timeout_minutes INTEGER DEFAULT 30,
+  absolute_timeout_hours INTEGER DEFAULT 8,
+  refresh_token_rotation BOOLEAN DEFAULT true,
+  single_device_only BOOLEAN DEFAULT false,
+  require_reauth_permissions JSONB,  -- Array of sensitive permissions
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE trusted_devices (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  device_id VARCHAR(255) NOT NULL,
+  device_name VARCHAR(100),
+  device_fingerprint TEXT,
+  is_trusted BOOLEAN DEFAULT false,
+  trust_expires_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_used_at TIMESTAMP,
+  UNIQUE(user_id, device_id)
+);
+```
+
+**API Endpoints**:
+```typescript
+// Session management
+GET /api/v1/users/:userId/sessions
+DELETE /api/v1/users/:userId/sessions/:sessionId  // Revoke specific session
+DELETE /api/v1/users/:userId/sessions  // Revoke all sessions (force logout)
+
+// Device management
+GET /api/v1/users/:userId/devices
+POST /api/v1/users/:userId/devices/:deviceId/trust
+DELETE /api/v1/users/:userId/devices/:deviceId
+
+// Token refresh with rotation
+POST /api/v1/auth/refresh
+Body: { refreshToken: string }
+Response: { accessToken: string, refreshToken: string }  // New tokens
+```
+
+**Session Monitoring Service**:
+```typescript
+@Injectable()
+export class SessionMonitorService {
+  @Cron('*/5 * * * *')  // Every 5 minutes
+  async expireInactiveSessions() {
+    const policy = await this.getSessionPolicy();
+    const expireAfter = new Date(Date.now() - policy.idleTimeoutMinutes * 60 * 1000);
+    
+    await this.prisma.userSession.updateMany({
+      where: {
+        lastActivityAt: { lt: expireAfter },
+        isActive: true
+      },
+      data: { isActive: false }
+    });
+  }
+  
+  async detectAnomalousLogin(userId: string, deviceInfo: any): Promise<boolean> {
+    // Check for login from new location/device
+    const recentSessions = await this.getUserRecentSessions(userId);
+    
+    if (this.isNewLocation(recentSessions, deviceInfo.location)) {
+      await this.sendSecurityAlert(userId, 'New location detected');
+      return true;
+    }
+    
+    return false;
+  }
+}
+```
+
+**Benefits**:
+- Automatic logout on inactivity
+- Prevent token theft with rotation
+- Remote session revocation
+- Device trust management
+- Anomaly detection for suspicious logins
+
+---
+
+### 2. Data Protection & Encryption
+
+#### Encryption Standards
+
+**Priority**: Must Have
+
+**Encryption Configuration**:
+```typescript
+interface EncryptionConfig {
+  atRest: {
+    algorithm: 'AES-256-GCM';
+    keyManagement: 'AWS-KMS' | 'Azure-KeyVault' | 'HashiCorp-Vault' | 'local';
+    keyRotationDays: number;
+    encryptedFields: string[];  // Database fields requiring encryption
+  };
+  inTransit: {
+    tlsVersion: '1.2' | '1.3';
+    cipherSuites: string[];
+    hsts: boolean;
+    certPinning: boolean;
+  };
+  application: {
+    sensitiveDataMask: boolean;  // Mask sensitive data in logs
+    piiRedaction: string[];  // Fields to redact in audit logs
+  };
+}
+```
+
+**Database Field Encryption**:
+```sql
+-- Encrypted fields in database
+CREATE TABLE users (
+  -- ... other fields
+  ssn TEXT,  -- Encrypted SSN
+  phone_encrypted TEXT,  -- Encrypted phone
+  encryption_key_id UUID REFERENCES encryption_keys(id),
+  -- ... other fields
+);
+
+CREATE TABLE encryption_keys (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  key_identifier VARCHAR(255) NOT NULL,  -- KMS key ID
+  algorithm VARCHAR(50) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  rotated_at TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+```
+
+**Encryption Service**:
+```typescript
+@Injectable()
+export class EncryptionService {
+  async encryptField(plaintext: string, context: string): Promise<string> {
+    const kms = this.getKMSClient();
+    const encrypted = await kms.encrypt({
+      KeyId: process.env.KMS_KEY_ID,
+      Plaintext: plaintext,
+      EncryptionContext: { field: context }
+    });
+    return encrypted.CiphertextBlob.toString('base64');
+  }
+  
+  async decryptField(ciphertext: string, context: string): Promise<string> {
+    const kms = this.getKMSClient();
+    const decrypted = await kms.decrypt({
+      CiphertextBlob: Buffer.from(ciphertext, 'base64'),
+      EncryptionContext: { field: context }
+    });
+    return decrypted.Plaintext.toString('utf8');
+  }
+  
+  @Cron('0 0 1 * *')  // Monthly
+  async rotateEncryptionKeys() {
+    // Implement key rotation strategy
+    const oldKeyId = await this.getCurrentKeyId();
+    const newKeyId = await this.createNewKey();
+    
+    // Re-encrypt data with new key
+    await this.reEncryptData(oldKeyId, newKeyId);
+    
+    // Mark old key as rotated
+    await this.markKeyAsRotated(oldKeyId);
+  }
+}
+```
+
+**Benefits**:
+- Compliance with GDPR, HIPAA, PCI-DSS
+- Protect sensitive customer data
+- Automated key rotation
+- Centralized key management
+
+---
+
+### 3. API Security & Protection
+
+#### Rate Limiting & Throttling
+
+**Priority**: Must Have
+
+**Rate Limit Configuration**:
+```typescript
+interface RateLimitConfig {
+  global: {
+    requestsPerMinute: number;
+    requestsPerHour: number;
+  };
+  perUser: {
+    requestsPerMinute: number;
+    requestsPerHour: number;
+  };
+  perEndpoint: Record<string, {
+    requestsPerMinute: number;
+    burst: number;
+  }>;
+  ipBased: {
+    enabled: boolean;
+    trustProxy: boolean;
+    blacklist: string[];
+    whitelist: string[];
+  };
+}
+```
+
+**Database Schema**:
+```sql
+CREATE TABLE rate_limit_rules (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  endpoint_pattern VARCHAR(255) NOT NULL,  -- '/api/v1/work-orders/*'
+  requests_per_minute INTEGER NOT NULL,
+  burst_allowance INTEGER DEFAULT 0,
+  per_user BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE rate_limit_violations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  ip_address VARCHAR(45),
+  endpoint VARCHAR(255),
+  violation_count INTEGER DEFAULT 1,
+  blocked_until TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_ip_blocked (ip_address, blocked_until)
+);
+```
+
+**Implementation**:
+```typescript
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+
+@Module({
+  imports: [
+    ThrottlerModule.forRoot({
+      ttl: 60,  // Time window in seconds
+      limit: 100,  // Max requests per window
+    })
+  ]
+})
+export class AppModule {}
+
+// Custom rate limiter with user-based limits
+@Injectable()
+export class CustomThrottlerGuard extends ThrottlerGuard {
+  async handleRequest(context: ExecutionContext, limit: number, ttl: number): Promise<boolean> {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    
+    // Different limits for different roles
+    if (user?.role === 'Super Admin') {
+      return true;  // No limits for Super Admin
+    }
+    
+    const key = user ? `user:${user.id}` : `ip:${request.ip}`;
+    return await super.handleRequest(context, limit, ttl);
+  }
+}
+```
+
+**Benefits**:
+- Prevent API abuse and DDoS attacks
+- Protect backend resources
+- Different limits per role/endpoint
+- Automatic IP blocking for violations
+
+---
+
+#### API Input Validation & Sanitization
+
+**Priority**: Must Have
+
+**Validation Schema Example**:
+```typescript
+import { IsEmail, IsString, MinLength, MaxLength, Matches, IsUUID } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { sanitize } from 'class-sanitizer';
+
+export class CreateWorkOrderDto {
+  @IsString()
+  @MinLength(5)
+  @MaxLength(200)
+  @Transform(({ value }) => value.trim())
+  @sanitize()
+  title: string;
+  
+  @IsString()
+  @MaxLength(2000)
+  @Transform(({ value }) => value.trim())
+  @sanitize()
+  description: string;
+  
+  @IsUUID()
+  customerId: string;
+  
+  @IsEmail()
+  @Transform(({ value }) => value.toLowerCase())
+  customerEmail: string;
+  
+  @Matches(/^\+?[1-9]\d{1,14}$/)  // E.164 format
+  phone?: string;
+}
+
+// Global validation pipe configuration
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true,  // Strip properties not in DTO
+    forbidNonWhitelisted: true,  // Throw error if extra properties
+    transform: true,  // Auto-transform to DTO types
+    transformOptions: {
+      enableImplicitConversion: true
+    }
+  })
+);
+```
+
+**SQL Injection Prevention**:
+```typescript
+// Always use parameterized queries (Prisma does this automatically)
+// Bad: Direct string interpolation
+const users = await prisma.$queryRaw(`SELECT * FROM users WHERE email = '${email}'`);
+
+// Good: Parameterized query
+const users = await prisma.$queryRaw`SELECT * FROM users WHERE email = ${email}`;
+
+// Best: Use Prisma's type-safe query builder
+const users = await prisma.user.findMany({
+  where: { email }
+});
+```
+
+**XSS Prevention**:
+```typescript
+import helmet from 'helmet';
+import { escape } from 'html-escaper';
+
+// Helmet middleware for security headers
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", 'data:', 'https:'],
+    }
+  },
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  }
+}));
+
+// Sanitize user input before storage
+function sanitizeUserInput(input: string): string {
+  return escape(input);
+}
+```
+
+**Benefits**:
+- Prevent SQL injection, XSS, CSRF attacks
+- Type-safe API contracts
+- Automatic input sanitization
+- Security headers for browsers
+
+---
+
+### 4. Compliance & Audit Enhancements
+
+#### Tamper-Evident Audit Logs
+
+**Priority**: Should Have
+
+**Database Schema**:
+```sql
+CREATE TABLE audit_logs_immutable (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  sequence_number BIGSERIAL UNIQUE NOT NULL,  -- Monotonic counter
+  user_id UUID REFERENCES users(id),
+  action VARCHAR(100) NOT NULL,
+  resource_type VARCHAR(50),
+  resource_id UUID,
+  changes JSONB,
+  ip_address VARCHAR(45),
+  user_agent TEXT,
+  log_category VARCHAR(50),  -- 'user_activity', 'business_operations', 'financial', 'system', 'permissions'
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  previous_hash VARCHAR(64),  -- SHA-256 hash of previous record
+  record_hash VARCHAR(64) NOT NULL,  -- SHA-256 hash of this record
+  CONSTRAINT no_update CHECK (created_at = created_at)  -- Prevent updates
+);
+
+-- Make table append-only (no UPDATE or DELETE)
+CREATE RULE audit_log_no_update AS ON UPDATE TO audit_logs_immutable DO INSTEAD NOTHING;
+CREATE RULE audit_log_no_delete AS ON DELETE TO audit_logs_immutable DO INSTEAD NOTHING;
+
+CREATE INDEX idx_audit_sequence ON audit_logs_immutable(sequence_number);
+CREATE INDEX idx_audit_user ON audit_logs_immutable(user_id, created_at);
+CREATE INDEX idx_audit_category ON audit_logs_immutable(log_category, created_at);
+```
+
+**Audit Service with Chain Integrity**:
+```typescript
+@Injectable()
+export class ImmutableAuditService {
+  async log(entry: AuditLogEntry): Promise<void> {
+    const lastLog = await this.getLastAuditLog();
+    
+    const recordData = {
+      userId: entry.userId,
+      action: entry.action,
+      resourceType: entry.resourceType,
+      resourceId: entry.resourceId,
+      changes: entry.changes,
+      ipAddress: entry.ipAddress,
+      userAgent: entry.userAgent,
+      logCategory: entry.category,
+      createdAt: new Date()
+    };
+    
+    const previousHash = lastLog?.recordHash || '0';
+    const recordHash = this.calculateHash({
+      ...recordData,
+      previousHash,
+      sequenceNumber: (lastLog?.sequenceNumber || 0) + 1
+    });
+    
+    await this.prisma.auditLogsImmutable.create({
+      data: {
+        ...recordData,
+        previousHash,
+        recordHash
+      }
+    });
+  }
+  
+  calculateHash(data: any): string {
+    return createHash('sha256')
+      .update(JSON.stringify(data))
+      .digest('hex');
+  }
+  
+  async verifyAuditChainIntegrity(): Promise<boolean> {
+    const logs = await this.prisma.auditLogsImmutable.findMany({
+      orderBy: { sequenceNumber: 'asc' }
+    });
+    
+    for (let i = 1; i < logs.length; i++) {
+      if (logs[i].previousHash !== logs[i - 1].recordHash) {
+        throw new Error(`Audit log integrity violation at sequence ${logs[i].sequenceNumber}`);
+      }
+    }
+    
+    return true;
+  }
+}
+```
+
+**Benefits**:
+- Tamper-evident audit trail
+- Compliance with SOX, GDPR, HIPAA
+- Cryptographic verification of log integrity
+- Prevents unauthorized modifications
+
+---
+
+#### Compliance Reports & Retention Policies
+
+**Database Schema**:
+```sql
+CREATE TABLE compliance_reports (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  report_type VARCHAR(50) NOT NULL,  -- 'sox', 'gdpr', 'hipaa', 'pci_dss'
+  period_start DATE NOT NULL,
+  period_end DATE NOT NULL,
+  generated_by UUID REFERENCES users(id),
+  status VARCHAR(20) DEFAULT 'pending',  -- 'pending', 'completed', 'failed'
+  report_data JSONB,
+  file_path TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE retention_policies (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  resource_type VARCHAR(50) NOT NULL,  -- 'audit_logs', 'work_orders', 'financial_records'
+  retention_days INTEGER NOT NULL,
+  archive_after_days INTEGER,
+  auto_delete BOOLEAN DEFAULT false,
+  regulation VARCHAR(50),  -- 'sox', 'gdpr', 'hipaa', 'custom'
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Compliance Report Generator**:
+```typescript
+@Injectable()
+export class ComplianceReportService {
+  async generateSOXReport(startDate: Date, endDate: Date): Promise<ComplianceReport> {
+    // SOX requires audit trail of all financial transactions and access changes
+    const financialAudits = await this.prisma.auditLogsImmutable.findMany({
+      where: {
+        logCategory: 'financial',
+        createdAt: { gte: startDate, lte: endDate }
+      }
+    });
+    
+    const permissionChanges = await this.prisma.auditLogsImmutable.findMany({
+      where: {
+        logCategory: 'permissions',
+        createdAt: { gte: startDate, lte: endDate }
+      }
+    });
+    
+    const report = {
+      period: { start: startDate, end: endDate },
+      financialTransactions: financialAudits.length,
+      accessChanges: permissionChanges.length,
+      criticalPermissions: await this.getCriticalPermissionChanges(permissionChanges),
+      segregationOfDutiesViolations: await this.checkSoDViolations(),
+      userAccessReview: await this.generateUserAccessReview()
+    };
+    
+    return await this.prisma.complianceReport.create({
+      data: {
+        reportType: 'sox',
+        periodStart: startDate,
+        periodEnd: endDate,
+        reportData: report,
+        status: 'completed'
+      }
+    });
+  }
+  
+  async generateGDPRReport(startDate: Date, endDate: Date): Promise<ComplianceReport> {
+    // GDPR requires data access logs and processing activities
+    const dataAccess = await this.prisma.auditLogsImmutable.findMany({
+      where: {
+        action: { in: ['read', 'export', 'share'] },
+        resourceType: { in: ['customer', 'contact', 'user'] },
+        createdAt: { gte: startDate, lte: endDate }
+      }
+    });
+    
+    return {
+      dataAccessLogs: dataAccess,
+      dataSubjectRequests: await this.getDataSubjectRequests(startDate, endDate),
+      dataBreaches: await this.getDataBreaches(startDate, endDate),
+      processingActivities: await this.getProcessingActivities(startDate, endDate)
+    };
+  }
+}
+```
+
+**Benefits**:
+- Automated compliance reporting
+- Regulatory retention enforcement
+- Audit-ready documentation
+- Reduced compliance costs
+
+---
+
+## User-Friendliness Enhancements
+
+### 1. Interactive Onboarding & Help System
+
+**Priority**: Must Have
+
+**Database Schema**:
+```sql
+CREATE TABLE onboarding_tours (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL,
+  target_role VARCHAR(50),  -- Role this tour is for
+  steps JSONB NOT NULL,  -- Array of tour steps
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE user_onboarding_progress (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  tour_id UUID REFERENCES onboarding_tours(id),
+  completed_steps JSONB,  -- Array of completed step IDs
+  is_completed BOOLEAN DEFAULT false,
+  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  completed_at TIMESTAMP,
+  UNIQUE(user_id, tour_id)
+);
+
+CREATE TABLE help_articles (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title VARCHAR(200) NOT NULL,
+  content TEXT NOT NULL,
+  category VARCHAR(50),
+  tags TEXT[],
+  role_visibility TEXT[],  -- Which roles can see this article
+  search_vector tsvector,  -- Full-text search
+  view_count INTEGER DEFAULT 0,
+  helpful_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_help_search ON help_articles USING GIN(search_vector);
+```
+
+**Onboarding Tour Example**:
+```typescript
+const TECHNICIAN_ONBOARDING_TOUR = {
+  name: 'Technician Quick Start',
+  targetRole: 'Technician',
+  steps: [
+    {
+      id: 'welcome',
+      title: 'Welcome to the HVAC System!',
+      content: 'Let\'s get you started with the basics.',
+      target: '#dashboard',
+      placement: 'center'
+    },
+    {
+      id: 'view-work-orders',
+      title: 'Your Work Orders',
+      content: 'Here you can see all work orders assigned to you.',
+      target: '#work-orders-tab',
+      placement: 'right',
+      action: 'Click to view your work orders'
+    },
+    {
+      id: 'scanner',
+      title: 'Inventory Scanner',
+      content: 'Use this to scan parts and update inventory.',
+      target: '#scanner-button',
+      placement: 'bottom'
+    },
+    {
+      id: 'complete-wo',
+      title: 'Completing Work Orders',
+      content: 'Click here to mark a work order as complete and add notes.',
+      target: '.complete-button',
+      placement: 'left'
+    }
+  ]
+};
+```
+
+**Contextual Help Component**:
+```typescript
+interface ContextualHelpProps {
+  topic: string;  // e.g., 'work-orders', 'inventory'
+  position?: 'right' | 'bottom';
+}
+
+function ContextualHelp({ topic, position = 'right' }: ContextualHelpProps) {
+  const [helpContent, setHelpContent] = useState(null);
+  const [isOpen, setIsOpen] = useState(false);
+  
+  useEffect(() => {
+    // Load context-specific help
+    api.get(`/api/v1/help/context/${topic}`).then(setHelpContent);
+  }, [topic]);
+  
+  return (
+    <div className="contextual-help">
+      <button onClick={() => setIsOpen(true)} className="help-icon">
+        <QuestionMarkIcon />
+      </button>
+      
+      {isOpen && helpContent && (
+        <div className={`help-popover help-${position}`}>
+          <h3>{helpContent.title}</h3>
+          <div dangerouslySetInnerHTML={{ __html: helpContent.content }} />
+          <div className="help-actions">
+            <button onClick={() => markAsHelpful(helpContent.id)}>
+              👍 Helpful
+            </button>
+            <a href={`/help/articles/${helpContent.id}`}>Learn more</a>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+```
+
+**API Endpoints**:
+```typescript
+// Onboarding
+GET /api/v1/onboarding/tours  // Get tours for current user's role
+POST /api/v1/onboarding/tours/:tourId/progress
+Body: { stepId: string, completed: boolean }
+
+// Help system
+GET /api/v1/help/search?q={query}
+GET /api/v1/help/context/{topic}
+GET /api/v1/help/articles/:articleId
+POST /api/v1/help/articles/:articleId/helpful
+```
+
+**Benefits**:
+- Faster user adoption
+- Reduced support tickets
+- Role-specific guidance
+- Self-service help
+
+---
+
+### 2. In-App Notifications & Communication
+
+**Priority**: Must Have
+
+**Database Schema**:
+```sql
+CREATE TABLE notifications (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  type VARCHAR(50) NOT NULL,  -- 'info', 'warning', 'error', 'success'
+  category VARCHAR(50),  -- 'work_order', 'inventory', 'permission', 'system'
+  title VARCHAR(200) NOT NULL,
+  message TEXT NOT NULL,
+  action_url VARCHAR(500),
+  action_label VARCHAR(50),
+  is_read BOOLEAN DEFAULT false,
+  read_at TIMESTAMP,
+  priority VARCHAR(20) DEFAULT 'normal',  -- 'low', 'normal', 'high', 'urgent'
+  expires_at TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_user_unread (user_id, is_read, created_at)
+);
+
+CREATE TABLE notification_preferences (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id) UNIQUE,
+  email_enabled BOOLEAN DEFAULT true,
+  sms_enabled BOOLEAN DEFAULT false,
+  push_enabled BOOLEAN DEFAULT true,
+  in_app_enabled BOOLEAN DEFAULT true,
+  categories JSONB,  -- Per-category preferences
+  quiet_hours JSONB,  -- { start: '22:00', end: '08:00' }
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE notification_templates (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name VARCHAR(100) NOT NULL,
+  category VARCHAR(50),
+  channels JSONB,  -- ['email', 'sms', 'push', 'in_app']
+  subject_template TEXT,
+  body_template TEXT,
+  variables JSONB,  -- Available variables for template
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Notification Service**:
+```typescript
+@Injectable()
+export class NotificationService {
+  async send(notification: CreateNotificationDto): Promise<void> {
+    const user = await this.getUser(notification.userId);
+    const prefs = await this.getUserPreferences(notification.userId);
+    
+    // Respect quiet hours
+    if (this.isQuietHours(prefs.quietHours)) {
+      notification.priority = 'low';  // Defer non-urgent notifications
+    }
+    
+    // Create in-app notification
+    if (prefs.inAppEnabled) {
+      await this.prisma.notification.create({
+        data: notification
+      });
+      
+      // Real-time push via WebSocket
+      this.websocket.sendToUser(user.id, 'notification', notification);
+    }
+    
+    // Send email
+    if (prefs.emailEnabled && this.shouldSendEmail(notification, prefs)) {
+      await this.emailService.send({
+        to: user.email,
+        subject: notification.title,
+        body: notification.message
+      });
+    }
+    
+    // Send SMS
+    if (prefs.smsEnabled && this.shouldSendSMS(notification, prefs)) {
+      await this.smsService.send({
+        to: user.phone,
+        message: notification.message
+      });
+    }
+  }
+  
+  async sendBulk(userIds: string[], notification: NotificationDto): Promise<void> {
+    // Batch send to multiple users efficiently
+    await Promise.all(
+      userIds.map(userId => this.send({ ...notification, userId }))
+    );
+  }
+}
+```
+
+**Notification Examples**:
+```typescript
+// Work order assigned
+await notificationService.send({
+  userId: technician.id,
+  type: 'info',
+  category: 'work_order',
+  title: 'New Work Order Assigned',
+  message: `Work order #${workOrder.number} has been assigned to you`,
+  actionUrl: `/work-orders/${workOrder.id}`,
+  actionLabel: 'View Work Order',
+  priority: 'high'
+});
+
+// Low inventory alert
+await notificationService.send({
+  userId: warehouseManager.id,
+  type: 'warning',
+  category: 'inventory',
+  title: 'Low Stock Alert',
+  message: `${sku.name} is below reorder point (${sku.onHand} remaining)`,
+  actionUrl: `/inventory/sku/${sku.id}`,
+  actionLabel: 'Create Purchase Order',
+  priority: 'normal'
+});
+
+// Permission change notification
+await notificationService.send({
+  userId: user.id,
+  type: 'success',
+  category: 'permission',
+  title: 'Permission Updated',
+  message: 'Your access to Financial Dashboard has been granted',
+  priority: 'normal'
+});
+```
+
+**API Endpoints**:
+```typescript
+GET /api/v1/notifications  // Get user's notifications
+GET /api/v1/notifications/unread/count
+POST /api/v1/notifications/:id/read
+DELETE /api/v1/notifications/:id
+GET /api/v1/notifications/preferences
+PUT /api/v1/notifications/preferences
+```
+
+**Benefits**:
+- Real-time user alerts
+- Multi-channel delivery (email, SMS, push, in-app)
+- User-controlled preferences
+- Reduced missed updates
+
+---
+
+### 3. Accessibility & Mobile Responsiveness
+
+**Priority**: Must Have
+
+**WCAG 2.1 AA Compliance Checklist**:
+```typescript
+// Accessibility testing configuration
+const ACCESSIBILITY_STANDARDS = {
+  wcagLevel: 'AA',
+  standards: ['WCAG2AA'],
+  rules: {
+    // Color contrast
+    'color-contrast': 'error',  // Minimum 4.5:1 for text
+    'color-contrast-enhanced': 'warn',  // 7:1 for AAA
+    
+    // Keyboard navigation
+    'keyboard': 'error',
+    'focus-visible': 'error',
+    'tabindex': 'warn',
+    
+    // Screen readers
+    'label': 'error',  // All form inputs must have labels
+    'image-alt': 'error',  // All images must have alt text
+    'aria-*': 'error',  // Proper ARIA usage
+    
+    // Structure
+    'heading-order': 'warn',
+    'landmark-one-main': 'error',
+    'page-has-heading-one': 'error'
+  }
+};
+```
+
+**Responsive Breakpoints**:
+```css
+/* Mobile-first approach */
+:root {
+  --breakpoint-xs: 320px;   /* Small phones */
+  --breakpoint-sm: 640px;   /* Large phones */
+  --breakpoint-md: 768px;   /* Tablets */
+  --breakpoint-lg: 1024px;  /* Laptops */
+  --breakpoint-xl: 1280px;  /* Desktops */
+  --breakpoint-2xl: 1536px; /* Large desktops */
+}
+
+/* Dashboard layout adjustments */
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;  /* Single column on mobile */
+  }
+  
+  .sidebar {
+    transform: translateX(-100%);  /* Off-screen by default */
+  }
+  
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  
+  .kpi-card {
+    min-height: 100px;  /* Smaller cards on mobile */
+  }
+  
+  .data-table {
+    overflow-x: auto;  /* Horizontal scroll for tables */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);  /* 2 columns on tablets */
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);  /* 3 columns on desktop */
+  }
+}
+```
+
+**Keyboard Navigation**:
+```typescript
+// Implement keyboard shortcuts
+const KEYBOARD_SHORTCUTS = {
+  'Ctrl+K': 'Open command palette',
+  '/': 'Focus search',
+  'g w': 'Go to work orders',
+  'g i': 'Go to inventory',
+  'g d': 'Go to dispatch',
+  'Esc': 'Close modal/dropdown',
+  '?': 'Show keyboard shortcuts help'
+};
+
+function useKeyboardShortcuts() {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        openCommandPalette();
+      }
+      // ... other shortcuts
+    };
+    
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+}
+```
+
+**Screen Reader Support**:
+```typescript
+// Proper ARIA labels for interactive elements
+function DataTable({ data, columns }: DataTableProps) {
+  return (
+    <table role="table" aria-label="Work Orders">
+      <thead>
+        <tr role="row">
+          {columns.map(col => (
+            <th key={col.key} role="columnheader" scope="col">
+              {col.label}
+              {col.sortable && (
+                <button
+                  aria-label={`Sort by ${col.label}`}
+                  onClick={() => sort(col.key)}
+                >
+                  <SortIcon aria-hidden="true" />
+                </button>
+              )}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((row, idx) => (
+          <tr key={row.id} role="row">
+            {columns.map(col => (
+              <td key={col.key} role="cell">
+                {row[col.key]}
+              </td>
+            ))}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
+// Live region for dynamic content
+function NotificationToast({ message }: { message: string }) {
+  return (
+    <div
+      role="alert"
+      aria-live="polite"
+      aria-atomic="true"
+      className="toast"
+    >
+      {message}
+    </div>
+  );
+}
+```
+
+**Benefits**:
+- Meets legal accessibility requirements (ADA, Section 508)
+- Better user experience for all users
+- Mobile field technician support
+- Keyboard power-user efficiency
+
+---
+
+### 4. User Feedback & Support System
+
+**Priority**: Should Have
+
+**Database Schema**:
+```sql
+CREATE TABLE feedback_submissions (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  feedback_type VARCHAR(50),  -- 'bug', 'feature_request', 'question', 'complaint', 'praise'
+  page_url VARCHAR(500),
+  subject VARCHAR(200),
+  description TEXT NOT NULL,
+  screenshot_url TEXT,
+  browser_info JSONB,
+  priority VARCHAR(20),  -- 'low', 'medium', 'high'
+  status VARCHAR(20) DEFAULT 'submitted',  -- 'submitted', 'in_review', 'planned', 'completed', 'closed'
+  assigned_to UUID REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP
+);
+
+CREATE TABLE nps_surveys (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  score INTEGER NOT NULL CHECK (score >= 0 AND score <= 10),
+  feedback TEXT,
+  page_context VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE feature_votes (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID REFERENCES users(id),
+  feedback_id UUID REFERENCES feedback_submissions(id),
+  vote_type VARCHAR(10),  -- 'upvote', 'downvote'
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, feedback_id)
+);
+```
+
+**In-App Feedback Widget**:
+```typescript
+function FeedbackWidget() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<FeedbackType>('bug');
+  
+  const submitFeedback = async (data: FeedbackData) => {
+    // Capture screenshot
+    const screenshot = await captureScreenshot();
+    
+    // Collect browser info
+    const browserInfo = {
+      userAgent: navigator.userAgent,
+      viewport: { width: window.innerWidth, height: window.innerHeight },
+      url: window.location.href
+    };
+    
+    await api.post('/api/v1/feedback', {
+      ...data,
+      screenshot,
+      browserInfo
+    });
+    
+    toast.success('Thank you for your feedback!');
+    setIsOpen(false);
+  };
+  
+  return (
+    <>
+      <button className="feedback-button" onClick={() => setIsOpen(true)}>
+        💬 Feedback
+      </button>
+      
+      {isOpen && (
+        <Modal onClose={() => setIsOpen(false)}>
+          <h2>Send Feedback</h2>
+          <FeedbackForm
+            type={feedbackType}
+            onTypeChange={setFeedbackType}
+            onSubmit={submitFeedback}
+          />
+        </Modal>
+      )}
+    </>
+  );
+}
+
+// NPS Survey (triggered periodically)
+function NPSSurvey() {
+  return (
+    <div className="nps-survey">
+      <h3>How likely are you to recommend this system?</h3>
+      <div className="nps-scale">
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(score => (
+          <button
+            key={score}
+            onClick={() => submitNPS(score)}
+            className="nps-button"
+          >
+            {score}
+          </button>
+        ))}
+      </div>
+      <div className="nps-labels">
+        <span>Not at all likely</span>
+        <span>Extremely likely</span>
+      </div>
+    </div>
+  );
+}
+```
+
+**API Endpoints**:
+```typescript
+POST /api/v1/feedback
+Body: { type, subject, description, screenshot, browserInfo }
+
+POST /api/v1/nps
+Body: { score, feedback, context }
+
+GET /api/v1/feedback/popular  // Most voted feature requests
+POST /api/v1/feedback/:id/vote
+Body: { voteType: 'upvote' | 'downvote' }
+```
+
+**Benefits**:
+- Direct user feedback collection
+- Prioritize features based on demand
+- Track user satisfaction (NPS)
+- Identify and fix usability issues
+
+---
+
+## Business Integrations
+
+### 1. Accounting & ERP Integration
+
+**Priority**: Should Have
+
+**Supported Systems**:
+- QuickBooks Online
+- Sage Intacct
+- Xero
+- NetSuite
+- Microsoft Dynamics
+
+**Database Schema**:
+```sql
+CREATE TABLE integration_connections (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  tenant_id UUID REFERENCES tenants(id),
+  integration_type VARCHAR(50) NOT NULL,  -- 'quickbooks', 'sage', 'xero'
+  connection_name VARCHAR(100),
+  credentials JSONB,  -- Encrypted OAuth tokens or API keys
+  sync_enabled BOOLEAN DEFAULT true,
+  last_sync_at TIMESTAMP,
+  sync_status VARCHAR(20),  -- 'success', 'failed', 'in_progress'
+  error_message TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sync_mappings (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  connection_id UUID REFERENCES integration_connections(id),
+  local_resource VARCHAR(50),  -- 'customer', 'invoice', 'payment'
+  remote_resource VARCHAR(50),
+  field_mappings JSONB,  -- Map local fields to remote fields
+  sync_direction VARCHAR(20),  -- 'push', 'pull', 'bidirectional'
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE sync_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  connection_id UUID REFERENCES integration_connections(id),
+  sync_type VARCHAR(50),
+  direction VARCHAR(10),
+  records_processed INTEGER,
+  records_succeeded INTEGER,
+  records_failed INTEGER,
+  errors JSONB,
+  started_at TIMESTAMP,
+  completed_at TIMESTAMP
+);
+```
+
+**QuickBooks Integration Example**:
+```typescript
+@Injectable()
+export class QuickBooksIntegration {
+  async syncInvoices(): Promise<void> {
+    const connection = await this.getConnection('quickbooks');
+    const qbo = this.getQuickBooksClient(connection);
+    
+    // Get work orders that need invoicing
+    const workOrders = await this.prisma.workOrder.findMany({
+      where: {
+        status: 'completed',
+        invoiceId: null
+      },
+      include: { customer: true, lineItems: true }
+    });
+    
+    for (const wo of workOrders) {
+      try {
+        // Create invoice in QuickBooks
+        const invoice = await qbo.invoice.create({
+          CustomerRef: { value: wo.customer.qbCustomerId },
+          Line: wo.lineItems.map(item => ({
+            Amount: item.total,
+            DetailType: 'SalesItemLineDetail',
+            SalesItemLineDetail: {
+              ItemRef: { value: item.qbItemId },
+              Qty: item.quantity,
+              UnitPrice: item.unitPrice
+            },
+            Description: item.description
+          })),
+          DueDate: addDays(new Date(), 30)
+        });
+        
+        // Update work order with invoice ID
+        await this.prisma.workOrder.update({
+          where: { id: wo.id },
+          data: {
+            invoiceId: invoice.Id,
+            qbSyncedAt: new Date()
+          }
+        });
+        
+      } catch (error) {
+        await this.logSyncError(wo.id, error);
+      }
+    }
+  }
+  
+  async syncCustomers(): Promise<void> {
+    // Bidirectional sync of customers
+    const connection = await this.getConnection('quickbooks');
+    const qbo = this.getQuickBooksClient(connection);
+    
+    // Pull new customers from QB
+    const qbCustomers = await qbo.customer.query({
+      where: `MetaData.LastUpdatedTime > '${connection.lastSyncAt}'`
+    });
+    
+    for (const qbCustomer of qbCustomers) {
+      await this.upsertCustomer(qbCustomer);
+    }
+    
+    // Push new customers to QB
+    const localCustomers = await this.prisma.account.findMany({
+      where: {
+        qbCustomerId: null,
+        type: 'customer'
+      }
+    });
+    
+    for (const customer of localCustomers) {
+      const qbCustomer = await qbo.customer.create({
+        DisplayName: customer.name,
+        PrimaryEmailAddr: { Address: customer.email },
+        PrimaryPhone: { FreeFormNumber: customer.phone }
+      });
+      
+      await this.prisma.account.update({
+        where: { id: customer.id },
+        data: { qbCustomerId: qbCustomer.Id }
+      });
+    }
+  }
+}
+```
+
+**API Endpoints**:
+```typescript
+// OAuth connection
+GET /api/v1/integrations/quickbooks/auth
+GET /api/v1/integrations/quickbooks/callback
+
+// Sync operations
+POST /api/v1/integrations/:connectionId/sync
+Body: { resources: ['customers', 'invoices', 'payments'] }
+
+GET /api/v1/integrations/:connectionId/sync-status
+GET /api/v1/integrations/:connectionId/logs
+```
+
+**Benefits**:
+- Eliminate double data entry
+- Real-time financial sync
+- Automated invoicing
+- Accurate financial reporting
+
+---
+
+### 2. Communication Integrations (Email, SMS, Phone)
+
+**Priority**: Should Have
+
+**Email Integration (SendGrid/AWS SES)**:
+```typescript
+interface EmailTemplate {
+  id: string;
+  name: string;
+  subject: string;
+  bodyHtml: string;
+  bodyText: string;
+  variables: string[];  // ['{customer_name}', '{work_order_number}']
+}
+
+@Injectable()
+export class EmailService {
+  async sendWorkOrderConfirmation(workOrder: WorkOrder): Promise<void> {
+    const template = await this.getTemplate('work_order_confirmation');
+    
+    const email = {
+      to: workOrder.customer.email,
+      subject: this.replaceVariables(template.subject, {
+        work_order_number: workOrder.number
+      }),
+      html: this.replaceVariables(template.bodyHtml, {
+        customer_name: workOrder.customer.name,
+        work_order_number: workOrder.number,
+        scheduled_date: format(workOrder.scheduledAt, 'PPP'),
+        technician_name: workOrder.technician.name
+      }),
+      attachments: [
+        {
+          filename: 'work-order.pdf',
+          content: await this.generateWorkOrderPDF(workOrder)
+        }
+      ]
+    };
+    
+    await this.sendgrid.send(email);
+    
+    // Log email sent
+    await this.prisma.communicationLog.create({
+      data: {
+        type: 'email',
+        recipient: email.to,
+        subject: email.subject,
+        status: 'sent',
+        workOrderId: workOrder.id
+      }
+    });
+  }
+}
+```
+
+**SMS Integration (Twilio)**:
+```typescript
+@Injectable()
+export class SMSService {
+  async sendTechnicianDispatchNotification(workOrder: WorkOrder): Promise<void> {
+    const message = `New work order assigned! #${workOrder.number} at ${workOrder.customer.address}. Due: ${format(workOrder.scheduledAt, 'PP p')}. View: ${process.env.APP_URL}/work-orders/${workOrder.id}`;
+    
+    await this.twilio.messages.create({
+      to: workOrder.technician.phone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      body: message
+    });
+    
+    // Log SMS sent
+    await this.prisma.communicationLog.create({
+      data: {
+        type: 'sms',
+        recipient: workOrder.technician.phone,
+        message,
+        status: 'sent',
+        workOrderId: workOrder.id
+      }
+    });
+  }
+  
+  async sendCustomerReminder(workOrder: WorkOrder): Promise<void> {
+    const message = `Reminder: Your HVAC service is scheduled for ${format(workOrder.scheduledAt, 'PPP')} between ${workOrder.timeWindow}. Technician: ${workOrder.technician.name}. Questions? Call ${process.env.COMPANY_PHONE}`;
+    
+    await this.twilio.messages.create({
+      to: workOrder.customer.phone,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      body: message
+    });
+  }
+}
+```
+
+**Phone Integration (Twilio Voice)**:
+```typescript
+@Injectable()
+export class PhoneService {
+  async initiateCall(to: string, from: string): Promise<Call> {
+    const call = await this.twilio.calls.create({
+      to,
+      from: process.env.TWILIO_PHONE_NUMBER,
+      url: `${process.env.APP_URL}/api/v1/phone/twiml/greeting`,
+      statusCallback: `${process.env.APP_URL}/api/v1/phone/status`,
+      record: true
+    });
+    
+    return call;
+  }
+  
+  // TwiML endpoint for call handling
+  @Get('phone/twiml/greeting')
+  generateGreeting(@Query('to') to: string) {
+    const twiml = new Twilio.twiml.VoiceResponse();
+    
+    twiml.say(
+      { voice: 'alice' },
+      'Thank you for calling HVAC Company. Please hold while we connect you.'
+    );
+    
+    twiml.dial(to);
+    
+    return twiml.toString();
+  }
+}
+```
+
+**Communication Log Schema**:
+```sql
+CREATE TABLE communication_logs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  type VARCHAR(20) NOT NULL,  -- 'email', 'sms', 'phone'
+  direction VARCHAR(10),  -- 'inbound', 'outbound'
+  recipient VARCHAR(255),
+  sender VARCHAR(255),
+  subject VARCHAR(500),
+  message TEXT,
+  status VARCHAR(20),  -- 'sent', 'delivered', 'failed', 'bounced'
+  work_order_id UUID REFERENCES work_orders(id),
+  user_id UUID REFERENCES users(id),
+  cost DECIMAL(10, 4),  -- Cost of sending (for SMS/calls)
+  metadata JSONB,  -- Provider-specific data
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Benefits**:
+- Automated customer communication
+- Technician dispatch notifications
+- Two-way SMS conversation
+- Call tracking and recording
+
+---
+
+## Disaster Recovery & Data Protection
+
+### Backup Strategy
+
+**Priority**: Must Have
+
+**Database Schema**:
+```sql
+CREATE TABLE backup_jobs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  backup_type VARCHAR(20),  -- 'full', 'incremental', 'differential'
+  status VARCHAR(20),  -- 'in_progress', 'completed', 'failed'
+  file_size_bytes BIGINT,
+  file_path TEXT,
+  storage_location VARCHAR(100),  -- 's3', 'azure_blob', 'local'
+  retention_until DATE,
+  started_at TIMESTAMP,
+  completed_at TIMESTAMP,
+  error_message TEXT
+);
+
+CREATE TABLE restore_points (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  backup_id UUID REFERENCES backup_jobs(id),
+  checkpoint_name VARCHAR(100),
+  description TEXT,
+  database_size_bytes BIGINT,
+  can_restore_to BOOLEAN DEFAULT true,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**Backup Service**:
+```typescript
+@Injectable()
+export class BackupService {
+  @Cron('0 2 * * *')  // Daily at 2 AM
+  async performFullBackup() {
+    const backup = await this.prisma.backupJob.create({
+      data: {
+        backupType: 'full',
+        status: 'in_progress',
+        startedAt: new Date()
+      }
+    });
+    
+    try {
+      // Create database dump
+      const dumpFile = await this.createDatabaseDump();
+      
+      // Encrypt backup
+      const encryptedFile = await this.encryptBackup(dumpFile);
+      
+      // Upload to S3 with lifecycle policy
+      const s3Key = `backups/${format(new Date(), 'yyyy-MM-dd')}/full-backup.sql.gz.enc`;
+      await this.s3.upload({
+        Bucket: process.env.BACKUP_BUCKET,
+        Key: s3Key,
+        Body: fs.createReadStream(encryptedFile),
+        ServerSideEncryption: 'AES256',
+        StorageClass: 'GLACIER_IR',  // Instant Retrieval for compliance
+        Tagging: `RetentionYears=7&Type=DatabaseBackup`
+      });
+      
+      const fileSize = (await fs.stat(encryptedFile)).size;
+      
+      await this.prisma.backupJob.update({
+        where: { id: backup.id },
+        data: {
+          status: 'completed',
+          filePath: s3Key,
+          fileSizeBytes: fileSize,
+          storageLocation: 's3',
+          retentionUntil: addYears(new Date(), 7),
+          completedAt: new Date()
+        }
+      });
+      
+      // Clean up local files
+      await fs.unlink(dumpFile);
+      await fs.unlink(encryptedFile);
+      
+    } catch (error) {
+      await this.prisma.backupJob.update({
+        where: { id: backup.id },
+        data: {
+          status: 'failed',
+          errorMessage: error.message,
+          completedAt: new Date()
+        }
+      });
+      
+      throw error;
+    }
+  }
+  
+  async restoreFromBackup(backupId: string): Promise<void> {
+    const backup = await this.prisma.backupJob.findUnique({
+      where: { id: backupId }
+    });
+    
+    if (!backup) {
+      throw new Error('Backup not found');
+    }
+    
+    // Download from S3
+    const encryptedFile = await this.s3.download(backup.filePath);
+    
+    // Decrypt backup
+    const dumpFile = await this.decryptBackup(encryptedFile);
+    
+    // Create restore point before restoration
+    await this.createRestorePoint('before_restore');
+    
+    // Restore database
+    await this.restoreDatabase(dumpFile);
+    
+    // Cleanup
+    await fs.unlink(encryptedFile);
+    await fs.unlink(dumpFile);
+  }
+  
+  @Cron('0 */6 * * *')  // Every 6 hours
+  async testBackupIntegrity() {
+    const latestBackup = await this.getLatestBackup();
+    
+    // Download and verify backup can be decrypted
+    const isValid = await this.verifyBackup(latestBackup);
+    
+    if (!isValid) {
+      await this.alertAdmins('Backup integrity check failed!');
+    }
+  }
+}
+```
+
+**Recovery Time Objective (RTO) / Recovery Point Objective (RPO)**:
+```typescript
+const DR_POLICY = {
+  RPO: '1 hour',  // Maximum data loss acceptable (1 hour of transactions)
+  RTO: '4 hours',  // Maximum downtime acceptable (4 hours to restore)
+  
+  backupSchedule: {
+    full: 'daily at 2 AM',
+    incremental: 'every 6 hours',
+    transactionLog: 'every 15 minutes'
+  },
+  
+  retentionPolicy: {
+    daily: 30,    // Keep 30 days of daily backups
+    weekly: 52,   // Keep 52 weeks of weekly backups
+    monthly: 84,  // Keep 7 years of monthly backups (compliance)
+    yearly: 7     // Keep 7 years of yearly backups
+  }
+};
+```
+
+**Benefits**:
+- Protect against data loss
+- Compliance with retention requirements
+- Fast disaster recovery
+- Point-in-time restoration
+
+---
+
+## Permission System Analytics & Self-Service
+
+### 1. Permission Usage Analytics
+
+**Priority**: Should Have
+
+**Database Schema**:
+```sql
+CREATE TABLE permission_usage_analytics (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  permission_id UUID REFERENCES permissions(id),
+  user_id UUID REFERENCES users(id),
+  usage_count INTEGER DEFAULT 0,
+  last_used_at TIMESTAMP,
+  date DATE,
+  INDEX idx_permission_date (permission_id, date),
+  INDEX idx_user_date (user_id, date),
+  UNIQUE(permission_id, user_id, date)
+);
+
+CREATE TABLE toxic_permission_combinations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  permission_ids UUID[],
+  risk_level VARCHAR(20),  -- 'low', 'medium', 'high', 'critical'
+  description TEXT,
+  affected_users_count INTEGER DEFAULT 0,
+  detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP
+);
+```
+
+**Analytics Service**:
+```typescript
+@Injectable()
+export class PermissionAnalyticsService {
+  async trackPermissionUsage(userId: string, permission: string): Promise<void> {
+    const today = startOfDay(new Date());
+    
+    await this.prisma.permissionUsageAnalytics.upsert({
+      where: {
+        permissionId_userId_date: {
+          permissionId: permission.id,
+          userId,
+          date: today
+        }
+      },
+      update: {
+        usageCount: { increment: 1 },
+        lastUsedAt: new Date()
+      },
+      create: {
+        permissionId: permission.id,
+        userId,
+        date: today,
+        usageCount: 1,
+        lastUsedAt: new Date()
+      }
+    });
+  }
+  
+  async getUnusedPermissions(userId: string, days: number = 90): Promise<Permission[]> {
+    const cutoffDate = subDays(new Date(), days);
+    
+    const userPermissions = await this.getUserPermissions(userId);
+    const usedPermissions = await this.prisma.permissionUsageAnalytics.findMany({
+      where: {
+        userId,
+        lastUsedAt: { gte: cutoffDate }
+      },
+      select: { permissionId: true }
+    });
+    
+    const usedIds = new Set(usedPermissions.map(p => p.permissionId));
+    
+    return userPermissions.filter(p => !usedIds.has(p.id));
+  }
+  
+  async detectToxicCombinations(): Promise<ToxicCombination[]> {
+    // Find users with dangerous permission combinations
+    const users = await this.prisma.user.findMany({
+      include: {
+        roleAssignments: {
+          include: {
+            role: {
+              include: {
+                permissions: true
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    const toxicCombinations = [];
+    
+    for (const user of users) {
+      const permissions = this.getUserEffectivePermissions(user);
+      
+      // Check for separation of duties violations
+      if (
+        permissions.includes('work_orders:create') &&
+        permissions.includes('work_orders:approve')
+      ) {
+        toxicCombinations.push({
+          userId: user.id,
+          permissions: ['work_orders:create', 'work_orders:approve'],
+          riskLevel: 'high',
+          description: 'User can create and approve their own work orders'
+        });
+      }
+      
+      // Check for financial access violations
+      if (
+        permissions.includes('financial:view:all') &&
+        permissions.includes('financial:modify') &&
+        permissions.includes('audit:delete')
+      ) {
+        toxicCombinations.push({
+          userId: user.id,
+          permissions: ['financial:view:all', 'financial:modify', 'audit:delete'],
+          riskLevel: 'critical',
+          description: 'User has unrestricted financial access and can delete audit logs'
+        });
+      }
+    }
+    
+    return toxicCombinations;
+  }
+  
+  async generateAccessReviewReport(): Promise<AccessReviewReport> {
+    return {
+      totalUsers: await this.prisma.user.count(),
+      usersWithOverprivileges: await this.getUsersWithUnusedPermissions(90),
+      toxicCombinations: await this.detectToxicCombinations(),
+      expiredPermissions: await this.getExpiredPermissions(),
+      pendingApprovals: await this.getPendingApprovalRequests(),
+      lastReviewDate: await this.getLastReviewDate()
+    };
+  }
+}
+```
+
+**API Endpoints**:
+```typescript
+GET /api/v1/analytics/permissions/usage
+Query: { userId?, startDate, endDate }
+
+GET /api/v1/analytics/permissions/unused
+Query: { userId, days }
+
+GET /api/v1/analytics/permissions/toxic-combinations
+
+GET /api/v1/analytics/access-review
+Response: AccessReviewReport
+```
+
+**Benefits**:
+- Identify unused permissions (least privilege)
+- Detect risky permission combinations
+- Compliance reporting
+- Optimize role definitions
+
+---
+
+### 2. Self-Service Permission Requests
+
+**Priority**: Should Have
+
+**Database Schema**:
+```sql
+CREATE TABLE self_service_requests (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  requester_id UUID REFERENCES users(id),
+  request_type VARCHAR(50),  -- 'permission', 'role', 'access_extension'
+  permission_ids UUID[],
+  role_id UUID REFERENCES roles(id),
+  business_justification TEXT NOT NULL,
+  duration_days INTEGER,  -- For temporary access
+  status VARCHAR(20) DEFAULT 'pending',
+  approver_id UUID REFERENCES users(id),
+  approval_comment TEXT,
+  auto_approved BOOLEAN DEFAULT false,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  approved_at TIMESTAMP,
+  expires_at TIMESTAMP
+);
+```
+
+**Self-Service Portal Component**:
+```typescript
+function PermissionRequestPortal() {
+  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [justification, setJustification] = useState('');
+  const [duration, setDuration] = useState<number>(30);  // days
+  
+  const requestAccess = async () => {
+    const request = await api.post('/api/v1/self-service/request', {
+      permissionIds: selectedPermissions,
+      businessJustification: justification,
+      durationDays: duration
+    });
+    
+    if (request.autoApproved) {
+      toast.success('Access granted automatically!');
+    } else {
+      toast.info('Your request has been submitted for approval.');
+    }
+  };
+  
+  return (
+    <div className="permission-request-portal">
+      <h2>Request Additional Access</h2>
+      
+      <PermissionCatalog
+        onSelectPermissions={setSelectedPermissions}
+        selected={selectedPermissions}
+      />
+      
+      <TextArea
+        label="Business Justification (Required)"
+        value={justification}
+        onChange={(e) => setJustification(e.target.value)}
+        placeholder="Explain why you need this access and how it relates to your work..."
+        required
+      />
+      
+      <Select
+        label="Access Duration"
+        value={duration}
+        onChange={(e) => setDuration(Number(e.target.value))}
+      >
+        <option value={7}>7 days (temporary)</option>
+        <option value={30}>30 days</option>
+        <option value={90}>90 days</option>
+        <option value={0}>Permanent (requires manager approval)</option>
+      </Select>
+      
+      <button onClick={requestAccess}>Submit Request</button>
+    </div>
+  );
+}
+
+// Manager approval interface
+function PendingApprovals() {
+  const { data: requests } = useQuery('/api/v1/self-service/pending');
+  
+  const approveRequest = async (requestId: string, comment?: string) => {
+    await api.post(`/api/v1/self-service/${requestId}/approve`, { comment });
+    toast.success('Request approved');
+  };
+  
+  const rejectRequest = async (requestId: string, comment: string) => {
+    await api.post(`/api/v1/self-service/${requestId}/reject`, { comment });
+    toast.info('Request rejected');
+  };
+  
+  return (
+    <div>
+      <h2>Pending Access Requests</h2>
+      {requests.map(request => (
+        <RequestCard key={request.id}>
+          <div>
+            <strong>{request.requester.name}</strong> requests access to:
+            <ul>
+              {request.permissions.map(p => <li key={p.id}>{p.name}</li>)}
+            </ul>
+            <p><strong>Justification:</strong> {request.businessJustification}</p>
+            <p><strong>Duration:</strong> {request.durationDays} days</p>
+          </div>
+          <div className="actions">
+            <button onClick={() => approveRequest(request.id)}>Approve</button>
+            <button onClick={() => rejectRequest(request.id, 'Not justified')}>Reject</button>
+          </div>
+        </RequestCard>
+      ))}
+    </div>
+  );
+}
+```
+
+**Auto-Approval Rules**:
+```typescript
+interface AutoApprovalRule {
+  id: string;
+  permissionIds: string[];
+  conditions: Array<{
+    field: string;  // 'user.role', 'user.department', 'permission.category'
+    operator: string;
+    value: any;
+  }>;
+  maxDurationDays: number;
+  requiresJustification: boolean;
+}
+
+// Example: Auto-approve inventory view for warehouse personnel
+const AUTO_APPROVAL_RULES: AutoApprovalRule[] = [
+  {
+    permissionIds: ['inventory:read:all', 'inventory:search'],
+    conditions: [
+      { field: 'user.department', operator: 'equals', value: 'warehouse' }
+    ],
+    maxDurationDays: 90,
+    requiresJustification: true
+  },
+  {
+    permissionIds: ['work_orders:read:team'],
+    conditions: [
+      { field: 'user.role', operator: 'in', value: ['Lead Tech', 'Field Manager'] }
+    ],
+    maxDurationDays: 0,  // Permanent
+    requiresJustification: true
+  }
+];
+```
+
+**Benefits**:
+- Reduce admin workload
+- Faster access provisioning
+- Better auditability
+- Employee empowerment
+
+---
+
+## Multi-Language & Localization
+
+**Priority**: Nice to Have
+
+**Database Schema**:
+```sql
+CREATE TABLE translations (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  language_code VARCHAR(10) NOT NULL,  -- 'en', 'es', 'fr', 'de', 'zh'
+  namespace VARCHAR(50),  -- 'common', 'work_orders', 'inventory'
+  key VARCHAR(255) NOT NULL,
+  value TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(language_code, namespace, key)
+);
+
+CREATE TABLE user_preferences (
+  user_id UUID PRIMARY KEY REFERENCES users(id),
+  language VARCHAR(10) DEFAULT 'en',
+  timezone VARCHAR(50) DEFAULT 'UTC',
+  date_format VARCHAR(20) DEFAULT 'MM/DD/YYYY',
+  number_format VARCHAR(20) DEFAULT 'en-US',
+  currency VARCHAR(10) DEFAULT 'USD',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+**i18n Implementation (React)**:
+```typescript
+// i18n configuration
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+
+i18n
+  .use(initReactI18next)
+  .init({
+    resources: {
+      en: {
+        common: {
+          welcome: 'Welcome',
+          work_orders: 'Work Orders',
+          inventory: 'Inventory'
+        },
+        work_orders: {
+          create_new: 'Create New Work Order',
+          status_completed: 'Completed',
+          assigned_to: 'Assigned to {{name}}'
+        }
+      },
+      es: {
+        common: {
+          welcome: 'Bienvenido',
+          work_orders: 'Órdenes de Trabajo',
+          inventory: 'Inventario'
+        },
+        work_orders: {
+          create_new: 'Crear Nueva Orden de Trabajo',
+          status_completed: 'Completado',
+          assigned_to: 'Asignado a {{name}}'
+        }
+      }
+    },
+    lng: 'en',
+    fallbackLng: 'en',
+    interpolation: {
+      escapeValue: false
+    }
+  });
+
+// Usage in components
+function WorkOrderList() {
+  const { t } = useTranslation('work_orders');
+  
+  return (
+    <div>
+      <h1>{t('common:work_orders')}</h1>
+      <button>{t('create_new')}</button>
+      
+      {workOrders.map(wo => (
+        <div key={wo.id}>
+          <span>{t('status_' + wo.status)}</span>
+          <span>{t('assigned_to', { name: wo.technician.name })}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+```
+
+**Benefits**:
+- Support international markets
+- Better user experience for non-English speakers
+- Compliance with local regulations
+- Increased market reach
+
+---
+
 ## Implementation Priority Summary
 
 ### Phase 1 (Must Have) - Weeks 1-4
@@ -5069,6 +7374,7 @@ Target performance metrics:
 | 1.4 | 2025-10-19 | System | Added comprehensive technical implementation guide for custom roles:<br>- Complete database schema (6 tables) for roles, permissions, and assignments<br>- TypeScript data models and DTOs for all entities<br>- Full API endpoint specifications (25+ endpoints)<br>- Permission checking service with priority logic (deny > grant > role)<br>- NestJS authorization guard examples<br>- Permission naming conventions (resource:action:scope)<br>- Database seeding examples for default roles<br>- Caching strategy and performance optimization guidance<br>- Security considerations and testing best practices |
 | 1.5 | 2025-10-19 | System | Added Owner/CEO role with protected permissions system:<br>- New role: Owner/CEO (position #2, between Super Admin and Admin)<br>- Owner/CEO has ALL permissions from ALL roles except Super Admin permissions<br>- Added "can_be_edited_by_admin" field to roles table and model<br>- Owner/CEO role is protected and cannot be edited by Admins by default<br>- Only Super Admin can toggle "can be edited by admin" setting<br>- Updated all permission matrix tables to include Owner/CEO<br>- Updated role hierarchy from 14 to 15 total roles<br>- Updated seeding examples with canBeEditedByAdmin flags<br>- Updated access control documentation |
 | 1.6 | 2025-10-19 | System | Added 12 advanced permission system recommendations:<br>**Priority 1 (Must Have)**:<br>1. Team-scoped user management permissions (managers can manage their teams)<br>2. Permission groups/categories (bundle permissions for easier assignment)<br>3. Data-level permission scopes (own/team/department/all)<br>4. Simplified Owner/CEO implementation (dynamic aggregation or wildcard)<br>**Priority 2 (Should Have)**:<br>5. Role templates and inheritance (easier custom role creation)<br>6. Approval workflows for sensitive permissions<br>7. Permission conflict and violation detection<br>**Priority 3 (Nice to Have)**:<br>8. Time-based and conditional permissions<br>9. Permission delegation system<br>10. Bulk permission operations<br>11. Permission testing and simulation<br>12. Enhanced Admin audit log access<br>Added complete database schemas, TypeScript models, API endpoints, and implementation examples for all 12 recommendations. Includes impact summary: 13 new tables, 5 modified tables, ~25 new endpoints. |
+| 2.0 | 2025-10-19 | System | **MAJOR RELEASE** - Comprehensive enterprise-ready enhancements covering security, usability, and integrations:<br>**Security Enhancements**:<br>- SSO/SAML/OIDC integration (Azure AD, Okta, Google Workspace)<br>- Multi-factor authentication (TOTP, SMS, Email, U2F, WebAuthn)<br>- Advanced session management (idle timeout, device trust, anomaly detection)<br>- Encryption standards (AES-256-GCM, KMS integration, field-level encryption)<br>- API security (rate limiting, input validation, XSS/CSRF prevention)<br>- Tamper-evident audit logs with cryptographic chain integrity<br>- Compliance reports (SOX, GDPR, HIPAA, PCI-DSS)<br>- Retention policies and automated data lifecycle<br>**User-Friendliness Enhancements**:<br>- Interactive onboarding tours (role-specific guided walkthroughs)<br>- Contextual help system with searchable knowledge base<br>- In-app notifications with multi-channel delivery (email, SMS, push)<br>- WCAG 2.1 AA accessibility compliance<br>- Mobile-responsive design with breakpoints<br>- Keyboard shortcuts and navigation<br>- User feedback widget (bug reports, feature requests, NPS surveys)<br>**Business Integrations**:<br>- Accounting/ERP sync (QuickBooks, Sage, Xero, NetSuite)<br>- Email integration (SendGrid, AWS SES) with templates<br>- SMS integration (Twilio) for notifications<br>- Phone integration with call tracking and recording<br>- Communication logs and cost tracking<br>**Disaster Recovery & Data Protection**:<br>- Automated backup system (full, incremental, differential)<br>- Encrypted backups with S3 Glacier storage<br>- RPO/RTO targets (1 hour / 4 hours)<br>- Backup integrity testing<br>- Point-in-time restoration<br>**Permission System Analytics**:<br>- Permission usage tracking and analytics<br>- Unused permission detection<br>- Toxic permission combination alerts<br>- Access review reports for compliance<br>- Self-service permission requests with approval workflows<br>- Auto-approval rules for routine requests<br>**Multi-Language Support**:<br>- i18n implementation with translation database<br>- User language preferences<br>- Timezone and date format customization<br>**Database Impact**: Added 25+ new tables, 10+ modified tables<br>**API Impact**: Added 60+ new endpoints across all features<br>**Total New Content**: 2,800+ lines of specifications, schemas, and implementation code |
 
 ---
 
