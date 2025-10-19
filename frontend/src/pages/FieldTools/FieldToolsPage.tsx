@@ -3,8 +3,12 @@ import CapacitorTestTool from './components/CapacitorTestTool';
 import MotorAmpsChecker from './components/MotorAmpsChecker';
 import VoltageDropTool from './components/VoltageDropTool';
 import OhmsLawCalculator from './components/OhmsLawCalculator';
+import SuperheatCalculator from './components/SuperheatCalculator';
+import SubcoolingCalculator from './components/SubcoolingCalculator';
+import TargetSuperheatTool from './components/TargetSuperheatTool';
+import PTChart from './components/PTChart';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -45,6 +49,34 @@ export default function FieldToolsPage() {
       icon: '📊',
       description: 'Calculate voltage drop & wire sizing',
       component: VoltageDropTool
+    },
+    {
+      id: 'superheat',
+      name: 'Superheat Calculator',
+      icon: '🌡️',
+      description: 'Measure superheat for charge diagnosis',
+      component: SuperheatCalculator
+    },
+    {
+      id: 'subcooling',
+      name: 'Subcooling Calculator',
+      icon: '❄️',
+      description: 'Measure subcooling for charge verification',
+      component: SubcoolingCalculator
+    },
+    {
+      id: 'target-superheat',
+      name: 'Target Superheat',
+      icon: '🎯',
+      description: 'Calculate target superheat from conditions',
+      component: TargetSuperheatTool
+    },
+    {
+      id: 'pt-chart',
+      name: 'PT Chart',
+      icon: '📋',
+      description: 'Pressure-Temperature reference chart',
+      component: PTChart
     }
   ];
 
@@ -135,19 +167,19 @@ export default function FieldToolsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
             <div className="flex items-start">
               <span className="mr-2">🏠</span>
-              <span>HVAC Load Calculator</span>
-            </div>
-            <div className="flex items-start">
-              <span className="mr-2">❄️</span>
-              <span>Refrigerant Charge Calculator</span>
+              <span>HVAC Load Calculator (Manual J)</span>
             </div>
             <div className="flex items-start">
               <span className="mr-2">💨</span>
               <span>Airflow / CFM Calculator</span>
             </div>
             <div className="flex items-start">
+              <span className="mr-2">🔧</span>
+              <span>Duct Sizing Calculator</span>
+            </div>
+            <div className="flex items-start">
               <span className="mr-2">💰</span>
-              <span>Pricing & Quote Builder</span>
+              <span>Job Pricing & Quote Builder</span>
             </div>
           </div>
         </div>
