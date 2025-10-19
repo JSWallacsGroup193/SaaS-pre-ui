@@ -94,6 +94,7 @@ model Tenant {
   integrations   Integration[]
   emailTemplates EmailTemplate[]
   smsTemplates   SmsTemplate[]
+  fieldCalculations FieldCalculation[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -171,6 +172,7 @@ model User {
   workOrderStatusHistories WorkOrderStatusHistory[]
   completedChecklists WorkOrderChecklist[]
   workOrderSignatures WorkOrderSignature[]
+  fieldCalculations FieldCalculation[]
   customerNotes CustomerNote[]
   auditLogs     AuditLog[]
   createdInvoices Invoice[]
@@ -543,6 +545,7 @@ model WorkOrder {
   statusHistory WorkOrderStatusHistory[]
   checklists    WorkOrderChecklist[]
   signatures    WorkOrderSignature[]
+  fieldCalculations FieldCalculation[]
   
   @@index([tenantId])
   @@index([number])
@@ -757,6 +760,37 @@ model WorkOrderSignature {
   
   @@index([workOrderId])
   @@index([signatureType])
+}
+
+// NEW: Field Tool Calculations
+model FieldCalculation {
+  id              String   @id @default(uuid())
+  tenantId        String
+  workOrderId     String?
+  technicianId    String
+  
+  calculatorType  String   // "superheat", "gas-pipe", "psychrometric", etc.
+  category        String   // "electrical", "refrigeration", "airflow", "gas", "hydronic", "utility"
+  
+  inputs          Json     // All calculator inputs as JSON
+  results         Json     // All calculator results as JSON
+  
+  notes           String?  // Optional technician notes
+  isAttached      Boolean  @default(false) // Whether attached to work order
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt @default(now())
+  
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  workOrder       WorkOrder? @relation(fields: [workOrderId], references: [id], onDelete: SetNull)
+  technician      User      @relation(fields: [technicianId], references: [id])
+  
+  @@index([tenantId])
+  @@index([workOrderId])
+  @@index([technicianId])
+  @@index([calculatorType])
+  @@index([category])
+  @@index([createdAt])
 }
 
 // EXISTING: DispatchSlot (keep as-is but can enhance)
