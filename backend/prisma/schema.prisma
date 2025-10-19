@@ -71,6 +71,18 @@ model Tenant {
   expenses       Expense[]
   auditLogs      AuditLog[]
   serviceAgreements ServiceAgreement[]
+  metrics        Metric[]
+  alerts         Alert[]
+  webhooks       Webhook[]
+  integrations   Integration[]
+  emailTemplates EmailTemplate[]
+  smsTemplates   SmsTemplate[]
+  taxRates       TaxRate[]
+  vendors        Vendor[]
+  dashboards     Dashboard[]
+  notifications  Notification[]
+  activityLogs   ActivityLog[]
+  customReports  CustomReport[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -131,7 +143,7 @@ model User {
   dispatchSlots DispatchSlot[]
   
   // NEW relations
-  department    Department?    @relation(fields: [departmentId], references: [id])
+  department    Department?    @relation("DepartmentUsers", fields: [departmentId], references: [id])
   team          Team?          @relation("TeamMembers", fields: [teamId], references: [id])
   manager       User?          @relation("UserManager", fields: [managerId], references: [id])
   subordinates  User[]         @relation("UserManager")
@@ -147,6 +159,26 @@ model User {
   createdInvoices Invoice[]
   createdPayments Payment[]
   createdExpenses Expense[]
+  managedDepartments Department[] @relation("DepartmentManager")
+  workOrderLineItems WorkOrderLineItem[]
+  workOrderAttachments WorkOrderAttachment[]
+  workOrderStatusHistories WorkOrderStatusHistory[]
+  workOrderChecklists WorkOrderChecklist[]
+  workOrderSignatures WorkOrderSignature[]
+  passwordHistories PasswordHistory[]
+  loginAttempts LoginAttempt[]
+  oauthAccounts OAuthAccount[]
+  apiKeys ApiKey[]
+  refreshTokens RefreshToken[]
+  assignedTasks Task[]
+  activityLogs ActivityLog[]
+  teamMemberships TeamMember[]
+  inventoryAdjustments InventoryAdjustment[]
+  stockTransfersRequested StockTransfer[] @relation("TransferRequester")
+  customReports CustomReport[]
+  dashboards Dashboard[]
+  notifications Notification[]
+  notificationPreferences NotificationPreference[]
   
   @@index([tenantId])
   @@index([email])
@@ -173,8 +205,8 @@ model Department {
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   parent      Department? @relation("DepartmentHierarchy", fields: [parentId], references: [id])
   children    Department[] @relation("DepartmentHierarchy")
-  manager     User?     @relation(fields: [managerId], references: [id])
-  users       User[]
+  manager     User?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  users       User[]    @relation("DepartmentUsers")
   teams       Team[]
   
   @@index([tenantId])
@@ -202,6 +234,7 @@ model Team {
   department    Department? @relation(fields: [departmentId], references: [id])
   members       User[]    @relation("TeamMembers")
   workOrders    WorkOrder[]
+  teamMembers   TeamMember[]
   
   @@index([tenantId])
   @@index([departmentId])
@@ -812,6 +845,8 @@ model Account {
   invoices       Invoice[]
   payments       Payment[]
   tags           CustomerTagAssignment[]
+  customerNotes  CustomerNote[]
+  customerPreferences CustomerPreference[]
   
   @@index([tenantId])
   @@index([accountNumber])
@@ -1166,6 +1201,8 @@ model SKU {
   // NEW relations
   workOrderLineItems WorkOrderLineItem[]
   warehouseStock     WarehouseStock[]
+  inventoryAdjustments InventoryAdjustment[]
+  stockTransfers     StockTransfer[]
   
   @@index([tenantId])
   @@index([barcode])
@@ -1202,6 +1239,9 @@ model Warehouse {
   
   // NEW relations
   stock     WarehouseStock[]
+  inventoryAdjustments InventoryAdjustment[]
+  transfersFrom StockTransfer[] @relation("TransfersFrom")
+  transfersTo   StockTransfer[] @relation("TransfersTo")
   
   @@index([tenantId])
   @@index([code])
@@ -1312,6 +1352,7 @@ model PurchaseOrder {
 
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   sku        SKU      @relation(fields: [skuId], references: [id])
+  vendor     Vendor?  @relation(fields: [vendorId], references: [id])
 
   @@index([tenantId])
   @@index([skuId])
@@ -1381,6 +1422,7 @@ model Invoice {
   createdByUser User?    @relation(fields: [createdBy], references: [id])
   
   payments      Payment[]
+  lineItems     InvoiceLineItem[]
   
   @@index([tenantId])
   @@index([invoiceNumber])
