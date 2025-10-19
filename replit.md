@@ -8,10 +8,11 @@ I prefer simple language and detailed explanations. I want iterative development
 
 ## Recent Work
 - **✅ FIELD TOOLS MODULE LIVE (Oct 19, 2025)**: Successfully integrated professional HVAC calculators for field technicians
-  - **3 Professional Calculators**: Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator
+  - **4 Professional Calculators**: Ohm's Law, Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator
   - **Mobile-Responsive Design**: Optimized for tablets and phones used in the field
   - **Industry Standards**: All calculations follow NEC guidelines and HVAC best practices
   - **Calculator Features**:
+    - **Ohm's Law Calculator**: Calculates V, I, R, and Power (enter any 2 values)
     - **Capacitor Test Tool**: Tests capacitors with ±10% tolerance, instant PASS/FAIL results
     - **Motor Amps Checker**: Checks motor load percentage with color-coded status (Normal/Warning/Overload)
     - **Voltage Drop Calculator**: Calculates voltage drop and wire sizing for single/three-phase systems
@@ -78,7 +79,7 @@ The frontend uses Vite with proper TypeScript configuration, including `vite-env
 - **Dispatch**: Scheduling and management of technician dispatch slots.
 - **Forecasting**: Demand forecasting capabilities.
 - **Barcode System**: Generation and scanning of barcodes for inventory management, supporting exact and fuzzy matching.
-- **Field Tools**: Professional HVAC calculators for field technicians including Capacitor Test Tool, Motor Amps Checker, and Voltage Drop Calculator. Mobile-responsive design following NEC standards.
+- **Field Tools**: Professional HVAC calculators for field technicians including Ohm's Law Calculator, Capacitor Test Tool, Motor Amps Checker, and Voltage Drop Calculator. Mobile-responsive design following NEC standards and Ohm's Law principles.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.

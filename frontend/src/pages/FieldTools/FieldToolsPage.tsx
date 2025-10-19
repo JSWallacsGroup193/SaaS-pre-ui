@@ -2,8 +2,9 @@ import { useState } from 'react';
 import CapacitorTestTool from './components/CapacitorTestTool';
 import MotorAmpsChecker from './components/MotorAmpsChecker';
 import VoltageDropTool from './components/VoltageDropTool';
+import OhmsLawCalculator from './components/OhmsLawCalculator';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -17,6 +18,13 @@ export default function FieldToolsPage() {
   const [selectedCalculator, setSelectedCalculator] = useState<CalculatorType>(null);
 
   const calculators: Calculator[] = [
+    {
+      id: 'ohms',
+      name: "Ohm's Law",
+      icon: '🔋',
+      description: 'Calculate V, I, R, and Power',
+      component: OhmsLawCalculator
+    },
     {
       id: 'capacitor',
       name: 'Capacitor Test',
