@@ -1,10 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.2
-- **Last Updated**: October 18, 2025
+- **Version**: 1.3
+- **Last Updated**: October 19, 2025
 - **Status**: Planning Phase
-- **Recent Changes**: Restructured user roles and permissions
+- **Recent Changes**: Added role and permission customization system
 
 ---
 
@@ -862,6 +862,62 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate and export reports
   - View analytics
   - Cannot: Create, edit, or delete any data
+
+---
+
+### Role & Permission Customization
+
+**Important**: The roles and permissions documented above represent the **default configuration** of the system. The permission system is fully customizable to meet the specific needs of each organization.
+
+#### Customization Capabilities
+
+**1. Default Roles**
+- All 14 roles are pre-configured with the permissions listed above
+- These defaults serve as a starting point and best-practice templates
+- Organizations can use them as-is or customize to fit their workflows
+
+**2. Role Customization**
+- Users with appropriate access (Super Admin/Admin) can **add or remove permissions** from any role at any time
+- Each role can be tailored to match specific job responsibilities
+- Permissions can be modified without affecting users already assigned to that role (changes apply immediately)
+
+**3. User Permission Assignment**
+There are two methods to assign permissions to users:
+
+**Option A: Assign Entire Role**
+- Grant a user all permissions associated with a specific role
+- Quick setup for standard positions
+- Example: Assign "Technician" role → user gets all technician permissions
+
+**Option B: Cherry-Pick Individual Permissions**
+- Select specific permissions for a user regardless of role
+- Create custom permission sets for unique positions
+- Example: Grant "View Dashboard" + "Create Work Orders" + "View Inventory" without assigning a full role
+
+**4. Dynamic Permission Management**
+- Admins can add new permissions to existing roles as the system evolves
+- Permissions can be removed from roles when responsibilities change
+- No limit to the number of custom permission combinations
+
+**5. Permission Flexibility**
+- Organizations are not limited to the 14 default roles
+- Can create entirely new roles with custom permission sets
+- Can modify default roles extensively (add/remove/change permissions)
+- Each user can have a unique permission set if needed
+
+#### Access Control for Permission Management
+- **Super Admin**: Full access to create, modify, and delete roles and permissions
+- **Admin**: Can view roles and assign permissions to users (limited role editing)
+- **Other Roles**: Cannot modify role or permission configurations
+
+#### Best Practices
+- Start with default roles for standard positions
+- Customize roles based on actual job responsibilities
+- Regularly audit permission assignments for security
+- Document any customizations to default roles for training purposes
+- Use the principle of least privilege (grant only necessary permissions)
+
+---
 
 ### Permission Matrix
 
@@ -2096,6 +2152,7 @@ Target performance metrics:
 | 1.0 | 2025-10-18 | System | Initial comprehensive plan created |
 | 1.1 | 2025-10-18 | System | Added zero dollar work order and call back tracking throughout plan:<br>- Added zero dollar WO and call back KPIs<br>- Integrated into all dashboard sections<br>- Added dedicated analytics endpoints<br>- Updated database schema with new columns<br>- Added labor tracking table<br>- Created detailed API response examples<br>- Added financial impact tracking |
 | 1.2 | 2025-10-18 | System | Restructured user roles and permissions:<br>- Renamed: Inventory Manager → Warehouse Manager<br>- Removed: Manager role<br>- Added: Field Manager, Lead Dispatch, Lead Tech<br>- Added: Purchasing Manager, Purchasing<br>- Added: Warehouse Personnel<br>- Added: Accounting role<br>- Reorganized permission matrix into 3 tables for clarity<br>- Updated all role descriptions and permission details |
+| 1.3 | 2025-10-19 | System | Added comprehensive role and permission customization system:<br>- Documented that current roles/permissions are defaults<br>- Added ability for admins to add/remove permissions from any role<br>- Implemented two permission assignment methods (full role or cherry-pick)<br>- Enabled dynamic permission management<br>- Roles are fully customizable but pre-loaded with defaults<br>- Added access control guidelines for permission management<br>- Included best practices for permission customization |
 
 ---
 
