@@ -84,6 +84,17 @@ model Tenant {
   customReports  CustomReport[]
   notifications  Notification[]
   
+  // Phase 3 relations
+  vendors        Vendor[]
+  taxRates       TaxRate[]
+  inventoryAdjustments InventoryAdjustment[]
+  stockTransfers StockTransfer[]
+  documentTemplates DocumentTemplate[]
+  webhooks       Webhook[]
+  integrations   Integration[]
+  emailTemplates EmailTemplate[]
+  smsTemplates   SmsTemplate[]
+  
   @@index([subdomain])
   @@index([isActive])
 }
@@ -845,6 +856,9 @@ model Account {
   customerNotes  CustomerNote[]
   tags           CustomerTagAssignment[]
   
+  // Phase 3 relations
+  customerPreference CustomerPreference?
+  
   @@index([tenantId])
   @@index([accountNumber])
   @@index([email])
@@ -1199,6 +1213,12 @@ model SKU {
   workOrderLineItems WorkOrderLineItem[]
   warehouseStock     WarehouseStock[]
   
+  // Phase 3 relations
+  inventoryAdjustments InventoryAdjustment[]
+  stockTransfers       StockTransfer[]
+  purchaseOrderItems   PurchaseOrderItem[]
+  invoiceLineItems     InvoiceLineItem[]
+  
   @@index([tenantId])
   @@index([barcode])
   @@index([sku])
@@ -1235,6 +1255,11 @@ model Warehouse {
   // NEW relations
   stock     WarehouseStock[]
   
+  // Phase 3 relations
+  inventoryAdjustments InventoryAdjustment[]
+  transfersFrom        StockTransfer[] @relation("TransfersFrom")
+  transfersTo          StockTransfer[] @relation("TransfersTo")
+  
   @@index([tenantId])
   @@index([code])
 }
@@ -1248,6 +1273,9 @@ model Bin {
   
   warehouse    Warehouse     @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   ledgers      StockLedger[]
+  
+  // Phase 3 relations
+  inventoryAdjustments InventoryAdjustment[]
   
   @@index([warehouseId])
 }
@@ -1344,6 +1372,9 @@ model PurchaseOrder {
 
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   sku        SKU      @relation(fields: [skuId], references: [id])
+  
+  // Phase 3 relations
+  items      PurchaseOrderItem[]
 
   @@index([tenantId])
   @@index([skuId])
@@ -1413,6 +1444,9 @@ model Invoice {
   createdByUser User?    @relation(fields: [createdBy], references: [id])
   
   payments      Payment[]
+  
+  // Phase 3 relations
+  lineItems     InvoiceLineItem[]
   
   @@index([tenantId])
   @@index([invoiceNumber])
@@ -1914,4 +1948,340 @@ model NotificationPreference {
   user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@index([userId])
+}
+
+// ============================================================================
+// PHASE 3: ADVANCED INVENTORY & OPERATIONS (10 NEW TABLES)
+// ============================================================================
+
+// Inventory: Vendor/Supplier management
+model Vendor {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  vendorNumber   String?  @unique
+  name           String
+  
+  contactName    String?
+  email          String?
+  phone          String?
+  website        String?
+  
+  // Address
+  address        String?
+  city           String?
+  state          String?
+  zipCode        String?
+  country        String?  @default("US")
+  
+  // Payment terms
+  paymentTerms   String?  // "Net 30", "Net 60", "COD"
+  taxId          String?  // Tax ID / EIN
+  
+  // Status
+  isActive       Boolean  @default(true)
+  rating         Int?     // 1-5 stars
+  notes          String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([vendorNumber])
+  @@index([isActive])
+}
+
+// Finance: Tax rates by jurisdiction
+model TaxRate {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String   // "State Sales Tax", "County Tax", "City Tax"
+  jurisdiction   String   // "CA", "Los Angeles County", "Santa Monica"
+  
+  rate           Decimal  @db.Decimal(5,4) // e.g., 0.0825 for 8.25%
+  taxType        String   // "sales", "use", "property"
+  
+  isActive       Boolean  @default(true)
+  effectiveDate  DateTime @default(now())
+  expiryDate     DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([jurisdiction])
+  @@index([isActive])
+}
+
+// Inventory: Stock adjustments and corrections
+model InventoryAdjustment {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  adjustmentNumber String? @unique
+  
+  skuId          String
+  warehouseId    String
+  binId          String?
+  
+  quantityBefore Int
+  quantityAfter  Int
+  quantityChange Int      // Can be positive or negative
+  
+  reason         String   // "damaged", "lost", "found", "cycle_count", "correction"
+  notes          String?
+  
+  adjustedBy     String
+  approvedBy     String?
+  
+  createdAt      DateTime @default(now())
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  sku            SKU      @relation(fields: [skuId], references: [id])
+  warehouse      Warehouse @relation(fields: [warehouseId], references: [id])
+  bin            Bin?     @relation(fields: [binId], references: [id])
+  
+  @@index([tenantId])
+  @@index([skuId])
+  @@index([warehouseId])
+  @@index([createdAt])
+}
+
+// Inventory: Warehouse-to-warehouse transfers
+model StockTransfer {
+  id                String   @id @default(uuid())
+  tenantId          String
+  
+  transferNumber    String?  @unique
+  
+  fromWarehouseId   String
+  toWarehouseId     String
+  
+  skuId             String
+  quantity          Int
+  
+  status            String   @default("pending") // "pending", "in_transit", "received", "cancelled"
+  
+  initiatedBy       String
+  receivedBy        String?
+  
+  notes             String?
+  
+  initiatedAt       DateTime @default(now())
+  receivedAt        DateTime?
+  
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  fromWarehouse     Warehouse @relation("TransfersFrom", fields: [fromWarehouseId], references: [id])
+  toWarehouse       Warehouse @relation("TransfersTo", fields: [toWarehouseId], references: [id])
+  sku               SKU      @relation(fields: [skuId], references: [id])
+  
+  @@index([tenantId])
+  @@index([fromWarehouseId])
+  @@index([toWarehouseId])
+  @@index([status])
+}
+
+// Purchasing: Purchase order line items
+model PurchaseOrderItem {
+  id             String   @id @default(uuid())
+  purchaseOrderId String
+  
+  skuId          String
+  
+  quantity       Int
+  unitCost       Decimal  @db.Decimal(10,2)
+  totalCost      Decimal  @db.Decimal(10,2)
+  
+  receivedQty    Int      @default(0)
+  
+  notes          String?
+  
+  createdAt      DateTime @default(now())
+  
+  purchaseOrder  PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  sku            SKU      @relation(fields: [skuId], references: [id])
+  
+  @@index([purchaseOrderId])
+  @@index([skuId])
+}
+
+// Finance: Invoice line items for detailed billing
+model InvoiceLineItem {
+  id             String   @id @default(uuid())
+  invoiceId      String
+  
+  description    String
+  quantity       Decimal  @default(1) @db.Decimal(10,2)
+  unitPrice      Decimal  @db.Decimal(10,2)
+  totalPrice     Decimal  @db.Decimal(10,2)
+  
+  skuId          String?  // Optional link to inventory
+  taxable        Boolean  @default(true)
+  
+  sortOrder      Int      @default(0)
+  
+  createdAt      DateTime @default(now())
+  
+  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  sku            SKU?     @relation(fields: [skuId], references: [id])
+  
+  @@index([invoiceId])
+  @@index([skuId])
+}
+
+// CRM: Customer-specific preferences and settings
+model CustomerPreference {
+  id             String   @id @default(uuid())
+  accountId      String   @unique
+  
+  // Communication preferences
+  preferredContact String? // "email", "phone", "text"
+  emailOptIn       Boolean @default(true)
+  smsOptIn         Boolean @default(false)
+  
+  // Service preferences
+  preferredTechnician String?
+  preferredDayOfWeek  String?
+  preferredTimeSlot   String?
+  
+  // Billing preferences
+  billingCycle        String? // "monthly", "quarterly", "annual"
+  autoPayEnabled      Boolean @default(false)
+  paperlessInvoicing  Boolean @default(false)
+  
+  // Custom settings
+  customSettings      Json?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  account             Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  @@index([accountId])
+}
+
+// Documents: Reusable templates for invoices, work orders, etc.
+model DocumentTemplate {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  templateType   String   // "invoice", "work_order", "quote", "receipt"
+  
+  htmlContent    String   // HTML template with placeholders
+  cssStyles      String?  // Custom CSS
+  
+  headerContent  String?
+  footerContent  String?
+  
+  isDefault      Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  
+  variables      Json?    // Available template variables
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([templateType])
+}
+
+// Integrations: Webhook endpoints for event notifications
+model Webhook {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  url            String
+  
+  events         String[] // ["work_order.created", "invoice.paid", etc.]
+  secret         String   // For signature verification
+  
+  isActive       Boolean  @default(true)
+  lastTriggered  DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([isActive])
+}
+
+// Integrations: Third-party service integrations
+model Integration {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  provider       String   // "quickbooks", "stripe", "twilio", "sendgrid"
+  status         String   @default("inactive") // "inactive", "active", "error"
+  
+  config         Json     // Encrypted credentials and settings
+  lastSync       DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@unique([tenantId, provider])
+  @@index([tenantId])
+  @@index([status])
+}
+
+// Communications: Email templates
+model EmailTemplate {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  subject        String
+  htmlBody       String
+  textBody       String?
+  
+  templateType   String   // "invoice", "appointment_reminder", "welcome", "password_reset"
+  variables      Json?    // Available template variables
+  
+  isDefault      Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([templateType])
+}
+
+// Communications: SMS templates
+model SmsTemplate {
+  id             String   @id @default(uuid())
+  tenantId       String
+  
+  name           String
+  message        String   // Max 160 characters recommended
+  
+  templateType   String   // "appointment_reminder", "payment_received", "status_update"
+  variables      Json?
+  
+  isDefault      Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([templateType])
 }
