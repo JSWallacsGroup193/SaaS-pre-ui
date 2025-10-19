@@ -1,25 +1,26 @@
-import { useState } from 'react';
-import CapacitorTestTool from './components/CapacitorTestTool';
-import MotorAmpsChecker from './components/MotorAmpsChecker';
-import VoltageDropTool from './components/VoltageDropTool';
-import OhmsLawCalculator from './components/OhmsLawCalculator';
-import SuperheatCalculator from './components/SuperheatCalculator';
-import SubcoolingCalculator from './components/SubcoolingCalculator';
-import TargetSuperheatTool from './components/TargetSuperheatTool';
-import PTChart from './components/PTChart';
-import CFMCalculator from './components/CFMCalculator';
-import DuctSizer from './components/DuctSizer';
-import StaticPressureTool from './components/StaticPressureTool';
-import GasPipeSizer from './components/GasPipeSizer';
-import CombustionAirCalculator from './components/CombustionAirCalculator';
-import CombustionAnalysisTool from './components/CombustionAnalysisTool';
-import ExpansionTankSizer from './components/ExpansionTankSizer';
-import HydronicFlowCalculator from './components/HydronicFlowCalculator';
-import RadiantHeatingCalculator from './components/RadiantHeatingCalculator';
-import PsychrometricCalculator from './components/PsychrometricCalculator';
-import TonnageCalculator from './components/TonnageCalculator';
-import HVACUnitConverter from './components/HVACUnitConverter';
-import HeatLoadCalculator from './components/HeatLoadCalculator';
+import { useState, lazy, Suspense } from 'react';
+
+const CapacitorTestTool = lazy(() => import('./components/CapacitorTestTool'));
+const MotorAmpsChecker = lazy(() => import('./components/MotorAmpsChecker'));
+const VoltageDropTool = lazy(() => import('./components/VoltageDropTool'));
+const OhmsLawCalculator = lazy(() => import('./components/OhmsLawCalculator'));
+const SuperheatCalculator = lazy(() => import('./components/SuperheatCalculator'));
+const SubcoolingCalculator = lazy(() => import('./components/SubcoolingCalculator'));
+const TargetSuperheatTool = lazy(() => import('./components/TargetSuperheatTool'));
+const PTChart = lazy(() => import('./components/PTChart'));
+const CFMCalculator = lazy(() => import('./components/CFMCalculator'));
+const DuctSizer = lazy(() => import('./components/DuctSizer'));
+const StaticPressureTool = lazy(() => import('./components/StaticPressureTool'));
+const GasPipeSizer = lazy(() => import('./components/GasPipeSizer'));
+const CombustionAirCalculator = lazy(() => import('./components/CombustionAirCalculator'));
+const CombustionAnalysisTool = lazy(() => import('./components/CombustionAnalysisTool'));
+const ExpansionTankSizer = lazy(() => import('./components/ExpansionTankSizer'));
+const HydronicFlowCalculator = lazy(() => import('./components/HydronicFlowCalculator'));
+const RadiantHeatingCalculator = lazy(() => import('./components/RadiantHeatingCalculator'));
+const PsychrometricCalculator = lazy(() => import('./components/PsychrometricCalculator'));
+const TonnageCalculator = lazy(() => import('./components/TonnageCalculator'));
+const HVACUnitConverter = lazy(() => import('./components/HVACUnitConverter'));
+const HeatLoadCalculator = lazy(() => import('./components/HeatLoadCalculator'));
 
 type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | null;
 
@@ -199,7 +200,13 @@ export default function FieldToolsPage() {
             <span className="mr-2">←</span> Back to Field Tools
           </button>
           
-          <SelectedComponent />
+          <Suspense fallback={
+            <div className="flex items-center justify-center p-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            </div>
+          }>
+            <SelectedComponent />
+          </Suspense>
         </div>
       </div>
     );
