@@ -7,7 +7,7 @@
     "dev": "vite --port 5000",
     "build": "tsc -b && vite build",
     "preview": "vite preview --port 5000",
-    "api:gen": "openapi -i ../backend/openapi.json -o src/api -c fetch"
+    "api:gen": "npx openapi-typescript-codegen -i ../backend/openapi.json -o src/api -c fetch"
   },
   "dependencies": {
     "axios": "^1.7.7",
