@@ -26,6 +26,7 @@ export function Sidebar() {
         <Item to="/labels" label="Labels" />
         <Item to="/forecast" label="Forecasting" />
         <Item to="/scanner" label="Barcode Scanner" />
+        <Item to="/field-tools" label="Field Tools" />
         <Item to="/ai" label="AI Assistant" />
       </nav>
     </aside>

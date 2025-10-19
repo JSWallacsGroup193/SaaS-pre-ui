@@ -11,6 +11,7 @@ import Labels from './pages/Labels'
 import Forecast from './pages/Forecast'
 import Scanner from './pages/Scanner'
 import AI from './pages/AI'
+import FieldToolsPage from './pages/FieldTools/FieldToolsPage'
 import { useAuth } from './store/useAuth'
 import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/labels" element={<Labels />} />
             <Route path="/forecast" element={<Forecast />} />
             <Route path="/scanner" element={<Scanner />} />
+            <Route path="/field-tools" element={<FieldToolsPage />} />
             <Route path="/ai" element={<AI />} />
             <Route path="*" element={<Navigate to='/' />} />
           </Routes>
