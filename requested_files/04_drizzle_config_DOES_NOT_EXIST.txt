@@ -1,0 +1,46 @@
+❌ drizzle.config.ts - DOES NOT EXIST
+
+REASON:
+This HVAC Management System uses Prisma ORM, not Drizzle ORM.
+
+WHAT WE USE INSTEAD:
+--------------------
+- Database ORM: Prisma
+- Schema location: backend/prisma/schema.prisma
+- Configuration: Environment variable DATABASE_URL
+- Migration command: npm run db:push (no drizzle-kit needed)
+
+WHY PRISMA?
+-----------
+✅ Excellent TypeScript support
+✅ Automatic client generation
+✅ Built-in migration system
+✅ Strong type safety
+✅ Multi-database support (PostgreSQL, MySQL, etc.)
+✅ Integrated with NestJS ecosystem
+
+PRISMA CONFIGURATION:
+---------------------
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+MIGRATION WORKFLOW:
+-------------------
+1. Edit: backend/prisma/schema.prisma
+2. Push changes: npm run db:push
+3. Generate client: npx prisma generate (auto-runs via postinstall)
+
+If you need Drizzle ORM instead, you would need to:
+1. Uninstall Prisma packages
+2. Install Drizzle packages (drizzle-orm, drizzle-kit)
+3. Convert the schema from Prisma to Drizzle format
+4. Create drizzle.config.ts
+5. Update all backend code to use Drizzle instead of Prisma
+
+Date: October 19, 2025
