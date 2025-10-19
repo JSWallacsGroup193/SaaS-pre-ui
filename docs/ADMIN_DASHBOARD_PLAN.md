@@ -1,10 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.3
+- **Version**: 1.4
 - **Last Updated**: October 19, 2025
 - **Status**: Planning Phase
-- **Recent Changes**: Added role and permission customization system
+- **Recent Changes**: Added comprehensive technical implementation guide for custom roles
 
 ---
 
@@ -916,6 +916,683 @@ There are two methods to assign permissions to users:
 - Regularly audit permission assignments for security
 - Document any customizations to default roles for training purposes
 - Use the principle of least privilege (grant only necessary permissions)
+
+---
+
+### Technical Implementation Guide for Custom Roles & Permissions
+
+This section provides detailed technical guidance for implementing the customizable role and permission system.
+
+#### Database Schema Design
+
+**1. Roles Table**
+```sql
+CREATE TABLE roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL UNIQUE,
+  description TEXT,
+  is_default BOOLEAN DEFAULT false,  -- True for the 14 system default roles
+  is_custom BOOLEAN DEFAULT false,   -- True for user-created roles
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW(),
+  created_by UUID REFERENCES users(id),
+  tenant_id UUID REFERENCES tenants(id),
+  
+  CONSTRAINT unique_role_per_tenant UNIQUE(name, tenant_id)
+);
+
+CREATE INDEX idx_roles_tenant ON roles(tenant_id);
+CREATE INDEX idx_roles_is_default ON roles(is_default);
+```
+
+**2. Permissions Table**
+```sql
+CREATE TABLE permissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL UNIQUE,  -- e.g., "work_orders:create"
+  resource VARCHAR(50) NOT NULL,       -- e.g., "work_orders"
+  action VARCHAR(50) NOT NULL,         -- e.g., "create", "read", "update", "delete"
+  description TEXT,
+  category VARCHAR(50),                -- e.g., "operations", "financial", "admin"
+  is_system BOOLEAN DEFAULT true,      -- System permissions vs custom permissions
+  created_at TIMESTAMP DEFAULT NOW(),
+  
+  CONSTRAINT unique_permission_name UNIQUE(resource, action)
+);
+
+CREATE INDEX idx_permissions_resource ON permissions(resource);
+CREATE INDEX idx_permissions_category ON permissions(category);
+```
+
+**3. Role-Permission Mapping Table**
+```sql
+CREATE TABLE role_permissions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+  permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
+  granted_by UUID REFERENCES users(id),
+  granted_at TIMESTAMP DEFAULT NOW(),
+  
+  CONSTRAINT unique_role_permission UNIQUE(role_id, permission_id)
+);
+
+CREATE INDEX idx_role_permissions_role ON role_permissions(role_id);
+CREATE INDEX idx_role_permissions_permission ON role_permissions(permission_id);
+```
+
+**4. User-Role Assignment Table**
+```sql
+CREATE TABLE user_roles (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+  assigned_by UUID REFERENCES users(id),
+  assigned_at TIMESTAMP DEFAULT NOW(),
+  expires_at TIMESTAMP,  -- Optional: for temporary role assignments
+  
+  CONSTRAINT unique_user_role UNIQUE(user_id, role_id)
+);
+
+CREATE INDEX idx_user_roles_user ON user_roles(user_id);
+CREATE INDEX idx_user_roles_role ON user_roles(role_id);
+```
+
+**5. User-Permission Overrides Table**
+```sql
+-- For cherry-picked permissions that override role defaults
+CREATE TABLE user_permission_overrides (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  permission_id UUID REFERENCES permissions(id) ON DELETE CASCADE,
+  is_granted BOOLEAN NOT NULL,  -- True = granted, False = explicitly denied
+  granted_by UUID REFERENCES users(id),
+  granted_at TIMESTAMP DEFAULT NOW(),
+  reason TEXT,  -- Why this override was applied
+  
+  CONSTRAINT unique_user_permission UNIQUE(user_id, permission_id)
+);
+
+CREATE INDEX idx_user_permission_overrides_user ON user_permission_overrides(user_id);
+```
+
+**6. Permission Audit Log Table**
+```sql
+CREATE TABLE permission_audit_log (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  action VARCHAR(50) NOT NULL,  -- "role_assigned", "permission_granted", "permission_revoked"
+  target_user_id UUID REFERENCES users(id),
+  target_role_id UUID REFERENCES roles(id),
+  target_permission_id UUID REFERENCES permissions(id),
+  old_value JSONB,
+  new_value JSONB,
+  reason TEXT,
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP DEFAULT NOW(),
+  tenant_id UUID REFERENCES tenants(id)
+);
+
+CREATE INDEX idx_permission_audit_user ON permission_audit_log(user_id);
+CREATE INDEX idx_permission_audit_target ON permission_audit_log(target_user_id);
+CREATE INDEX idx_permission_audit_created ON permission_audit_log(created_at DESC);
+```
+
+---
+
+#### Data Models / DTOs
+
+**Permission Model**
+```typescript
+interface Permission {
+  id: string;
+  name: string;              // "work_orders:create"
+  resource: string;          // "work_orders"
+  action: string;            // "create"
+  description: string;
+  category: 'operations' | 'financial' | 'admin' | 'warehouse' | 'crm';
+  isSystem: boolean;
+  createdAt: Date;
+}
+```
+
+**Role Model**
+```typescript
+interface Role {
+  id: string;
+  name: string;
+  description: string;
+  isDefault: boolean;        // One of the 14 system defaults
+  isCustom: boolean;         // User-created custom role
+  permissions: Permission[]; // All permissions assigned to this role
+  userCount?: number;        // Number of users with this role
+  createdAt: Date;
+  updatedAt: Date;
+  createdBy: string;
+  tenantId: string;
+}
+```
+
+**User Permission Set Model**
+```typescript
+interface UserPermissionSet {
+  userId: string;
+  roles: Role[];                    // All roles assigned to user
+  effectivePermissions: Permission[]; // Computed final permission set
+  permissionOverrides: {
+    permissionId: string;
+    isGranted: boolean;
+    reason: string;
+  }[];
+}
+```
+
+**Create/Update Role DTO**
+```typescript
+interface CreateRoleDto {
+  name: string;
+  description: string;
+  permissionIds: string[];   // Initial permissions to assign
+  tenantId: string;
+}
+
+interface UpdateRoleDto {
+  name?: string;
+  description?: string;
+  permissionIds?: string[];  // Replace all permissions
+}
+
+interface AddPermissionsToRoleDto {
+  roleId: string;
+  permissionIds: string[];
+}
+
+interface RemovePermissionsFromRoleDto {
+  roleId: string;
+  permissionIds: string[];
+}
+```
+
+**Assign Permissions DTO**
+```typescript
+interface AssignRoleToUserDto {
+  userId: string;
+  roleId: string;
+  expiresAt?: Date;
+  reason?: string;
+}
+
+interface GrantPermissionOverrideDto {
+  userId: string;
+  permissionId: string;
+  isGranted: boolean;  // true = grant, false = explicitly deny
+  reason: string;
+}
+```
+
+---
+
+#### API Endpoints
+
+**Role Management Endpoints**
+
+```typescript
+// GET /api/v1/roles
+// List all roles (with optional filters)
+// Query params: ?includePermissions=true&isDefault=true&isCustom=false
+GET /api/v1/roles
+Response: {
+  roles: Role[];
+  total: number;
+}
+
+// GET /api/v1/roles/:roleId
+// Get single role with all permissions
+GET /api/v1/roles/:roleId
+Response: Role
+
+// POST /api/v1/roles
+// Create new custom role
+POST /api/v1/roles
+Body: CreateRoleDto
+Response: Role
+
+// PUT /api/v1/roles/:roleId
+// Update role (name, description, permissions)
+PUT /api/v1/roles/:roleId
+Body: UpdateRoleDto
+Response: Role
+
+// DELETE /api/v1/roles/:roleId
+// Delete custom role (cannot delete default roles)
+DELETE /api/v1/roles/:roleId
+Response: { success: true, message: string }
+
+// POST /api/v1/roles/:roleId/permissions
+// Add permissions to a role
+POST /api/v1/roles/:roleId/permissions
+Body: { permissionIds: string[] }
+Response: Role
+
+// DELETE /api/v1/roles/:roleId/permissions
+// Remove permissions from a role
+DELETE /api/v1/roles/:roleId/permissions
+Body: { permissionIds: string[] }
+Response: Role
+
+// POST /api/v1/roles/:roleId/clone
+// Clone an existing role (useful for creating custom variants)
+POST /api/v1/roles/:roleId/clone
+Body: { name: string, description: string }
+Response: Role
+```
+
+**Permission Management Endpoints**
+
+```typescript
+// GET /api/v1/permissions
+// List all available permissions
+// Query params: ?category=operations&resource=work_orders
+GET /api/v1/permissions
+Response: {
+  permissions: Permission[];
+  total: number;
+  categories: string[];
+  resources: string[];
+}
+
+// GET /api/v1/permissions/:permissionId
+// Get single permission details
+GET /api/v1/permissions/:permissionId
+Response: Permission
+
+// POST /api/v1/permissions
+// Create custom permission (Super Admin only)
+POST /api/v1/permissions
+Body: {
+  name: string;
+  resource: string;
+  action: string;
+  description: string;
+  category: string;
+}
+Response: Permission
+```
+
+**User Permission Assignment Endpoints**
+
+```typescript
+// GET /api/v1/users/:userId/permissions
+// Get user's complete permission set (roles + overrides)
+GET /api/v1/users/:userId/permissions
+Response: UserPermissionSet
+
+// POST /api/v1/users/:userId/roles
+// Assign role to user
+POST /api/v1/users/:userId/roles
+Body: AssignRoleToUserDto
+Response: { success: true, userPermissionSet: UserPermissionSet }
+
+// DELETE /api/v1/users/:userId/roles/:roleId
+// Remove role from user
+DELETE /api/v1/users/:userId/roles/:roleId
+Response: { success: true }
+
+// POST /api/v1/users/:userId/permission-overrides
+// Grant or deny specific permission (cherry-pick)
+POST /api/v1/users/:userId/permission-overrides
+Body: GrantPermissionOverrideDto
+Response: { success: true, userPermissionSet: UserPermissionSet }
+
+// DELETE /api/v1/users/:userId/permission-overrides/:permissionId
+// Remove permission override
+DELETE /api/v1/users/:userId/permission-overrides/:permissionId
+Response: { success: true }
+
+// GET /api/v1/users/:userId/check-permission/:permissionName
+// Check if user has specific permission
+GET /api/v1/users/:userId/check-permission/:permissionName
+Response: { hasPermission: boolean, source: 'role' | 'override' | 'denied' }
+```
+
+**Permission Audit Endpoints**
+
+```typescript
+// GET /api/v1/audit/permissions
+// Get permission change audit log
+// Query params: ?userId=xxx&startDate=xxx&endDate=xxx&action=role_assigned
+GET /api/v1/audit/permissions
+Response: {
+  logs: PermissionAuditLog[];
+  total: number;
+}
+```
+
+---
+
+#### Permission Checking Logic
+
+**Core Permission Checking Function**
+```typescript
+class PermissionService {
+  /**
+   * Check if user has a specific permission
+   * Priority: Explicit Deny > Explicit Grant > Role-based Permission
+   */
+  async checkPermission(
+    userId: string,
+    permissionName: string // e.g., "work_orders:create"
+  ): Promise<boolean> {
+    // 1. Check for explicit denial in overrides
+    const denial = await this.db.userPermissionOverrides.findFirst({
+      where: {
+        userId,
+        permission: { name: permissionName },
+        isGranted: false // Explicit denial
+      }
+    });
+    
+    if (denial) {
+      return false; // Explicit denial takes highest priority
+    }
+    
+    // 2. Check for explicit grant in overrides
+    const grant = await this.db.userPermissionOverrides.findFirst({
+      where: {
+        userId,
+        permission: { name: permissionName },
+        isGranted: true
+      }
+    });
+    
+    if (grant) {
+      return true; // Explicit grant
+    }
+    
+    // 3. Check role-based permissions
+    const rolePermission = await this.db.userRoles.findFirst({
+      where: {
+        userId,
+        role: {
+          rolePermissions: {
+            some: {
+              permission: { name: permissionName }
+            }
+          }
+        }
+      }
+    });
+    
+    return !!rolePermission;
+  }
+  
+  /**
+   * Get all effective permissions for a user
+   */
+  async getUserEffectivePermissions(userId: string): Promise<Permission[]> {
+    // Get permissions from all assigned roles
+    const rolePermissions = await this.db.rolePermissions.findMany({
+      where: {
+        role: {
+          userRoles: {
+            some: { userId }
+          }
+        }
+      },
+      include: { permission: true }
+    });
+    
+    // Get permission overrides
+    const overrides = await this.db.userPermissionOverrides.findMany({
+      where: { userId, isGranted: true },
+      include: { permission: true }
+    });
+    
+    // Get explicit denials
+    const denials = await this.db.userPermissionOverrides.findMany({
+      where: { userId, isGranted: false },
+      include: { permission: true }
+    });
+    
+    const deniedIds = new Set(denials.map(d => d.permission.id));
+    
+    // Combine and deduplicate
+    const allPermissions = new Map<string, Permission>();
+    
+    // Add role-based permissions
+    rolePermissions.forEach(rp => {
+      if (!deniedIds.has(rp.permission.id)) {
+        allPermissions.set(rp.permission.id, rp.permission);
+      }
+    });
+    
+    // Add granted overrides
+    overrides.forEach(o => {
+      allPermissions.set(o.permission.id, o.permission);
+    });
+    
+    return Array.from(allPermissions.values());
+  }
+  
+  /**
+   * Bulk permission check for multiple permissions
+   */
+  async checkMultiplePermissions(
+    userId: string,
+    permissionNames: string[]
+  ): Promise<Record<string, boolean>> {
+    const results: Record<string, boolean> = {};
+    
+    for (const permissionName of permissionNames) {
+      results[permissionName] = await this.checkPermission(userId, permissionName);
+    }
+    
+    return results;
+  }
+}
+```
+
+**Authorization Guard/Middleware Example**
+```typescript
+// NestJS Guard Example
+@Injectable()
+export class PermissionsGuard implements CanActivate {
+  constructor(private permissionService: PermissionService) {}
+  
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const requiredPermissions = this.reflector.get<string[]>(
+      'permissions',
+      context.getHandler()
+    );
+    
+    if (!requiredPermissions) {
+      return true; // No permissions required
+    }
+    
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+    
+    // Check if user has ALL required permissions (AND logic)
+    for (const permission of requiredPermissions) {
+      const hasPermission = await this.permissionService.checkPermission(
+        user.id,
+        permission
+      );
+      
+      if (!hasPermission) {
+        throw new ForbiddenException(
+          `Missing required permission: ${permission}`
+        );
+      }
+    }
+    
+    return true;
+  }
+}
+
+// Usage in controllers
+@Controller('work-orders')
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+export class WorkOrderController {
+  @Post()
+  @Permissions('work_orders:create')
+  async createWorkOrder(@Body() dto: CreateWorkOrderDto) {
+    // Only users with 'work_orders:create' permission can access this
+  }
+  
+  @Delete(':id')
+  @Permissions('work_orders:delete', 'admin:all')
+  async deleteWorkOrder(@Param('id') id: string) {
+    // Requires BOTH permissions
+  }
+}
+```
+
+---
+
+#### Permission Naming Convention
+
+Follow a consistent naming pattern for permissions:
+
+**Format**: `{resource}:{action}:{scope?}`
+
+**Examples**:
+```
+work_orders:create
+work_orders:read:own          // Read only own work orders
+work_orders:read:all          // Read all work orders
+work_orders:update:own
+work_orders:update:all
+work_orders:delete
+
+inventory:read
+inventory:create
+inventory:update
+inventory:adjust              // Special action for inventory adjustments
+
+users:create
+users:update
+users:delete
+users:manage_roles            // Special action for role management
+
+dashboard:view:executive
+dashboard:view:operations
+dashboard:view:financial
+
+reports:export
+reports:generate
+reports:schedule
+
+admin:all                     // Super admin wildcard
+```
+
+---
+
+#### Seeding Default Roles & Permissions
+
+**Seed Script Example**
+```typescript
+async function seedRolesAndPermissions() {
+  // 1. Create all system permissions first
+  const permissions = await createSystemPermissions();
+  
+  // 2. Create the 14 default roles
+  const roles = await createDefaultRoles();
+  
+  // 3. Assign permissions to default roles
+  await assignDefaultPermissions(roles, permissions);
+}
+
+async function createSystemPermissions() {
+  const permissionDefinitions = [
+    // Work Orders
+    { resource: 'work_orders', action: 'create', category: 'operations' },
+    { resource: 'work_orders', action: 'read:own', category: 'operations' },
+    { resource: 'work_orders', action: 'read:all', category: 'operations' },
+    { resource: 'work_orders', action: 'update:own', category: 'operations' },
+    { resource: 'work_orders', action: 'update:all', category: 'operations' },
+    { resource: 'work_orders', action: 'delete', category: 'operations' },
+    
+    // Inventory
+    { resource: 'inventory', action: 'read', category: 'warehouse' },
+    { resource: 'inventory', action: 'create', category: 'warehouse' },
+    { resource: 'inventory', action: 'update', category: 'warehouse' },
+    { resource: 'inventory', action: 'adjust', category: 'warehouse' },
+    
+    // Dashboards
+    { resource: 'dashboard', action: 'view:executive', category: 'admin' },
+    { resource: 'dashboard', action: 'view:operations', category: 'operations' },
+    { resource: 'dashboard', action: 'view:financial', category: 'financial' },
+    
+    // Financial
+    { resource: 'financial', action: 'view:revenue', category: 'financial' },
+    { resource: 'financial', action: 'view:expenses', category: 'financial' },
+    { resource: 'financial', action: 'manage', category: 'financial' },
+    
+    // ... more permissions
+  ];
+  
+  return await Promise.all(
+    permissionDefinitions.map(p => 
+      db.permission.create({
+        data: {
+          name: `${p.resource}:${p.action}`,
+          resource: p.resource,
+          action: p.action,
+          category: p.category,
+          isSystem: true
+        }
+      })
+    )
+  );
+}
+
+async function createDefaultRoles() {
+  const roleDefinitions = [
+    { name: 'Super Admin', description: 'Full system access', isDefault: true },
+    { name: 'Admin', description: 'Business management', isDefault: true },
+    { name: 'Field Manager', description: 'Field operations leadership', isDefault: true },
+    // ... all 14 roles
+  ];
+  
+  return await Promise.all(
+    roleDefinitions.map(r => 
+      db.role.create({ data: r })
+    )
+  );
+}
+```
+
+---
+
+#### Implementation Best Practices
+
+1. **Caching Strategy**
+   - Cache user permissions in Redis/memory with TTL
+   - Invalidate cache when permissions change
+   - Use cache key pattern: `user:{userId}:permissions`
+
+2. **Performance Optimization**
+   - Lazy-load permissions (don't fetch on every request)
+   - Use database indexes on foreign keys
+   - Batch permission checks when possible
+
+3. **Security Considerations**
+   - Always validate permission names against whitelist
+   - Log all permission changes in audit table
+   - Prevent users from escalating their own privileges
+   - Require Super Admin approval for sensitive permission grants
+
+4. **Error Handling**
+   - Return 403 Forbidden with clear error messages
+   - Don't leak system information in permission errors
+   - Log failed permission checks for security monitoring
+
+5. **Testing**
+   - Unit test permission checking logic thoroughly
+   - Integration test role assignment flows
+   - Test permission inheritance and overrides
+   - Test edge cases (expired roles, deleted permissions)
 
 ---
 
@@ -2153,6 +2830,7 @@ Target performance metrics:
 | 1.1 | 2025-10-18 | System | Added zero dollar work order and call back tracking throughout plan:<br>- Added zero dollar WO and call back KPIs<br>- Integrated into all dashboard sections<br>- Added dedicated analytics endpoints<br>- Updated database schema with new columns<br>- Added labor tracking table<br>- Created detailed API response examples<br>- Added financial impact tracking |
 | 1.2 | 2025-10-18 | System | Restructured user roles and permissions:<br>- Renamed: Inventory Manager → Warehouse Manager<br>- Removed: Manager role<br>- Added: Field Manager, Lead Dispatch, Lead Tech<br>- Added: Purchasing Manager, Purchasing<br>- Added: Warehouse Personnel<br>- Added: Accounting role<br>- Reorganized permission matrix into 3 tables for clarity<br>- Updated all role descriptions and permission details |
 | 1.3 | 2025-10-19 | System | Added comprehensive role and permission customization system:<br>- Documented that current roles/permissions are defaults<br>- Added ability for admins to add/remove permissions from any role<br>- Implemented two permission assignment methods (full role or cherry-pick)<br>- Enabled dynamic permission management<br>- Roles are fully customizable but pre-loaded with defaults<br>- Added access control guidelines for permission management<br>- Included best practices for permission customization |
+| 1.4 | 2025-10-19 | System | Added comprehensive technical implementation guide for custom roles:<br>- Complete database schema (6 tables) for roles, permissions, and assignments<br>- TypeScript data models and DTOs for all entities<br>- Full API endpoint specifications (25+ endpoints)<br>- Permission checking service with priority logic (deny > grant > role)<br>- NestJS authorization guard examples<br>- Permission naming conventions (resource:action:scope)<br>- Database seeding examples for default roles<br>- Caching strategy and performance optimization guidance<br>- Security considerations and testing best practices |
 
 ---
 
