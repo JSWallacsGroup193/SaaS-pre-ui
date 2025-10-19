@@ -47,7 +47,7 @@ model Tenant {
   isActive       Boolean         @default(true)
   
   createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  updatedAt      DateTime        @updatedAt @default(now())
   
   // EXISTING relations (keep all)
   users          User[]
@@ -121,7 +121,7 @@ model User {
   preferences   Json?
   
   createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  updatedAt     DateTime       @updatedAt @default(now())
   deletedAt     DateTime?      // Soft delete
   
   // EXISTING relations (keep all)
@@ -131,7 +131,8 @@ model User {
   dispatchSlots DispatchSlot[]
   
   // NEW relations
-  department    Department?    @relation(fields: [departmentId], references: [id])
+  department    Department?    @relation("DepartmentUsers", fields: [departmentId], references: [id])
+  managedDepartments Department[] @relation("DepartmentManager")
   team          Team?          @relation("TeamMembers", fields: [teamId], references: [id])
   manager       User?          @relation("UserManager", fields: [managerId], references: [id])
   subordinates  User[]         @relation("UserManager")
@@ -142,6 +143,11 @@ model User {
   createdWorkOrders WorkOrder[] @relation("CreatedByUser")
   workOrderNotes WorkOrderNote[]
   workOrderTechnicians WorkOrderTechnician[]
+  workOrderLineItems WorkOrderLineItem[]
+  workOrderAttachments WorkOrderAttachment[]
+  workOrderStatusHistories WorkOrderStatusHistory[]
+  completedChecklists WorkOrderChecklist[]
+  workOrderSignatures WorkOrderSignature[]
   customerNotes CustomerNote[]
   auditLogs     AuditLog[]
   createdInvoices Invoice[]
@@ -167,14 +173,14 @@ model Department {
   managerId   String?
   
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime  @updatedAt @default(now())
   deletedAt   DateTime?
   
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   parent      Department? @relation("DepartmentHierarchy", fields: [parentId], references: [id])
   children    Department[] @relation("DepartmentHierarchy")
-  manager     User?     @relation(fields: [managerId], references: [id])
-  users       User[]
+  manager     User?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  users       User[]    @relation("DepartmentUsers")
   teams       Team[]
   
   @@index([tenantId])
@@ -195,7 +201,7 @@ model Team {
   isActive      Boolean   @default(true)
   
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @updatedAt @default(now())
   deletedAt     DateTime?
   
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
@@ -220,7 +226,7 @@ model Role {
   color       String?
   
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  updatedAt   DateTime    @updatedAt @default(now())
   
   users       UserRole[]
   permissions RolePermission[]
@@ -301,7 +307,7 @@ model PermissionGroup {
   isSystem    Boolean   @default(false)
   
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime  @updatedAt @default(now())
   
   permissions PermissionGroupMapping[]
   
@@ -476,7 +482,7 @@ model WorkOrder {
   // NEW: Created by tracking
   createdBy     String?
   
-  updatedAt     DateTime       @updatedAt
+  updatedAt     DateTime       @updatedAt @default(now())
   deletedAt     DateTime?
   
   // EXISTING relations (keep all)
@@ -563,7 +569,7 @@ model WorkOrderLineItem {
   isBillable    Boolean  @default(true)
   
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   workOrder     WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   sku           SKU?      @relation(fields: [skuId], references: [id])
@@ -614,7 +620,7 @@ model WorkOrderNote {
   
   createdBy     String
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   workOrder     WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   user          User      @relation(fields: [createdBy], references: [id])
@@ -730,7 +736,7 @@ model DispatchSlot {
   notes        String?
   
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime @updatedAt @default(now())
 
   workOrder    WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   technician   User      @relation(fields: [technicianId], references: [id])
@@ -794,7 +800,7 @@ model Account {
   internalNotes String?
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
   deletedAt DateTime?
 
   // EXISTING relations (keep all)
@@ -811,6 +817,7 @@ model Account {
   workOrders     WorkOrder[]
   invoices       Invoice[]
   payments       Payment[]
+  customerNotes  CustomerNote[]
   tags           CustomerTagAssignment[]
   
   @@index([tenantId])
@@ -853,7 +860,7 @@ model Contact {
   isActive      Boolean @default(true)
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
   deletedAt DateTime?
 
   // EXISTING relations (keep all)
@@ -899,7 +906,7 @@ model Address {
   isActive    Boolean @default(true)
   
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
   deletedAt   DateTime?
   
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -947,7 +954,7 @@ model CustomerEquipment {
   notes         String?
   
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   deletedAt     DateTime?
   
   account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -991,7 +998,7 @@ model ServiceAgreement {
   
   createdBy       String?
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @updatedAt @default(now())
   deletedAt       DateTime?
   
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
@@ -1022,7 +1029,7 @@ model CustomerNote {
   
   createdBy   String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
   
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [createdBy], references: [id])
@@ -1154,7 +1161,7 @@ model SKU {
   images         String[]
   
   createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  updatedAt      DateTime        @updatedAt @default(now())
   deletedAt      DateTime?
   
   // EXISTING relations (keep all)
@@ -1194,7 +1201,7 @@ model Warehouse {
   isActive  Boolean  @default(true)
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
   // EXISTING relations (keep all)
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
@@ -1235,7 +1242,7 @@ model WarehouseStock {
   lastCountedAt     DateTime?
   lastCountedBy     String?
   
-  updatedAt         DateTime  @updatedAt
+  updatedAt         DateTime  @updatedAt @default(now())
   
   warehouse         Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   sku               SKU       @relation(fields: [skuId], references: [id], onDelete: Cascade)
@@ -1308,7 +1315,7 @@ model PurchaseOrder {
   
   createdBy  String?
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @updatedAt @default(now())
 
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   sku        SKU      @relation(fields: [skuId], references: [id])
@@ -1336,7 +1343,7 @@ model Forecast {
   safetyFactor     Float
   reorderPoint     Float
   suggestedOrderQty Int
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime @updatedAt @default(now())
 
   tenant           Tenant   @relation(fields: [tenantId], references: [id])
   sku              SKU      @relation(fields: [skuId], references: [id])
@@ -1374,7 +1381,7 @@ model Invoice {
   
   createdBy     String?
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
   account       Account  @relation(fields: [accountId], references: [id])
@@ -1441,7 +1448,7 @@ model Expense {
   
   createdBy     String
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
   user          User     @relation(fields: [createdBy], references: [id])
