@@ -1,10 +1,10 @@
 # Admin Dashboard Plan - HVAC Management System
 
 ## Document Information
-- **Version**: 1.4
+- **Version**: 1.5
 - **Last Updated**: October 19, 2025
 - **Status**: Planning Phase
-- **Recent Changes**: Added comprehensive technical implementation guide for custom roles
+- **Recent Changes**: Added Owner/CEO role with protected permissions system
 
 ---
 
@@ -709,15 +709,38 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 - **Full System Access**: Complete control over all features and data
 - **Permissions**:
   - User management (create, edit, delete users)
-  - Role and permission configuration
+  - Role and permission configuration (including Owner/CEO role)
   - System settings and configuration
   - Multi-tenant management
   - Access to all modules and dashboards
   - Audit log viewing
   - Database operations
   - API key management
+  - Toggle "can be edited by admin" setting on any role
   
-#### 2. Admin
+#### 2. Owner/CEO
+- **Executive Leadership**: Complete business oversight with all operational permissions
+- **Special Characteristics**:
+  - **Protected Role**: Cannot be edited by Admins unless Super Admin enables it
+  - **Comprehensive Access**: Has ALL permissions from ALL roles (except Super Admin permissions)
+  - **Admin Edit Lock**: Controlled by "can be edited by admin" toggle (Super Admin only)
+- **Permissions**:
+  - All Admin permissions
+  - All Field Manager permissions
+  - All Lead Dispatch permissions
+  - All Lead Tech permissions
+  - All Purchasing Manager permissions
+  - All Warehouse Manager permissions
+  - All Accounting permissions
+  - All Sales/CRM permissions
+  - Combined access to every module and dashboard
+  - View all audit logs (except system-level changes)
+  - Access all reports and analytics
+  - Approve all workflows and transactions
+  - Cannot: System configuration, role management, database operations, API key management (Super Admin only)
+  - Cannot be modified by: Admins (unless "can be edited by admin" is toggled on by Super Admin)
+  
+#### 3. Admin
 - **Business Management**: Manage operations without system configuration
 - **Permissions**:
   - View all dashboards
@@ -725,9 +748,10 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Create/edit users (cannot delete or change roles)
   - View reports and analytics
   - Export data
-  - Cannot: Modify system settings, manage roles, access audit logs
+  - Cannot: Modify system settings, manage roles (except if "can be edited by admin" is enabled), access audit logs
+  - Cannot: Edit Owner/CEO role permissions (unless Super Admin grants permission)
   
-#### 3. Field Manager
+#### 4. Field Manager
 - **Field Operations Leadership**: Oversee field technicians and work order execution
 - **Permissions**:
   - View executive and operational dashboards
@@ -739,7 +763,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate field operations reports
   - Cannot: User management, system settings, purchasing, full financial access
   
-#### 4. Lead Dispatch
+#### 5. Lead Dispatch
 - **Dispatch Leadership**: Senior dispatcher with additional oversight
 - **Permissions**:
   - Full access to dispatch dashboard and analytics
@@ -751,7 +775,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View dispatch performance metrics
   - Cannot: User management, system settings, purchasing approval, full financial data
   
-#### 5. Dispatcher
+#### 6. Dispatcher
 - **Scheduling Focus**: Manage technician schedules and work order assignments
 - **Permissions**:
   - Full access to dispatch dashboard
@@ -761,7 +785,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View basic inventory (parts availability)
   - Cannot: Financial data, system administration, user management
   
-#### 6. Lead Tech
+#### 7. Lead Tech
 - **Senior Technician**: Lead technician with mentoring and quality oversight
 - **Permissions**:
   - All technician permissions
@@ -773,7 +797,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Limited access to dispatch for coordination
   - Cannot: Create work orders, access financial data, user management
   
-#### 7. Technician
+#### 8. Technician
 - **Field Operations**: Access to assigned work orders and mobile features
 - **Permissions**:
   - View own assigned work orders
@@ -783,7 +807,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View customer information (limited)
   - Cannot: Dashboard access, create work orders, view other technicians' data
   
-#### 8. Purchasing Manager
+#### 9. Purchasing Manager
 - **Procurement Leadership**: Oversee purchasing operations and vendor relationships
 - **Permissions**:
   - Full access to purchasing dashboard
@@ -796,7 +820,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View inventory levels and demand forecasts
   - Cannot: User management (except purchasing team), system settings, work order management
   
-#### 9. Purchasing
+#### 10. Purchasing
 - **Procurement Specialist**: Create and manage purchase orders
 - **Permissions**:
   - Access to purchasing dashboard
@@ -807,7 +831,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate purchasing reports
   - Cannot: Approve high-value POs, manage vendors, user management, financial analytics
   
-#### 10. Warehouse Manager
+#### 11. Warehouse Manager
 - **Warehouse Operations Leadership**: Oversee warehouse and inventory operations
 - **Permissions**:
   - Full access to inventory dashboard and analytics
@@ -820,7 +844,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - View inventory valuation and turnover reports
   - Cannot: Work order management, CRM, user administration, system settings
   
-#### 11. Warehouse Personnel
+#### 12. Warehouse Personnel
 - **Warehouse Operations**: Handle day-to-day inventory tasks
 - **Permissions**:
   - Access to inventory management features
@@ -832,7 +856,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate pick lists and packing slips
   - Cannot: Create SKUs, approve adjustments, create POs, access analytics, user management
   
-#### 12. Accounting
+#### 13. Accounting
 - **Financial Management**: Manage financial data and reporting
 - **Permissions**:
   - Full access to financial dashboard and reports
@@ -845,7 +869,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Access audit logs for financial transactions
   - Cannot: Create/edit work orders, manage inventory (view only), user management, system settings
   
-#### 13. Sales/CRM User
+#### 14. Sales/CRM User
 - **Customer Relations**: Manage leads and customer accounts
 - **Permissions**:
   - Full access to CRM dashboard
@@ -855,7 +879,7 @@ The Admin Dashboard serves as the central command center for the HVAC Management
   - Generate CRM reports
   - Cannot: Inventory, purchasing, system administration
   
-#### 14. Viewer/Analyst
+#### 15. Viewer/Analyst
 - **Read-Only Access**: View dashboards and reports without modification
 - **Permissions**:
   - View-only access to dashboards
@@ -872,9 +896,10 @@ The Admin Dashboard serves as the central command center for the HVAC Management
 #### Customization Capabilities
 
 **1. Default Roles**
-- All 14 roles are pre-configured with the permissions listed above
+- All 15 roles are pre-configured with the permissions listed above
 - These defaults serve as a starting point and best-practice templates
 - Organizations can use them as-is or customize to fit their workflows
+- **Special Note**: Owner/CEO role has additional protection and cannot be edited by Admins unless Super Admin grants permission
 
 **2. Role Customization**
 - Users with appropriate access (Super Admin/Admin) can **add or remove permissions** from any role at any time
@@ -900,14 +925,16 @@ There are two methods to assign permissions to users:
 - No limit to the number of custom permission combinations
 
 **5. Permission Flexibility**
-- Organizations are not limited to the 14 default roles
+- Organizations are not limited to the 15 default roles
 - Can create entirely new roles with custom permission sets
 - Can modify default roles extensively (add/remove/change permissions)
 - Each user can have a unique permission set if needed
+- **Protected Roles**: Certain roles (like Owner/CEO) can be locked from Admin editing via the "can be edited by admin" toggle
 
 #### Access Control for Permission Management
-- **Super Admin**: Full access to create, modify, and delete roles and permissions
-- **Admin**: Can view roles and assign permissions to users (limited role editing)
+- **Super Admin**: Full access to create, modify, and delete roles and permissions; can toggle "can be edited by admin" setting on any role
+- **Admin**: Can view roles and assign permissions to users (limited role editing); **cannot edit roles where "can be edited by admin" is disabled** (e.g., Owner/CEO by default)
+- **Owner/CEO**: Cannot modify roles or permissions; this is a protected executive role
 - **Other Roles**: Cannot modify role or permission configurations
 
 #### Best Practices
@@ -931,8 +958,9 @@ CREATE TABLE roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name VARCHAR(100) NOT NULL UNIQUE,
   description TEXT,
-  is_default BOOLEAN DEFAULT false,  -- True for the 14 system default roles
+  is_default BOOLEAN DEFAULT false,  -- True for the 15 system default roles
   is_custom BOOLEAN DEFAULT false,   -- True for user-created roles
+  can_be_edited_by_admin BOOLEAN DEFAULT true,  -- False for protected roles like Owner/CEO
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
   created_by UUID REFERENCES users(id),
@@ -943,6 +971,7 @@ CREATE TABLE roles (
 
 CREATE INDEX idx_roles_tenant ON roles(tenant_id);
 CREATE INDEX idx_roles_is_default ON roles(is_default);
+CREATE INDEX idx_roles_can_be_edited_by_admin ON roles(can_be_edited_by_admin);
 ```
 
 **2. Permissions Table**
@@ -1062,8 +1091,9 @@ interface Role {
   id: string;
   name: string;
   description: string;
-  isDefault: boolean;        // One of the 14 system defaults
+  isDefault: boolean;        // One of the 15 system defaults
   isCustom: boolean;         // User-created custom role
+  canBeEditedByAdmin: boolean; // False for protected roles (Owner/CEO)
   permissions: Permission[]; // All permissions assigned to this role
   userCount?: number;        // Number of users with this role
   createdAt: Date;
@@ -1549,10 +1579,31 @@ async function createSystemPermissions() {
 
 async function createDefaultRoles() {
   const roleDefinitions = [
-    { name: 'Super Admin', description: 'Full system access', isDefault: true },
-    { name: 'Admin', description: 'Business management', isDefault: true },
-    { name: 'Field Manager', description: 'Field operations leadership', isDefault: true },
-    // ... all 14 roles
+    { 
+      name: 'Super Admin', 
+      description: 'Full system access', 
+      isDefault: true,
+      canBeEditedByAdmin: false  // Protected from Admins
+    },
+    { 
+      name: 'Owner/CEO', 
+      description: 'Executive leadership with all operational permissions', 
+      isDefault: true,
+      canBeEditedByAdmin: false  // Protected - only Super Admin can modify
+    },
+    { 
+      name: 'Admin', 
+      description: 'Business management', 
+      isDefault: true,
+      canBeEditedByAdmin: true
+    },
+    { 
+      name: 'Field Manager', 
+      description: 'Field operations leadership', 
+      isDefault: true,
+      canBeEditedByAdmin: true
+    },
+    // ... all 15 roles (remaining 11 with canBeEditedByAdmin: true)
   ];
   
   return await Promise.all(
@@ -1600,19 +1651,21 @@ async function createDefaultRoles() {
 
 #### Management & Operations Roles
 
-| Feature/Module | Super Admin | Admin | Field Manager | Lead Dispatch | Dispatcher | Lead Tech | Technician |
-|----------------|-------------|-------|---------------|---------------|------------|-----------|------------|
-| Executive Dashboard | Full | Full | View | View | View | No | No |
-| Analytics & Reports | Full | Full | Limited | Limited | No | Limited | No |
-| Work Orders | Full | Full | Full | Full | Full | Own+Team | Own Only |
-| Inventory | Full | Full | View | Limited | Limited | View | Scanner |
-| CRM | Full | Full | View | View | View | View | View |
-| Dispatch | Full | Full | Full | Full | Full | Limited | Own Only |
-| Purchasing | Full | Full | No | No | No | No | No |
-| User Management | Full | Limited | No | No | No | No | No |
-| System Settings | Full | No | No | No | No | No | No |
-| Audit Logs | Full | View | No | No | No | No | No |
-| Financial Data | Full | Full | Limited | Limited | No | No | No |
+| Feature/Module | Super Admin | Owner/CEO | Admin | Field Manager | Lead Dispatch | Dispatcher | Lead Tech | Technician |
+|----------------|-------------|-----------|-------|---------------|---------------|------------|-----------|------------|
+| Executive Dashboard | Full | Full | Full | View | View | View | No | No |
+| Analytics & Reports | Full | Full | Full | Limited | Limited | No | Limited | No |
+| Work Orders | Full | Full | Full | Full | Full | Full | Own+Team | Own Only |
+| Inventory | Full | Full | Full | View | Limited | Limited | View | Scanner |
+| CRM | Full | Full | Full | View | View | View | View | View |
+| Dispatch | Full | Full | Full | Full | Full | Full | Limited | Own Only |
+| Purchasing | Full | Full | Full | No | No | No | No | No |
+| User Management | Full | No* | Limited | No | No | No | No | No |
+| System Settings | Full | No | No | No | No | No | No | No |
+| Audit Logs | Full | View | View | No | No | No | No | No |
+| Financial Data | Full | Full | Full | Limited | Limited | No | No | No |
+
+**\*Owner/CEO Note**: Cannot manage users/roles unless Super Admin grants permission
 
 #### Warehouse & Purchasing Roles
 
@@ -1630,6 +1683,8 @@ async function createDefaultRoles() {
 | Audit Logs | No | No | No | No |
 | Financial Data | Limited | No | Limited | No |
 
+**Note**: Owner/CEO has Full access to all Warehouse & Purchasing features (Inventory: Full, Purchasing: Full, etc.)
+
 #### Support Roles
 
 | Feature/Module | Accounting | Sales/CRM | Viewer/Analyst |
@@ -1645,6 +1700,8 @@ async function createDefaultRoles() {
 | System Settings | No | No | No |
 | Audit Logs | Full (Financial) | No | No |
 | Financial Data | Full | Limited | View |
+
+**Note**: Owner/CEO has Full access to all Support role features (Accounting: Full, CRM: Full, Reports: Full)
 
 **Legend:**
 - **Full**: Complete CRUD access and management
@@ -2831,6 +2888,7 @@ Target performance metrics:
 | 1.2 | 2025-10-18 | System | Restructured user roles and permissions:<br>- Renamed: Inventory Manager → Warehouse Manager<br>- Removed: Manager role<br>- Added: Field Manager, Lead Dispatch, Lead Tech<br>- Added: Purchasing Manager, Purchasing<br>- Added: Warehouse Personnel<br>- Added: Accounting role<br>- Reorganized permission matrix into 3 tables for clarity<br>- Updated all role descriptions and permission details |
 | 1.3 | 2025-10-19 | System | Added comprehensive role and permission customization system:<br>- Documented that current roles/permissions are defaults<br>- Added ability for admins to add/remove permissions from any role<br>- Implemented two permission assignment methods (full role or cherry-pick)<br>- Enabled dynamic permission management<br>- Roles are fully customizable but pre-loaded with defaults<br>- Added access control guidelines for permission management<br>- Included best practices for permission customization |
 | 1.4 | 2025-10-19 | System | Added comprehensive technical implementation guide for custom roles:<br>- Complete database schema (6 tables) for roles, permissions, and assignments<br>- TypeScript data models and DTOs for all entities<br>- Full API endpoint specifications (25+ endpoints)<br>- Permission checking service with priority logic (deny > grant > role)<br>- NestJS authorization guard examples<br>- Permission naming conventions (resource:action:scope)<br>- Database seeding examples for default roles<br>- Caching strategy and performance optimization guidance<br>- Security considerations and testing best practices |
+| 1.5 | 2025-10-19 | System | Added Owner/CEO role with protected permissions system:<br>- New role: Owner/CEO (position #2, between Super Admin and Admin)<br>- Owner/CEO has ALL permissions from ALL roles except Super Admin permissions<br>- Added "can_be_edited_by_admin" field to roles table and model<br>- Owner/CEO role is protected and cannot be edited by Admins by default<br>- Only Super Admin can toggle "can be edited by admin" setting<br>- Updated all permission matrix tables to include Owner/CEO<br>- Updated role hierarchy from 14 to 15 total roles<br>- Updated seeding examples with canBeEditedByAdmin flags<br>- Updated access control documentation |
 
 ---
 
