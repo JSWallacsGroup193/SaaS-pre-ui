@@ -7,8 +7,11 @@ import SuperheatCalculator from './components/SuperheatCalculator';
 import SubcoolingCalculator from './components/SubcoolingCalculator';
 import TargetSuperheatTool from './components/TargetSuperheatTool';
 import PTChart from './components/PTChart';
+import CFMCalculator from './components/CFMCalculator';
+import DuctSizer from './components/DuctSizer';
+import StaticPressureTool from './components/StaticPressureTool';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -77,6 +80,27 @@ export default function FieldToolsPage() {
       icon: '📋',
       description: 'Pressure-Temperature reference chart',
       component: PTChart
+    },
+    {
+      id: 'cfm',
+      name: 'CFM Calculator',
+      icon: '💨',
+      description: 'Calculate airflow from BTU/hr and ΔT',
+      component: CFMCalculator
+    },
+    {
+      id: 'duct-sizer',
+      name: 'Duct Sizer',
+      icon: '🔧',
+      description: 'Size ducts based on CFM and velocity',
+      component: DuctSizer
+    },
+    {
+      id: 'static-pressure',
+      name: 'Static Pressure',
+      icon: '📏',
+      description: 'Calculate total external static pressure',
+      component: StaticPressureTool
     }
   ];
 
@@ -170,12 +194,12 @@ export default function FieldToolsPage() {
               <span>HVAC Load Calculator (Manual J)</span>
             </div>
             <div className="flex items-start">
-              <span className="mr-2">💨</span>
-              <span>Airflow / CFM Calculator</span>
+              <span className="mr-2">⚙️</span>
+              <span>Belt Drive Calculator</span>
             </div>
             <div className="flex items-start">
-              <span className="mr-2">🔧</span>
-              <span>Duct Sizing Calculator</span>
+              <span className="mr-2">🌡️</span>
+              <span>Psychrometric Calculator</span>
             </div>
             <div className="flex items-start">
               <span className="mr-2">💰</span>

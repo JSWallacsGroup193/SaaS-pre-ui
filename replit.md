@@ -7,20 +7,24 @@ This project is a full-stack HVAC (Heating, Ventilation, and Air Conditioning) m
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
 
 ## Recent Work
-- **✅ FIELD TOOLS MODULE COMPLETE (Oct 19, 2025)**: Successfully integrated 8 professional HVAC calculators for field technicians
-  - **8 Professional Calculators**: 4 Electrical + 4 Refrigeration tools
+- **✅ FIELD TOOLS MODULE COMPLETE (Oct 19, 2025)**: Successfully integrated 11 professional HVAC calculators for field technicians
+  - **11 Professional Calculators**: 4 Electrical + 4 Refrigeration + 3 Airflow tools
   - **Mobile-Responsive Design**: Optimized for tablets and phones used in the field
-  - **Industry Standards**: All calculations follow NEC guidelines, Ohm's Law, and refrigeration best practices
-  - **Electrical Calculators**:
+  - **Industry Standards**: All calculations follow NEC guidelines, Ohm's Law, refrigeration best practices, and ACCA standards
+  - **Electrical Calculators (4)**:
     - **Ohm's Law Calculator**: Calculates V, I, R, and Power (enter any 2 values)
     - **Capacitor Test Tool**: Tests capacitors with ±10% tolerance, instant PASS/FAIL results
     - **Motor Amps Checker**: Checks motor load percentage with color-coded status (Normal/Warning/Overload)
     - **Voltage Drop Calculator**: Calculates voltage drop and wire sizing for single/three-phase systems
-  - **Refrigeration Calculators**:
+  - **Refrigeration Calculators (4)**:
     - **Superheat Calculator**: Measure superheat for refrigerant charge diagnosis (R-22/R-410A)
     - **Subcooling Calculator**: Measure subcooling for charge verification (R-22/R-410A)
     - **Target Superheat Tool**: Calculate ideal superheat based on wet/dry bulb temps
     - **PT Chart**: Pressure-Temperature reference for R-22 and R-410A refrigerants
+  - **Airflow Calculators (3)**:
+    - **CFM Calculator**: Calculate airflow from BTU/hr and temperature rise (400 CFM/ton standard)
+    - **Duct Sizer**: Size round/rectangular ducts based on CFM and velocity (600-900 FPM recommended)
+    - **Static Pressure Tool**: Calculate total ESP for system diagnostics (0.3-0.8" wc normal range)
   - **User Experience**: Clean card-based interface with back navigation and coming soon roadmap
   - **Route**: Accessible via `/field-tools` in the sidebar navigation
   - **File Structure**: `frontend/src/pages/FieldTools/{components,utils}` with modular components
@@ -85,9 +89,10 @@ The frontend uses Vite with proper TypeScript configuration, including `vite-env
 - **Dispatch**: Scheduling and management of technician dispatch slots.
 - **Forecasting**: Demand forecasting capabilities.
 - **Barcode System**: Generation and scanning of barcodes for inventory management, supporting exact and fuzzy matching.
-- **Field Tools**: 8 professional HVAC calculators for field technicians:
-  - **Electrical Tools**: Ohm's Law Calculator, Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator (NEC compliant)
-  - **Refrigeration Tools**: Superheat Calculator, Subcooling Calculator, Target Superheat Tool, PT Chart (R-22/R-410A)
+- **Field Tools**: 11 professional HVAC calculators for field technicians:
+  - **Electrical Tools (4)**: Ohm's Law Calculator, Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator (NEC compliant)
+  - **Refrigeration Tools (4)**: Superheat Calculator, Subcooling Calculator, Target Superheat Tool, PT Chart (R-22/R-410A)
+  - **Airflow Tools (3)**: CFM Calculator (BTU/hr to CFM), Duct Sizer (round/rectangular), Static Pressure Tool (ESP diagnostics)
   - Mobile-responsive design optimized for tablets and phones used in the field.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
