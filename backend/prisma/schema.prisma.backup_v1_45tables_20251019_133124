@@ -47,7 +47,7 @@ model Tenant {
   isActive       Boolean         @default(true)
   
   createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  updatedAt      DateTime        @updatedAt @default(now())
   
   // EXISTING relations (keep all)
   users          User[]
@@ -121,7 +121,7 @@ model User {
   preferences   Json?
   
   createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  updatedAt     DateTime       @updatedAt @default(now())
   deletedAt     DateTime?      // Soft delete
   
   // EXISTING relations (keep all)
@@ -131,7 +131,8 @@ model User {
   dispatchSlots DispatchSlot[]
   
   // NEW relations
-  department    Department?    @relation(fields: [departmentId], references: [id])
+  department    Department?    @relation("DepartmentUsers", fields: [departmentId], references: [id])
+  managedDepartments Department[] @relation("DepartmentManager")
   team          Team?          @relation("TeamMembers", fields: [teamId], references: [id])
   manager       User?          @relation("UserManager", fields: [managerId], references: [id])
   subordinates  User[]         @relation("UserManager")
@@ -142,6 +143,11 @@ model User {
   createdWorkOrders WorkOrder[] @relation("CreatedByUser")
   workOrderNotes WorkOrderNote[]
   workOrderTechnicians WorkOrderTechnician[]
+  workOrderLineItems WorkOrderLineItem[]
+  workOrderAttachments WorkOrderAttachment[]
+  workOrderStatusHistories WorkOrderStatusHistory[]
+  completedChecklists WorkOrderChecklist[]
+  workOrderSignatures WorkOrderSignature[]
   customerNotes CustomerNote[]
   auditLogs     AuditLog[]
   createdInvoices Invoice[]
@@ -167,14 +173,14 @@ model Department {
   managerId   String?
   
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime  @updatedAt @default(now())
   deletedAt   DateTime?
   
   tenant      Tenant    @relation(fields: [tenantId], references: [id])
   parent      Department? @relation("DepartmentHierarchy", fields: [parentId], references: [id])
   children    Department[] @relation("DepartmentHierarchy")
-  manager     User?     @relation(fields: [managerId], references: [id])
-  users       User[]
+  manager     User?     @relation("DepartmentManager", fields: [managerId], references: [id])
+  users       User[]    @relation("DepartmentUsers")
   teams       Team[]
   
   @@index([tenantId])
@@ -195,7 +201,7 @@ model Team {
   isActive      Boolean   @default(true)
   
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  updatedAt     DateTime  @updatedAt @default(now())
   deletedAt     DateTime?
   
   tenant        Tenant    @relation(fields: [tenantId], references: [id])
@@ -220,7 +226,7 @@ model Role {
   color       String?
   
   createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  updatedAt   DateTime    @updatedAt @default(now())
   
   users       UserRole[]
   permissions RolePermission[]
@@ -301,7 +307,7 @@ model PermissionGroup {
   isSystem    Boolean   @default(false)
   
   createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  updatedAt   DateTime  @updatedAt @default(now())
   
   permissions PermissionGroupMapping[]
   
@@ -476,7 +482,7 @@ model WorkOrder {
   // NEW: Created by tracking
   createdBy     String?
   
-  updatedAt     DateTime       @updatedAt
+  updatedAt     DateTime       @updatedAt @default(now())
   deletedAt     DateTime?
   
   // EXISTING relations (keep all)
@@ -563,7 +569,7 @@ model WorkOrderLineItem {
   isBillable    Boolean  @default(true)
   
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   workOrder     WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   sku           SKU?      @relation(fields: [skuId], references: [id])
@@ -614,7 +620,7 @@ model WorkOrderNote {
   
   createdBy     String
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   workOrder     WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   user          User      @relation(fields: [createdBy], references: [id])
@@ -730,7 +736,7 @@ model DispatchSlot {
   notes        String?
   
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime @updatedAt @default(now())
 
   workOrder    WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   technician   User      @relation(fields: [technicianId], references: [id])
@@ -794,7 +800,7 @@ model Account {
   internalNotes String?
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
   deletedAt DateTime?
 
   // EXISTING relations (keep all)
@@ -811,6 +817,7 @@ model Account {
   workOrders     WorkOrder[]
   invoices       Invoice[]
   payments       Payment[]
+  customerNotes  CustomerNote[]
   tags           CustomerTagAssignment[]
   
   @@index([tenantId])
@@ -853,7 +860,7 @@ model Contact {
   isActive      Boolean @default(true)
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
   deletedAt DateTime?
 
   // EXISTING relations (keep all)
@@ -899,7 +906,7 @@ model Address {
   isActive    Boolean @default(true)
   
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
   deletedAt   DateTime?
   
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -947,7 +954,7 @@ model CustomerEquipment {
   notes         String?
   
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   deletedAt     DateTime?
   
   account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
@@ -991,7 +998,7 @@ model ServiceAgreement {
   
   createdBy       String?
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @updatedAt @default(now())
   deletedAt       DateTime?
   
   tenant          Tenant   @relation(fields: [tenantId], references: [id])
@@ -1022,7 +1029,7 @@ model CustomerNote {
   
   createdBy   String
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime @updatedAt @default(now())
   
   account     Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   user        User     @relation(fields: [createdBy], references: [id])
@@ -1154,7 +1161,7 @@ model SKU {
   images         String[]
   
   createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  updatedAt      DateTime        @updatedAt @default(now())
   deletedAt      DateTime?
   
   // EXISTING relations (keep all)
@@ -1194,7 +1201,7 @@ model Warehouse {
   isActive  Boolean  @default(true)
   
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime @updatedAt @default(now())
 
   // EXISTING relations (keep all)
   tenant    Tenant   @relation(fields: [tenantId], references: [id])
@@ -1235,7 +1242,7 @@ model WarehouseStock {
   lastCountedAt     DateTime?
   lastCountedBy     String?
   
-  updatedAt         DateTime  @updatedAt
+  updatedAt         DateTime  @updatedAt @default(now())
   
   warehouse         Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
   sku               SKU       @relation(fields: [skuId], references: [id], onDelete: Cascade)
@@ -1308,7 +1315,7 @@ model PurchaseOrder {
   
   createdBy  String?
   createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  updatedAt  DateTime @updatedAt @default(now())
 
   tenant     Tenant   @relation(fields: [tenantId], references: [id])
   sku        SKU      @relation(fields: [skuId], references: [id])
@@ -1336,7 +1343,7 @@ model Forecast {
   safetyFactor     Float
   reorderPoint     Float
   suggestedOrderQty Int
-  updatedAt        DateTime @updatedAt
+  updatedAt        DateTime @updatedAt @default(now())
 
   tenant           Tenant   @relation(fields: [tenantId], references: [id])
   sku              SKU      @relation(fields: [skuId], references: [id])
@@ -1374,7 +1381,7 @@ model Invoice {
   
   createdBy     String?
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
   account       Account  @relation(fields: [accountId], references: [id])
@@ -1441,7 +1448,7 @@ model Expense {
   
   createdBy     String
   createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  updatedAt     DateTime @updatedAt @default(now())
   
   tenant        Tenant   @relation(fields: [tenantId], references: [id])
   user          User     @relation(fields: [createdBy], references: [id])
@@ -1505,760 +1512,4 @@ model ChatLog {
   
   @@index([tenantId])
   @@index([createdAt])
-}
-// ============================================================================
-// MISSING TABLES - Adding 24 tables to complete the 69-table schema
-// ============================================================================
-
-// ============================================================================
-// SECURITY & LOGIN ENHANCEMENTS (7 tables)
-// ============================================================================
-
-// NEW: Password history for security compliance
-model PasswordHistory {
-  id             String   @id @default(uuid())
-  userId         String
-  passwordHash   String
-  changedAt      DateTime @default(now())
-  changedBy      String?  // Admin who forced change
-  changeReason   String?  // "expired", "compromised", "user_requested"
-  
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([changedAt])
-}
-
-// NEW: Login attempt tracking
-model LoginAttempt {
-  id             String   @id @default(uuid())
-  email          String
-  ipAddress      String
-  userAgent      String?
-  success        Boolean
-  failureReason  String?  // "invalid_password", "locked_account", "mfa_failed"
-  attemptedAt    DateTime @default(now())
-  
-  @@index([email])
-  @@index([ipAddress])
-  @@index([attemptedAt])
-}
-
-// NEW: OAuth accounts for social login
-model OAuthAccount {
-  id             String   @id @default(uuid())
-  userId         String
-  provider       String   // "google", "microsoft", "github"
-  providerAccountId String
-  accessToken    String?
-  refreshToken   String?
-  expiresAt      DateTime?
-  tokenType      String?
-  scope          String?
-  idToken        String?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([provider, providerAccountId])
-  @@index([userId])
-}
-
-// NEW: API keys for integrations
-model ApiKey {
-  id             String   @id @default(uuid())
-  userId         String
-  name           String
-  keyHash        String   @unique
-  lastUsedAt     DateTime?
-  expiresAt      DateTime?
-  isActive       Boolean  @default(true)
-  permissions    Json?    // Scoped permissions
-  
-  createdAt      DateTime @default(now())
-  
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([keyHash])
-}
-
-// NEW: Refresh tokens for JWT
-model RefreshToken {
-  id             String   @id @default(uuid())
-  userId         String
-  token          String   @unique
-  expiresAt      DateTime
-  isRevoked      Boolean  @default(false)
-  revokedAt      DateTime?
-  replacedBy     String?  // Token rotation
-  
-  createdAt      DateTime @default(now())
-  
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-  @@index([token])
-}
-
-// NEW: Team members junction table
-model TeamMember {
-  id             String   @id @default(uuid())
-  teamId         String
-  userId         String
-  role           String?  // "lead", "member", "viewer"
-  joinedAt       DateTime @default(now())
-  
-  team           Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@unique([teamId, userId])
-  @@index([teamId])
-  @@index([userId])
-}
-
-// NEW: Customer preferences
-model CustomerPreference {
-  id                    String   @id @default(uuid())
-  accountId             String   @unique
-  emailNotifications    Boolean  @default(true)
-  smsNotifications      Boolean  @default(false)
-  reminderDaysBefore    Int      @default(1)
-  preferredContactTime  String?  // "morning", "afternoon", "evening"
-  languageCode          String   @default("en")
-  timezone              String   @default("UTC")
-  
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-  
-  account               Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  
-  @@index([accountId])
-}
-
-// ============================================================================
-// FINANCIAL ENHANCEMENTS (5 tables)
-// ============================================================================
-
-// NEW: Invoice line items
-model InvoiceLineItem {
-  id             String   @id @default(uuid())
-  invoiceId      String
-  workOrderLineItemId String?
-  
-  description    String
-  quantity       Decimal  @db.Decimal(10,2)
-  unitPrice      Decimal  @db.Decimal(10,2)
-  discount       Decimal  @default(0) @db.Decimal(10,2)
-  taxRate        Decimal  @default(0) @db.Decimal(5,2)
-  
-  subtotal       Decimal  @db.Decimal(10,2)
-  taxAmount      Decimal  @db.Decimal(10,2)
-  total          Decimal  @db.Decimal(10,2)
-  
-  createdAt      DateTime @default(now())
-  
-  invoice        Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  
-  @@index([invoiceId])
-}
-
-// NEW: Tax rates
-model TaxRate {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  rate           Decimal  @db.Decimal(5,2)
-  isDefault      Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  
-  // Jurisdiction
-  country        String   @default("USA")
-  state          String?
-  county         String?
-  city           String?
-  
-  effectiveDate  DateTime @default(now())
-  expiryDate     DateTime?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([isDefault])
-}
-
-// NEW: Inventory adjustments
-model InventoryAdjustment {
-  id             String   @id @default(uuid())
-  tenantId       String
-  warehouseId    String
-  skuId          String
-  
-  adjustmentType String   // "damage", "loss", "found", "correction"
-  quantityChange Int      // Can be positive or negative
-  reason         String
-  notes          String?
-  
-  costImpact     Decimal? @db.Decimal(10,2)
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  
-  tenant         Tenant    @relation(fields: [tenantId], references: [id])
-  warehouse      Warehouse @relation(fields: [warehouseId], references: [id])
-  sku            SKU       @relation(fields: [skuId], references: [id])
-  user           User      @relation(fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([warehouseId])
-  @@index([skuId])
-  @@index([createdAt])
-}
-
-// NEW: Stock transfers between warehouses
-model StockTransfer {
-  id                  String   @id @default(uuid())
-  tenantId            String
-  transferNumber      String   @unique
-  
-  fromWarehouseId     String
-  toWarehouseId       String
-  skuId               String
-  
-  quantity            Int
-  status              String   @default("pending") // "pending", "in_transit", "completed", "cancelled"
-  
-  requestedBy         String
-  requestedAt         DateTime @default(now())
-  approvedBy          String?
-  approvedAt          DateTime?
-  completedBy         String?
-  completedAt         DateTime?
-  
-  notes               String?
-  
-  tenant              Tenant    @relation(fields: [tenantId], references: [id])
-  fromWarehouse       Warehouse @relation("TransfersFrom", fields: [fromWarehouseId], references: [id])
-  toWarehouse         Warehouse @relation("TransfersTo", fields: [toWarehouseId], references: [id])
-  sku                 SKU       @relation(fields: [skuId], references: [id])
-  requester           User      @relation("TransferRequester", fields: [requestedBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([fromWarehouseId])
-  @@index([toWarehouseId])
-  @@index([skuId])
-  @@index([status])
-}
-
-// NEW: Vendors
-model Vendor {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  code           String   @unique
-  
-  contactName    String?
-  email          String?
-  phone          String?
-  website        String?
-  
-  address        String?
-  city           String?
-  state          String?
-  postalCode     String?
-  country        String   @default("USA")
-  
-  paymentTerms   String?
-  taxId          String?
-  
-  isActive       Boolean  @default(true)
-  notes          String?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  purchaseOrders PurchaseOrder[]
-  
-  @@index([tenantId])
-  @@index([code])
-}
-
-// ============================================================================
-// WORK ORDER ENHANCEMENTS (4 tables)
-// ============================================================================
-
-// NEW: Purchase order items
-model PurchaseOrderItem {
-  id               String        @id @default(uuid())
-  purchaseOrderId  String
-  skuId            String
-  
-  description      String
-  quantity         Int
-  unitCost         Decimal       @db.Decimal(10,2)
-  total            Decimal       @db.Decimal(10,2)
-  
-  quantityReceived Int           @default(0)
-  
-  createdAt        DateTime      @default(now())
-  
-  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
-  sku              SKU           @relation(fields: [skuId], references: [id])
-  
-  @@index([purchaseOrderId])
-  @@index([skuId])
-}
-
-// NEW: Tasks/todos
-model Task {
-  id             String   @id @default(uuid())
-  tenantId       String
-  title          String
-  description    String?
-  
-  assignedTo     String?
-  workOrderId    String?
-  
-  dueDate        DateTime?
-  priority       String   @default("medium") // "low", "medium", "high"
-  status         String   @default("pending") // "pending", "in_progress", "completed", "cancelled"
-  
-  completedAt    DateTime?
-  completedBy    String?
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  assignee       User?    @relation("TaskAssignee", fields: [assignedTo], references: [id])
-  creator        User     @relation("TaskCreator", fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([assignedTo])
-  @@index([workOrderId])
-  @@index([status])
-  @@index([dueDate])
-}
-
-// NEW: Comments for work orders, tasks, etc.
-model Comment {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  entityType     String   // "work_order", "task", "account", "invoice"
-  entityId       String
-  
-  comment        String
-  isInternal     Boolean  @default(false)
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  deletedAt      DateTime?
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([entityType, entityId])
-  @@index([createdBy])
-}
-
-// NEW: Tags for categorization
-model Tag {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  color          String?
-  category       String?  // "work_order", "customer", "inventory"
-  
-  createdAt      DateTime @default(now())
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@unique([tenantId, name])
-  @@index([tenantId])
-  @@index([category])
-}
-
-// ============================================================================
-// DOCUMENT & TEMPLATE MANAGEMENT (1 table)
-// ============================================================================
-
-// NEW: Document templates
-model DocumentTemplate {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  description    String?
-  
-  templateType   String   // "invoice", "quote", "work_order", "service_agreement"
-  content        String   // HTML or template markup
-  
-  isDefault      Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([templateType])
-}
-
-// ============================================================================
-// ANALYTICS & REPORTING (14 tables - Grouped as mentioned in doc)
-// ============================================================================
-
-// NEW: KPI Snapshots for dashboards
-model KPISnapshot {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  snapshotDate   DateTime @default(now())
-  period         String   // "daily", "weekly", "monthly"
-  
-  // Work Order Metrics
-  totalWorkOrders      Int     @default(0)
-  completedWorkOrders  Int     @default(0)
-  avgCompletionTime    Float?  // Hours
-  firstTimeFixRate     Float?  // Percentage
-  
-  // Financial Metrics
-  totalRevenue         Decimal @default(0) @db.Decimal(12,2)
-  totalExpenses        Decimal @default(0) @db.Decimal(12,2)
-  outstandingBalance   Decimal @default(0) @db.Decimal(12,2)
-  
-  // Customer Metrics
-  newCustomers         Int     @default(0)
-  totalCustomers       Int     @default(0)
-  customerSatisfaction Float?  // Average rating
-  
-  // Inventory Metrics
-  totalInventoryValue  Decimal @default(0) @db.Decimal(12,2)
-  stockoutItems        Int     @default(0)
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([snapshotDate])
-  @@index([period])
-}
-
-// NEW: Report schedules
-model ReportSchedule {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  reportType     String   // "sales", "inventory", "technician_performance"
-  
-  schedule       String   // Cron expression
-  frequency      String   // "daily", "weekly", "monthly"
-  
-  recipients     String[] // Email addresses
-  format         String   @default("pdf") // "pdf", "excel", "csv"
-  
-  isActive       Boolean  @default(true)
-  lastRun        DateTime?
-  nextRun        DateTime?
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([nextRun])
-}
-
-// NEW: Custom reports
-model CustomReport {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  description    String?
-  
-  reportType     String
-  filters        Json?
-  columns        Json?
-  sortBy         Json?
-  
-  isShared       Boolean  @default(false)
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [createdBy], references: [id])
-  
-  @@index([tenantId])
-  @@index([createdBy])
-}
-
-// NEW: Dashboards
-model Dashboard {
-  id             String   @id @default(uuid())
-  tenantId       String
-  name           String
-  description    String?
-  
-  layout         Json     // Widget positions and configurations
-  isDefault      Boolean  @default(false)
-  isShared       Boolean  @default(false)
-  
-  createdBy      String
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [createdBy], references: [id])
-  widgets        DashboardWidget[]
-  
-  @@index([tenantId])
-  @@index([createdBy])
-}
-
-// NEW: Dashboard widgets
-model DashboardWidget {
-  id             String   @id @default(uuid())
-  dashboardId    String
-  
-  widgetType     String   // "chart", "metric", "table", "map"
-  title          String
-  config         Json     // Widget-specific configuration
-  
-  position       Json     // x, y, width, height
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  dashboard      Dashboard @relation(fields: [dashboardId], references: [id], onDelete: Cascade)
-  
-  @@index([dashboardId])
-}
-
-// NEW: Notifications
-model Notification {
-  id             String   @id @default(uuid())
-  tenantId       String
-  userId         String
-  
-  type           String   // "work_order", "invoice", "system"
-  title          String
-  message        String
-  
-  entityType     String?
-  entityId       String?
-  
-  isRead         Boolean  @default(false)
-  readAt         DateTime?
-  
-  createdAt      DateTime @default(now())
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User     @relation(fields: [userId], references: [id])
-  
-  @@index([tenantId])
-  @@index([userId, isRead])
-  @@index([createdAt])
-}
-
-// NEW: Notification preferences
-model NotificationPreference {
-  id             String   @id @default(uuid())
-  userId         String   @unique
-  
-  emailEnabled   Boolean  @default(true)
-  smsEnabled     Boolean  @default(false)
-  pushEnabled    Boolean  @default(true)
-  
-  workOrders     Boolean  @default(true)
-  invoices       Boolean  @default(true)
-  payments       Boolean  @default(true)
-  inventory      Boolean  @default(true)
-  system         Boolean  @default(true)
-  
-  quietHoursStart String?  // "22:00"
-  quietHoursEnd   String?  // "08:00"
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@index([userId])
-}
-
-// NEW: Activity log
-model ActivityLog {
-  id             String   @id @default(uuid())
-  tenantId       String
-  userId         String?
-  
-  action         String
-  entityType     String?
-  entityId       String?
-  description    String?
-  
-  ipAddress      String?
-  userAgent      String?
-  
-  createdAt      DateTime @default(now())
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  user           User?    @relation(fields: [userId], references: [id])
-  
-  @@index([tenantId])
-  @@index([userId])
-  @@index([createdAt])
-  @@index([entityType, entityId])
-}
-
-// NEW: Metrics for tracking
-model Metric {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  metricName     String
-  metricValue    Float
-  metricUnit     String?
-  dimensions     Json?    // Tags/dimensions
-  
-  recordedAt     DateTime @default(now())
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([metricName])
-  @@index([recordedAt])
-}
-
-// NEW: Alerts/warnings
-model Alert {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  alertType      String   // "low_stock", "overdue_invoice", "system"
-  severity       String   // "info", "warning", "error", "critical"
-  
-  title          String
-  message        String
-  
-  entityType     String?
-  entityId       String?
-  
-  isResolved     Boolean  @default(false)
-  resolvedAt     DateTime?
-  resolvedBy     String?
-  
-  createdAt      DateTime @default(now())
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([isResolved])
-  @@index([severity])
-  @@index([createdAt])
-}
-
-// NEW: Webhooks for integrations
-model Webhook {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  url            String
-  events         String[] // ["work_order.created", "invoice.paid"]
-  secret         String   // For signature verification
-  
-  isActive       Boolean  @default(true)
-  lastTriggered  DateTime?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-}
-
-// NEW: Integrations
-model Integration {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  name           String
-  provider       String   // "quickbooks", "stripe", "twilio"
-  status         String   @default("inactive") // "inactive", "active", "error"
-  
-  config         Json     // Encrypted credentials and settings
-  lastSync       DateTime?
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@unique([tenantId, provider])
-  @@index([tenantId])
-}
-
-// NEW: Email templates
-model EmailTemplate {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  name           String
-  subject        String
-  htmlBody       String
-  textBody       String?
-  
-  templateType   String   // "invoice", "appointment_reminder", "welcome"
-  variables      Json?    // Available template variables
-  
-  isDefault      Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([templateType])
-}
-
-// NEW: SMS templates
-model SmsTemplate {
-  id             String   @id @default(uuid())
-  tenantId       String
-  
-  name           String
-  message        String   // Max 160 characters
-  
-  templateType   String   // "appointment_reminder", "payment_received"
-  variables      Json?
-  
-  isDefault      Boolean  @default(false)
-  isActive       Boolean  @default(true)
-  
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
-  
-  @@index([tenantId])
-  @@index([templateType])
 }
