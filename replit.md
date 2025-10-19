@@ -7,6 +7,17 @@ This project is a full-stack HVAC (Heating, Ventilation, and Air Conditioning) m
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
 
 ## Recent Work
+- **✅ FIELD TOOLS MODULE LIVE (Oct 19, 2025)**: Successfully integrated professional HVAC calculators for field technicians
+  - **3 Professional Calculators**: Capacitor Test Tool, Motor Amps Checker, Voltage Drop Calculator
+  - **Mobile-Responsive Design**: Optimized for tablets and phones used in the field
+  - **Industry Standards**: All calculations follow NEC guidelines and HVAC best practices
+  - **Calculator Features**:
+    - **Capacitor Test Tool**: Tests capacitors with ±10% tolerance, instant PASS/FAIL results
+    - **Motor Amps Checker**: Checks motor load percentage with color-coded status (Normal/Warning/Overload)
+    - **Voltage Drop Calculator**: Calculates voltage drop and wire sizing for single/three-phase systems
+  - **User Experience**: Clean card-based interface with back navigation and coming soon roadmap
+  - **Route**: Accessible via `/field-tools` in the sidebar navigation
+  - **File Structure**: `frontend/src/pages/FieldTools/` with modular calculator components
 - **🎉 DATABASE EXPANSION COMPLETE (Oct 19, 2025)**: Successfully expanded database from 45 to 69 enterprise tables
   - **Total Migration Time**: 9.61 seconds (3 phases) with zero breaking changes
   - **Phase 1** (2.36s): Security & Collaboration - LoginAttempt, PasswordHistory, TeamMember, Task, Comment, Tag, ActivityLog
@@ -51,7 +62,7 @@ I prefer simple language and detailed explanations. I want iterative development
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend is built with React and Vite, utilizing Zustand for state management and React Router for navigation. Key UI components include a global ErrorBoundary for graceful error handling, and reusable components like Card, Sidebar, and TopBar. The application includes a login page, dashboard, and dedicated pages for Work Orders, CRM, Inventory, SKU Details, Purchasing, Dispatch, Labels, Forecast, Scanner, and AI Chat. The system provides a seamless user experience across these modules.
+The frontend is built with React and Vite, utilizing Zustand for state management and React Router for navigation. Key UI components include a global ErrorBoundary for graceful error handling, and reusable components like Card, Sidebar, and TopBar. The application includes a login page, dashboard, and dedicated pages for Work Orders, CRM, Inventory, SKU Details, Purchasing, Dispatch, Labels, Forecast, Scanner, Field Tools, and AI Chat. The system provides a seamless user experience across these modules.
 
 ### Technical Implementations
 The backend is developed using NestJS with TypeScript, leveraging Prisma as the ORM for a PostgreSQL database. It features JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules include Work Order Management, CRM (Accounts, Contacts, Leads, Notes), Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity calculation), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports both exact and fuzzy matching for SKU lookups, and a queue module is integrated for background job processing. Health and metrics endpoints (`/health`, `/metrics`) are provided for monitoring. API versioning is implemented with a `/api/v1` prefix, and Swagger UI is available for interactive API documentation.
@@ -67,6 +78,7 @@ The frontend uses Vite with proper TypeScript configuration, including `vite-env
 - **Dispatch**: Scheduling and management of technician dispatch slots.
 - **Forecasting**: Demand forecasting capabilities.
 - **Barcode System**: Generation and scanning of barcodes for inventory management, supporting exact and fuzzy matching.
+- **Field Tools**: Professional HVAC calculators for field technicians including Capacitor Test Tool, Motor Amps Checker, and Voltage Drop Calculator. Mobile-responsive design following NEC standards.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.
