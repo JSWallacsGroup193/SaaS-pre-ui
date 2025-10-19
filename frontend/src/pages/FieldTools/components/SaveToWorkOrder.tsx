@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import axios from 'axios';
 
 interface SaveToWorkOrderProps {
@@ -9,7 +9,7 @@ interface SaveToWorkOrderProps {
   onSaved?: () => void;
 }
 
-export const SaveToWorkOrder: React.FC<SaveToWorkOrderProps> = ({
+export const SaveToWorkOrder: React.FC<SaveToWorkOrderProps> = memo(({
   calculatorType,
   category,
   inputs,
@@ -178,4 +178,4 @@ export const SaveToWorkOrder: React.FC<SaveToWorkOrderProps> = ({
       )}
     </>
   );
-};
+});

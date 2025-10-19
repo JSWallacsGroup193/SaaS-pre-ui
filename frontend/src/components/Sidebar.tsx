@@ -1,7 +1,8 @@
 
 import { Link, useLocation } from 'react-router-dom'
+import { memo } from 'react'
 
-function Item({ to, label }: { to:string; label:string }) {
+const Item = memo(({ to, label }: { to:string; label:string }) => {
   const { pathname } = useLocation()
   const active = pathname === to
   return (
@@ -11,7 +12,7 @@ function Item({ to, label }: { to:string; label:string }) {
       color: active ? '#1e3a8a' : '#111827', textDecoration:'none'
     }}>{label}</Link>
   )
-}
+})
 
 export function Sidebar() {
   return (
