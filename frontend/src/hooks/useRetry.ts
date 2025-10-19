@@ -8,7 +8,6 @@ export function useRetry<T>(fn: () => Promise<T>, retries = 2, delay = 300) {
     setLoading(true); 
     setError(null);
     let attempt = 0;
-    let lastError: Error | null = null;
     
     while (attempt <= retries) {
       try { 
@@ -16,7 +15,6 @@ export function useRetry<T>(fn: () => Promise<T>, retries = 2, delay = 300) {
         setLoading(false); 
         return res; 
       } catch (e: any) { 
-        lastError = e; 
         attempt++; 
         if (attempt > retries) { 
           setLoading(false); 

@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { listSkus, forecastForSku } from '../api/client'
+import { useEffect, useState } from 'react'
+import { listSkus } from '../api/client'
 import api from '../utils/axiosClient'
 
 export default function Forecast() {

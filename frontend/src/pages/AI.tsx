@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import api from '../utils/axiosClient'
 
 type Msg = { role: 'user'|'assistant', content: string }
