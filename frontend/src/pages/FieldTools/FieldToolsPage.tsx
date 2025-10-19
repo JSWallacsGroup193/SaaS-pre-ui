@@ -10,8 +10,11 @@ import PTChart from './components/PTChart';
 import CFMCalculator from './components/CFMCalculator';
 import DuctSizer from './components/DuctSizer';
 import StaticPressureTool from './components/StaticPressureTool';
+import GasPipeSizer from './components/GasPipeSizer';
+import CombustionAirCalculator from './components/CombustionAirCalculator';
+import CombustionAnalysisTool from './components/CombustionAnalysisTool';
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -101,6 +104,27 @@ export default function FieldToolsPage() {
       icon: '📏',
       description: 'Calculate total external static pressure',
       component: StaticPressureTool
+    },
+    {
+      id: 'gas-pipe',
+      name: 'Gas Pipe Sizer',
+      icon: '🔥',
+      description: 'Size gas pipes for furnaces and appliances',
+      component: GasPipeSizer
+    },
+    {
+      id: 'combustion-air',
+      name: 'Combustion Air',
+      icon: '💨',
+      description: 'Calculate combustion air requirements',
+      component: CombustionAirCalculator
+    },
+    {
+      id: 'combustion-analysis',
+      name: 'Combustion Analysis',
+      icon: '🔬',
+      description: 'Reference values for combustion testing',
+      component: CombustionAnalysisTool
     }
   ];
 
