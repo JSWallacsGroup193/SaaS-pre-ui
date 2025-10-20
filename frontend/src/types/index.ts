@@ -959,6 +959,37 @@ export interface MetricsResponse {
 }
 
 // ============================================================================
+// DASHBOARD TYPES
+// ============================================================================
+
+export interface Activity {
+  id: string;
+  type: "work_order" | "technician" | "customer" | "payment" | "alert";
+  description: string;
+  timestamp: string;
+  icon?: string;
+}
+
+export interface TopTechnician {
+  id: string;
+  name: string;
+  jobsCompleted: number;
+  avgDuration: number;
+  customerRating: number;
+}
+
+export interface RevenueDataPoint {
+  date: string;
+  amount: number;
+}
+
+export interface JobDistribution {
+  scheduled: number;
+  inProgress: number;
+  completed: number;
+}
+
+// ============================================================================
 // UTILITY TYPES
 // ============================================================================
 
