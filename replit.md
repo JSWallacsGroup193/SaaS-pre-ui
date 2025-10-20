@@ -1,7 +1,7 @@
 # HVAC Management System
 
 ## Overview
-This project is a full-stack HVAC (Heating, Ventilation, and Air Conditioning) management application designed to streamline operations for HVAC businesses. It offers comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, aiming to provide a complete SaaS solution for the HVAC industry.
+This project is a full-stack HVAC management application designed to streamline operations for HVAC businesses. It offers comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, aiming to provide a complete SaaS solution for the HVAC industry.
 
 ## User Preferences
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
@@ -9,179 +9,33 @@ I prefer simple language and detailed explanations. I want iterative development
 ## System Architecture
 
 ### UI/UX Decisions
-The frontend is a React application built with Vite, utilizing Zustand for state management and React Router for navigation. It features a global ErrorBoundary and a suite of reusable components (Card, Sidebar, TopBar). The application provides a seamless user experience across modules such as Login, Dashboard, Work Orders, CRM, Inventory, SKU Details, Purchasing, Dispatch, Labels, Forecast, Scanner, Field Tools, and AI Chat.
-
-**Performance Optimizations:**
-- **Lazy Loading**: All 21 Field Tools calculators are lazy-loaded using React.lazy(), loading only when users click on them, significantly reducing initial bundle size.
-- **Route-Based Code Splitting**: Main application routes (Dashboard, Work Orders, CRM, Inventory, etc.) are code-split and loaded on-demand, improving initial page load time.
-- **Component Memoization**: Frequently rendered components (SaveToWorkOrder, Sidebar navigation items) are optimized with React.memo to prevent unnecessary re-renders.
-- **Loading States**: Suspense boundaries with loading spinners provide smooth transitions during lazy component loads.
-- **Codebase Cleanup**: Removed entire `attached_assets/` directory containing duplicate project copies, old archives, and screenshots, achieving 60-80% reduction in project size with zero production dependencies affected.
-
-### Frontend Architecture (Updated: October 20, 2025)
-
-**UI Component System:**
-- **shadcn/ui** fully integrated with Tailwind CSS v3.4 and OpsNex dark theme
-- **65+ production-ready components** in `frontend/src/components/ui/`
-- Component library configured at `frontend/components.json`
-- OpsNex dark theme with teal accent (#14b8a6) and slate backgrounds (#0f172a, #1e293b, #334155)
-- Utility function for className merging (`cn()`) in `frontend/src/lib/utils.ts`
-- All Radix UI primitives installed (26 packages) + supporting libraries (charts, forms, calendars, etc.)
-- v0.dev components can be installed using: `npx shadcn@latest add <url>`
-- **Custom HVAC Components:** BaseCard, WorkOrderCard, KPICard, CalculatorCard, StatusBadge, PriorityBadge, TypeBadge, Modal, OpsNexToast, DataTable, OpsNexTabs, Dropdown, OpsNexSidebar - purpose-built components for HVAC business operations
-- **Complete component inventory (74 components):** accordion, alert-dialog, alert, aspect-ratio, avatar, badge, base-card, breadcrumb, button-group, button, calculator-card, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, data-table, date-input, dialog, drawer, dropdown-menu, empty, field, form, hover-card, input-group, input-otp, input, item, kbd, kpi-card, label, menubar, modal, navigation-menu, number-input, opsnex-dropdown, opsnex-sidebar, opsnex-tabs, opsnex-toast, pagination, popover, priority-badge, progress, radio-group, resizable, scroll-area, select-input, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, status-badge, switch, table, tabs, text-area, textarea, text-input, toaster, toast, toggle-group, toggle, tooltip, type-badge, work-order-card, and custom hooks
-
-**TypeScript Type System:**
-- Comprehensive type definitions in `frontend/src/types/index.ts` (750+ lines)
-- Covers all 69 Prisma models and backend DTOs
-- Ensures type safety across the entire frontend application
-
-**API Client Infrastructure:**
-- Centralized Axios client (`frontend/src/services/api.ts`) with:
-  - Automatic JWT token injection in request headers
-  - Global error handling for 401, 403, 404, 422, 500 errors
-  - Automatic redirect to login on authentication failure
-  - 30-second request timeout
-- 12 typed service modules for backend integration:
-  - `auth.service.ts` - Authentication (login, register, profile)
-  - `workorder.service.ts` - Work order management
-  - `inventory.service.ts` - SKU, warehouse, bin operations
-  - `crm.service.ts` - Accounts, contacts, leads, notes
-  - `purchasing.service.ts` - Purchase order management
-  - `dispatch.service.ts` - Technician scheduling
-  - `forecast.service.ts` - Demand forecasting
-  - `field-calculation.service.ts` - HVAC calculator results
-  - `scanner.service.ts` - Barcode scanning
-  - `chat.service.ts` - AI assistant
-  - `monitoring.service.ts` - Health checks and metrics
-
-**State Management:**
-- Enhanced Zustand stores with full TypeScript support:
-  - `useAuthStore` - Authentication state, login/logout, user profile
-  - `useWorkOrderStore` - Work order CRUD operations, status updates
-  - `useInventoryStore` - SKU/warehouse/bin management with pagination
-  - `useCRMStore` - Account/contact/lead/note management
-- Each store includes loading states, error handling, and optimistic updates
-
-**Authentication System:**
-- React Auth Context (`frontend/src/contexts/AuthContext.tsx`)
-- Protected route component for authenticated pages
-- Public route component (redirects authenticated users)
-- Token persistence in localStorage
-- Automatic user profile loading on app initialization
-
-**Notification System:**
-- OpsNex Toast component (`frontend/src/components/ui/opsnex-toast.tsx`) with 4 variants:
-  - Success (emerald border/icon)
-  - Error (red border/icon)
-  - Warning (amber border/icon)
-  - Info (teal border/icon)
-- Toast Context provider (`frontend/src/contexts/ToastContext.tsx`)
-- Custom `useToast()` hook for triggering notifications
-- Auto-dismiss after 5 seconds (configurable)
-- Accessible with ARIA labels and keyboard support
-- Mobile-responsive positioning (top-right on desktop, centered on mobile)
-
-**Form System (NEW - October 20, 2025):**
-- **Comprehensive Form Components** in `frontend/src/components/form/`:
-  - `Form` - Main wrapper with React Hook Form, Zod validation, auto-save functionality
-  - `FormField` - Universal field component (input/textarea/select) with validation states
-  - `FormSection` - Collapsible sections for organizing complex forms
-  - `FormActions` - Button container with optional sticky positioning
-  - `MultiStepForm` - Wizard-style multi-step forms with progress tracking
-- **Features:**
-  - Zod schema validation with real-time error messages
-  - Auto-save with debouncing (configurable delay)
-  - Visual validation states (emerald for valid, red for errors)
-  - Collapsible form sections for better UX
-  - Multi-step forms with step indicators and progress bars
-  - Full TypeScript support with generic types
-  - OpsNex dark theme styling throughout
-- **Dependencies:** react-hook-form (v7.60.0) and @hookform/resolvers (v3.10.0)
-
-**Work Orders Module (NEW - October 20, 2025):**
-- **12 Components** in `frontend/src/components/work-orders/`:
-  - `work-order-list.tsx` - Main list component with filters, stats, table/card views
-  - `work-order-filters.tsx` - Search, status, date range, technician, priority filters
-  - `work-order-stats.tsx` - KPI cards (total, pending, in-progress, completed, revenue)
-  - `work-order-table.tsx` - Desktop table view with sorting
-  - `work-order-card.tsx` - Mobile card view
-  - `work-order-detail-header.tsx` - Detail page header with actions
-  - `work-order-sidebar.tsx` - Detail page sidebar with quick actions
-  - **5 Detail Tabs** in `tabs/`: overview, tasks, parts, notes, timeline
-- **Pages:**
-  - `WorkOrders.tsx` (/work-orders) - List view with filtering and search
-  - `WorkOrderDetail.tsx` (/work-orders/:id) - Detail view with 5-tab interface
-  - `CreateWorkOrder.tsx` (/work-orders/create) - Form-based creation (6 sections)
-- **Types** in `frontend/src/types/view-models/work-order.ts`:
-  - WorkOrderDetail, WorkOrderTask, WorkOrderPart, WorkOrderNote, WorkOrderTimelineEvent
-  - FilterState, WorkOrderStats, WorkOrderStatusHistory
-- **Features:**
-  - Real-time filtering by status, priority, date range, technician
-  - Task tracking with completion status
-  - Parts management with pricing
-  - Notes with photo attachments
-  - Activity timeline with 8 event types
-  - Mobile-responsive design (table → cards)
-
-**Dispatch Module (NEW - October 20, 2025):**
-- **6 Components** in `frontend/src/components/dispatch/`:
-  - `dispatch-board.tsx` - Main drag-and-drop scheduling board
-  - `dispatch-header.tsx` - Date navigation, view mode selector (day/week/month)
-  - `week-view.tsx` - Weekly calendar grid with time slots
-  - `technician-sidebar.tsx` - Technician list with status indicators
-  - `unassigned-panel.tsx` - Unassigned work orders queue
-  - `work-order-card.tsx` - Draggable work order cards for scheduling
-- **Page:**
-  - `Dispatch.tsx` (/dispatch) - Full dispatch board with drag-and-drop
-- **Types** in `frontend/src/types/view-models/dispatch.ts`:
-  - DispatchWorkOrder, Technician, DispatchViewMode
-- **Features:**
-  - Drag-and-drop work order assignment (using @dnd-kit)
-  - Real-time technician status (available, on-job, off)
-  - Week/day/month view modes
-  - Emergency work order prioritization
-  - Time slot scheduling
-  - Unassigned work orders panel
-
-**Environment Configuration:**
-- Development: API proxied through Vite dev server (`/api/v1` → `http://localhost:3000/api/v1`)
-- Production: Direct API calls to `/api/v1`
-- Vite config optimized for Replit (port 5000, host 0.0.0.0, allowedHosts: true)
+The frontend is a React application built with Vite, utilizing Zustand for state management and React Router for navigation. It features a global ErrorBoundary and a suite of reusable components. The application provides a seamless user experience across modules such as Login, Dashboard, Work Orders, CRM, Inventory, SKU Details, Purchasing, Dispatch, Labels, Forecast, Scanner, Field Tools, and AI Chat. Performance optimizations include lazy loading for Field Tools calculators, route-based code splitting, and component memoization. The UI component system is built with `shadcn/ui` and Tailwind CSS, featuring an OpsNex dark theme and 74 custom components for HVAC operations.
 
 ### Technical Implementations
-The backend is developed with NestJS and TypeScript, using Prisma as the ORM for a PostgreSQL database. It incorporates JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules handle Work Order Management, CRM, Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports exact and fuzzy SKU matching. The system includes a queue module for background job processing, health and metrics endpoints for monitoring, and API versioning (`/api/v1`) with Swagger UI for documentation. The frontend is configured with Vite for TypeScript support and environment variable handling.
+The backend is developed with NestJS and TypeScript, using Prisma as the ORM for a PostgreSQL database. It incorporates JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules handle Work Order Management, CRM, Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports exact and fuzzy SKU matching. The system includes a queue module for background job processing, health and metrics endpoints for monitoring, and API versioning (`/api/v1`) with Swagger UI for documentation. The frontend is configured with Vite for TypeScript support and environment variable handling. Comprehensive TypeScript type definitions cover all Prisma models and backend DTOs.
 
 ### Feature Specifications
 - **Authentication**: JWT-based user authentication and authorization.
-- **Work Order Management**: Creation, tracking, and status updates.
+- **Work Order Management**: Creation, tracking, and status updates, with detailed views including tasks, parts, notes, and timelines.
 - **CRM**: Management of customer accounts, contacts, leads, and notes.
 - **Inventory**: Tracking SKUs, warehouses, bins, and a stock ledger with real-time on-hand quantity.
 - **Purchasing**: Management of purchase orders.
-- **Dispatch**: Scheduling and management of technician dispatch.
+- **Dispatch**: Drag-and-drop scheduling of technicians with real-time status and various view modes.
 - **Forecasting**: Demand forecasting capabilities.
-- **Barcode System**: Generation and scanning for inventory, supporting exact and fuzzy matching.
-- **Field Tools with Work Order Integration**: 21 professional HVAC calculators for field technicians across 6 categories:
-    - Electrical (Ohm's Law, Capacitor Test, Motor Amps, Voltage Drop)
-    - Refrigeration (Superheat, Subcooling, Target Superheat, PT Chart)
-    - Airflow (CFM, Duct Sizer, Static Pressure)
-    - Gas/Combustion (Gas Pipe Sizer, Combustion Air, Combustion Analysis)
-    - Hydronic/Boiler (Expansion Tank Sizer, Hydronic Flow Calculator, Radiant Floor Heating)
-    - Utilities (Psychrometric Calculator, Tonnage Converter, Unit Converter, Heat Load/Manual J)
-    All tools are mobile-responsive and adhere to industry standards (NEC, NFPA 54, ACCA, ASHRAE).
-    Technicians can save calculation results directly to work orders with full audit trails via the SaveToWorkOrder component.
-    FieldCalculation API endpoints support create, read, and delete operations with proper multi-tenant isolation and DTO validation.
+- **Barcode System**: Generation and scanning for inventory, supporting exact and fuzzy matching, with live camera feed and scan result actions.
+- **Field Tools with Work Order Integration**: 21 professional HVAC calculators across electrical, refrigeration, airflow, gas/combustion, hydronic/boiler, and utilities categories, with results savable to work orders.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.
+- **Form System**: Comprehensive form components with React Hook Form, Zod validation, auto-save, and multi-step form capabilities.
+- **Notification System**: OpsNex Toast component with various variants for success, error, warning, and info messages.
 
 ### System Design Choices
-- **Multi-tenancy**: Data is scoped by tenant ID to support multiple independent clients.
+- **Multi-tenancy**: Data is scoped by tenant ID.
 - **API Versioning**: All APIs are prefixed with `/api/v1`.
-- **Role-based Access Control**: Granular permissions system for user access management.
+- **Role-based Access Control**: Granular permissions system.
 - **Stock Ledger System**: Centralized tracking for accurate inventory levels.
 - **Security**: Utilizes Helmet, configurable CORS, JWT authentication, and `class-validator` for input validation.
-- **Development Tools**: ESLint, Prettier, Jest, and GitHub Actions for CI/CD.
 
 ## External Dependencies
 
@@ -195,14 +49,4 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Testing Framework**: Jest
 - **Barcode Generation**: `bwip-js` library
 - **OpenAPI Documentation**: `@nestjs/swagger`
-- **OpenAI API**: For the AI-powered chat assistant (requires `OPENAI_API_KEY`)
-
-## Development Resources
-
-### UI Component Library (v0.dev Prompts)
-- **Location**: `docs/V0_PROMPTS_COMPLETE.md`
-- **Description**: Comprehensive collection of 68 copy-paste-ready v0.dev prompts for generating all UI components and pages
-- **Coverage**: Complete design system, authentication, dashboards, work orders, CRM, inventory, purchasing, dispatch, Field Tools (all 21 calculators), and utility pages
-- **Theme**: All prompts use OpsNex dark theme with teal accents (#14b8a6) matching the application's design system
-- **Usage**: Copy any prompt to https://v0.dev to generate production-ready React + TypeScript components with Tailwind CSS
-- **Organization**: 13 categorized parts with table of contents for easy navigation
+- **OpenAI API**: For the AI-powered chat assistant
