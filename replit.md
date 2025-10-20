@@ -18,6 +18,52 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 - **Loading States**: Suspense boundaries with loading spinners provide smooth transitions during lazy component loads.
 - **Codebase Cleanup**: Removed entire `attached_assets/` directory containing duplicate project copies, old archives, and screenshots, achieving 60-80% reduction in project size with zero production dependencies affected.
 
+### Frontend Architecture (Updated: October 20, 2025)
+
+**TypeScript Type System:**
+- Comprehensive type definitions in `frontend/src/types/index.ts` (750+ lines)
+- Covers all 69 Prisma models and backend DTOs
+- Ensures type safety across the entire frontend application
+
+**API Client Infrastructure:**
+- Centralized Axios client (`frontend/src/services/api.ts`) with:
+  - Automatic JWT token injection in request headers
+  - Global error handling for 401, 403, 404, 422, 500 errors
+  - Automatic redirect to login on authentication failure
+  - 30-second request timeout
+- 12 typed service modules for backend integration:
+  - `auth.service.ts` - Authentication (login, register, profile)
+  - `workorder.service.ts` - Work order management
+  - `inventory.service.ts` - SKU, warehouse, bin operations
+  - `crm.service.ts` - Accounts, contacts, leads, notes
+  - `purchasing.service.ts` - Purchase order management
+  - `dispatch.service.ts` - Technician scheduling
+  - `forecast.service.ts` - Demand forecasting
+  - `field-calculation.service.ts` - HVAC calculator results
+  - `scanner.service.ts` - Barcode scanning
+  - `chat.service.ts` - AI assistant
+  - `monitoring.service.ts` - Health checks and metrics
+
+**State Management:**
+- Enhanced Zustand stores with full TypeScript support:
+  - `useAuthStore` - Authentication state, login/logout, user profile
+  - `useWorkOrderStore` - Work order CRUD operations, status updates
+  - `useInventoryStore` - SKU/warehouse/bin management with pagination
+  - `useCRMStore` - Account/contact/lead/note management
+- Each store includes loading states, error handling, and optimistic updates
+
+**Authentication System:**
+- React Auth Context (`frontend/src/contexts/AuthContext.tsx`)
+- Protected route component for authenticated pages
+- Public route component (redirects authenticated users)
+- Token persistence in localStorage
+- Automatic user profile loading on app initialization
+
+**Environment Configuration:**
+- Development: API proxied through Vite dev server (`/api/v1` → `http://localhost:3000/api/v1`)
+- Production: Direct API calls to `/api/v1`
+- Vite config optimized for Replit (port 5000, host 0.0.0.0, allowedHosts: true)
+
 ### Technical Implementations
 The backend is developed with NestJS and TypeScript, using Prisma as the ORM for a PostgreSQL database. It incorporates JWT-based authentication, a multi-tenant architecture, and role-based access control. Core modules handle Work Order Management, CRM, Inventory Tracking (SKUs, Warehouses, Bins, Stock Ledger with on-hand quantity), Purchasing, Dispatch Scheduling, and Demand Forecasting. A barcode scanner module supports exact and fuzzy SKU matching. The system includes a queue module for background job processing, health and metrics endpoints for monitoring, and API versioning (`/api/v1`) with Swagger UI for documentation. The frontend is configured with Vite for TypeScript support and environment variable handling.
 
