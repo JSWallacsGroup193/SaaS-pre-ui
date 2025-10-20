@@ -28,8 +28,8 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 - Utility function for className merging (`cn()`) in `frontend/src/lib/utils.ts`
 - All Radix UI primitives installed (26 packages) + supporting libraries (charts, forms, calendars, etc.)
 - v0.dev components can be installed using: `npx shadcn@latest add <url>`
-- **Custom HVAC Components:** BaseCard, WorkOrderCard, KPICard, CalculatorCard, StatusBadge, PriorityBadge, TypeBadge, Modal - purpose-built components for HVAC business operations
-- **Complete component inventory (69 components):** accordion, alert-dialog, alert, aspect-ratio, avatar, badge, base-card, breadcrumb, button-group, button, calculator-card, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, date-input, dialog, drawer, dropdown-menu, empty, field, form, hover-card, input-group, input-otp, input, item, kbd, kpi-card, label, menubar, modal, navigation-menu, number-input, pagination, popover, priority-badge, progress, radio-group, resizable, scroll-area, select-input, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, status-badge, switch, table, tabs, text-area, textarea, text-input, toaster, toast, toggle-group, toggle, tooltip, type-badge, work-order-card, and custom hooks
+- **Custom HVAC Components:** BaseCard, WorkOrderCard, KPICard, CalculatorCard, StatusBadge, PriorityBadge, TypeBadge, Modal, OpsNexToast - purpose-built components for HVAC business operations
+- **Complete component inventory (70 components):** accordion, alert-dialog, alert, aspect-ratio, avatar, badge, base-card, breadcrumb, button-group, button, calculator-card, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, date-input, dialog, drawer, dropdown-menu, empty, field, form, hover-card, input-group, input-otp, input, item, kbd, kpi-card, label, menubar, modal, navigation-menu, number-input, opsnex-toast, pagination, popover, priority-badge, progress, radio-group, resizable, scroll-area, select-input, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, status-badge, switch, table, tabs, text-area, textarea, text-input, toaster, toast, toggle-group, toggle, tooltip, type-badge, work-order-card, and custom hooks
 
 **TypeScript Type System:**
 - Comprehensive type definitions in `frontend/src/types/index.ts` (750+ lines)
@@ -69,6 +69,18 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 - Public route component (redirects authenticated users)
 - Token persistence in localStorage
 - Automatic user profile loading on app initialization
+
+**Notification System:**
+- OpsNex Toast component (`frontend/src/components/ui/opsnex-toast.tsx`) with 4 variants:
+  - Success (emerald border/icon)
+  - Error (red border/icon)
+  - Warning (amber border/icon)
+  - Info (teal border/icon)
+- Toast Context provider (`frontend/src/contexts/ToastContext.tsx`)
+- Custom `useToast()` hook for triggering notifications
+- Auto-dismiss after 5 seconds (configurable)
+- Accessible with ARIA labels and keyboard support
+- Mobile-responsive positioning (top-right on desktop, centered on mobile)
 
 **Environment Configuration:**
 - Development: API proxied through Vite dev server (`/api/v1` → `http://localhost:3000/api/v1`)
