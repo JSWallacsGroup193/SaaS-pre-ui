@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { SKUDetailHeader } from '@/components/inventory/detail/sku-detail-header'
 import { OverviewTab } from '@/components/inventory/detail/tabs/overview-tab'
