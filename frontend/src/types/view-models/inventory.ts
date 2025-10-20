@@ -17,6 +17,67 @@ export interface SKU {
   supplier?: string
 }
 
+export interface SKUDetail extends SKU {
+  manufacturer?: string
+  modelNumber?: string
+  upc?: string
+  reorderQuantity: number
+  safetyStock: number
+  lastCounted?: string
+  averageCost: number
+  sellingPrice: number
+  markup: number
+  active: boolean
+  createdDate: string
+  lastUpdated: string
+}
+
+export interface StockLocation {
+  id: string
+  warehouse: string
+  bin: string
+  quantity: number
+  lastUpdated: string
+}
+
+export interface StockTransaction {
+  id: string
+  date: string
+  type: 'purchase' | 'sale' | 'adjustment' | 'transfer'
+  quantity: number
+  balance: number
+  reason: string
+  user: string
+}
+
+export interface UsageData {
+  date: string
+  quantity: number
+}
+
+export interface ForecastData {
+  avgMonthlyUsage: number
+  daysUntilReorder: number
+  suggestedOrderQuantity: number
+}
+
+export interface Supplier {
+  id: string
+  name: string
+  partNumber: string
+  unitCost: number
+  leadTime: string
+  lastOrdered?: string
+  isPrimary: boolean
+}
+
+export interface RelatedSKU {
+  id: string
+  sku: string
+  description: string
+  type: 'alternative' | 'compatible'
+}
+
 export interface InventoryStats {
   totalSKUs: number
   lowStockAlerts: number
