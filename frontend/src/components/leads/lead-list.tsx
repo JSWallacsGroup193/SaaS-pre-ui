@@ -56,7 +56,7 @@ export function LeadList({
       <div className="px-6 py-4">
         <div className="flex items-center justify-end gap-2 mb-4">
           <Button
-            variant={viewMode === "table" ? "default" : "outline"}
+            variant={viewMode === "table" ? "primary" : "outline"}
             size="sm"
             onClick={() => setViewMode("table")}
             className={
@@ -69,7 +69,7 @@ export function LeadList({
             Table
           </Button>
           <Button
-            variant={viewMode === "kanban" ? "default" : "outline"}
+            variant={viewMode === "kanban" ? "primary" : "outline"}
             size="sm"
             onClick={() => setViewMode("kanban")}
             className={
