@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
 import { ArrowLeft, Flashlight, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
-import { Html5Qrcode } from "html5-qrcode"
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from "html5-qrcode"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +19,7 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
   const [scanning, setScanning] = useState(true)
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
   const [skuData, setSkuData] = useState<SKUData | null>(null)
+  const [fullSKU, setFullSKU] = useState<SKU | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [cameraError, setCameraError] = useState<string | null>(null)
@@ -54,13 +55,23 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       const html5Qrcode = new Html5Qrcode(readerElementId)
       html5QrcodeRef.current = html5Qrcode
 
-      // Start scanning
+      // Start scanning with support for 1D barcodes and QR codes
       await html5Qrcode.start(
         { facingMode: "environment" },
         {
           fps: 10,
           qrbox: { width: 250, height: 250 },
-        },
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+            Html5QrcodeSupportedFormats.CODE_39,
+            Html5QrcodeSupportedFormats.ITF,
+          ],
+        } as any,
         onScanSuccess,
         onScanError
       )
@@ -136,14 +147,17 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       if (response.found && response.sku) {
         const mappedSKU = mapSKUtoSKUData(response.sku)
         setSkuData(mappedSKU)
+        setFullSKU(response.sku) // Store full SKU for navigation
         onSKUFound(mappedSKU)
       } else {
         setSkuData(null)
+        setFullSKU(null)
       }
     } catch (error: any) {
       console.error("SKU lookup error:", error)
       setError(error.response?.data?.message || "Failed to lookup barcode")
       setSkuData(null)
+      setFullSKU(null)
     } finally {
       setLoading(false)
     }
@@ -171,6 +185,7 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
   const handleScanAnother = async () => {
     setScannedBarcode(null)
     setSkuData(null)
+    setFullSKU(null)
     setError(null)
     setScanning(true)
     scanningRef.current = true
@@ -191,12 +206,10 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
   }
 
   const handleViewDetails = () => {
-    if (!skuData) return
-    // Navigate to SKU detail page
-    // Note: We need the SKU ID, but we only have barcode in SKUData
-    // In real implementation, we'd store the full SKU object
-    navigate("/inventory")
-    console.log("View details:", skuData)
+    if (!fullSKU) return
+    // Navigate to SKU detail page using the full SKU ID
+    navigate(`/inventory/${fullSKU.id}`)
+    console.log("View details:", fullSKU)
   }
 
   const handleAddToWorkOrder = () => {
