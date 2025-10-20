@@ -16,6 +16,7 @@ const Contacts = lazy(() => import('./pages/Contacts'))
 const Leads = lazy(() => import('./pages/Leads'))
 const CRM = lazy(() => import('./pages/CRM'))
 const Inventory = lazy(() => import('./pages/Inventory'))
+const SKUDetail = lazy(() => import('./pages/SKUDetail'))
 const Purchasing = lazy(() => import('./pages/Purchasing'))
 const Dispatch = lazy(() => import('./pages/Dispatch'))
 const Labels = lazy(() => import('./pages/Labels'))
@@ -53,6 +54,7 @@ export default function App() {
               <Route path="/leads" element={<Leads />} />
               <Route path="/crm" element={<CRM />} />
               <Route path="/inventory" element={<Inventory />} />
+              <Route path="/inventory/:id" element={<SKUDetail />} />
               <Route path="/purchasing" element={<Purchasing />} />
               <Route path="/dispatch" element={<Dispatch />} />
               <Route path="/labels" element={<Labels />} />
