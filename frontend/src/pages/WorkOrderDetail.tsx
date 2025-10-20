@@ -7,7 +7,7 @@ import { TasksTab } from '@/components/work-orders/tabs/tasks-tab'
 import { PartsTab } from '@/components/work-orders/tabs/parts-tab'
 import { NotesTab } from '@/components/work-orders/tabs/notes-tab'
 import { TimelineTab } from '@/components/work-orders/tabs/timeline-tab'
-import type { WorkOrderDetail, WorkOrderStatus } from '@/types/view-models/work-order-detail'
+import type { WorkOrderDetail, WorkOrderStatus } from '@/types/view-models/work-order'
 
 const mockWorkOrder: WorkOrderDetail = {
   id: '1',
