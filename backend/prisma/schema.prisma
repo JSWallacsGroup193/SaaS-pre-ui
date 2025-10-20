@@ -546,6 +546,7 @@ model WorkOrder {
   checklists    WorkOrderChecklist[]
   signatures    WorkOrderSignature[]
   fieldCalculations FieldCalculation[]
+  payments      Payment[]
   
   @@index([tenantId])
   @@index([number])
@@ -1495,28 +1496,40 @@ model Payment {
   tenantId      String
   invoiceId     String?
   accountId     String
+  workOrderId   String?
   
   paymentNumber String?  @unique
   paymentDate   DateTime @default(now())
   
   amount        Decimal  @db.Decimal(10,2)
-  paymentMethod String?  // "cash", "check", "credit_card", "bank_transfer"
+  paymentMethod String?  // "cash", "check", "credit_card", "bank_transfer", "stripe"
   
   reference     String?  // Check number, transaction ID
   notes         String?
   
+  // Stripe integration fields
+  stripePaymentIntentId String? @unique
+  stripeStatus          String? // "pending", "succeeded", "failed", "canceled"
+  stripeClientSecret    String?
+  stripePaymentMethodId String?
+  
   createdBy     String?
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt @default(now())
   
-  tenant        Tenant   @relation(fields: [tenantId], references: [id])
-  invoice       Invoice? @relation(fields: [invoiceId], references: [id])
-  account       Account  @relation(fields: [accountId], references: [id])
-  createdByUser User?    @relation(fields: [createdBy], references: [id])
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  invoice       Invoice?    @relation(fields: [invoiceId], references: [id])
+  account       Account     @relation(fields: [accountId], references: [id])
+  workOrder     WorkOrder?  @relation(fields: [workOrderId], references: [id])
+  createdByUser User?       @relation(fields: [createdBy], references: [id])
   
   @@index([tenantId])
   @@index([invoiceId])
   @@index([accountId])
+  @@index([workOrderId])
   @@index([paymentDate])
+  @@index([stripePaymentIntentId])
+  @@index([stripeStatus])
 }
 
 // NEW: Expenses

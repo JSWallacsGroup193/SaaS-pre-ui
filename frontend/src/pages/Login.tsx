@@ -34,7 +34,7 @@ export default function LoginPage({
   error: externalError,
   onForgotPassword,
   onSignUp,
-  companyName = "HVAC Pro",
+  companyName = "OpsNex",
 }: LoginPageProps = {}) {
   const [showPassword, setShowPassword] = useState(false)
   const [internalLoading, setInternalLoading] = useState(false)
