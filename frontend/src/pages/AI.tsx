@@ -27,12 +27,12 @@ export default function AI() {
     // Call backend AI API
     setIsLoading(true)
     try {
-      const { data } = await api.post("/ai/chat", { prompt: text })
+      const { data } = await api.post("/api/v1/chat", { prompt: text })
       
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "ai",
-        content: data.reply || "I'm sorry, I couldn't process that request.",
+        content: data.response || "I'm sorry, I couldn't process that request.",
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiMessage])
