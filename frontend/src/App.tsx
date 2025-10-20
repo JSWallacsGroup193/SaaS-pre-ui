@@ -11,6 +11,7 @@ const WorkOrders = lazy(() => import('./pages/WorkOrders'))
 const WorkOrderDetail = lazy(() => import('./pages/WorkOrderDetail'))
 const CreateWorkOrder = lazy(() => import('./pages/CreateWorkOrder'))
 const Accounts = lazy(() => import('./pages/Accounts'))
+const AccountDetail = lazy(() => import('./pages/AccountDetail'))
 const Contacts = lazy(() => import('./pages/Contacts'))
 const Leads = lazy(() => import('./pages/Leads'))
 const CRM = lazy(() => import('./pages/CRM'))
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="/work-orders/create" element={<CreateWorkOrder />} />
               <Route path="/work-orders/:id" element={<WorkOrderDetail />} />
               <Route path="/accounts" element={<Accounts />} />
+              <Route path="/accounts/:id" element={<AccountDetail />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/leads" element={<Leads />} />
               <Route path="/crm" element={<CRM />} />
