@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { ContactFilters as ContactFiltersType, ContactRole } from "@/types/contact"
+import type { ContactFilters as ContactFiltersType, ContactRole } from "@/types/view-models/contact"
 import { Card } from "@/components/ui/card"
 
 interface ContactFiltersProps {

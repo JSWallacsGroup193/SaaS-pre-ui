@@ -1,6 +1,6 @@
 
 
-import type { Contact } from "@/types/contact"
+import type { Contact } from "@/types/view-models/contact"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Phone, Mail, MessageSquare, Trash2 } from "lucide-react"

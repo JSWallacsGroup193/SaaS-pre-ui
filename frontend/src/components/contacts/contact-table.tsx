@@ -1,11 +1,10 @@
 
 
-import { useState } from "react"
-import type { Contact } from "@/types/contact"
+import type { Contact } from "@/types/view-models/contact"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { MoreVertical, ArrowUpDown, Phone, Mail, MessageSquare } from "lucide-react"
+import { MoreVertical, Phone, Mail, MessageSquare } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 
@@ -20,17 +19,6 @@ interface ContactTableProps {
 }
 
 export function ContactTable({ contacts, onView, onEdit, onDelete, onCall, onEmail, onMessage }: ContactTableProps) {
-  const [sortColumn, setSortColumn] = useState<string>("name")
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
-
-  const handleSort = (column: string) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
-    } else {
-      setSortColumn(column)
-      setSortDirection("asc")
-    }
-  }
 
   const getRoleBadgeColor = (role: Contact["role"]) => {
     switch (role) {
@@ -67,39 +55,12 @@ export function ContactTable({ contacts, onView, onEdit, onDelete, onCall, onEma
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-800 border-slate-700 hover:bg-slate-800">
-            <TableHead className="text-slate-300">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("name")}
-                className="hover:bg-slate-700 hover:text-slate-100"
-              >
-                Name
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-slate-300">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("account")}
-                className="hover:bg-slate-700 hover:text-slate-100"
-              >
-                Account
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
+            <TableHead className="text-slate-300">Name</TableHead>
+            <TableHead className="text-slate-300">Account</TableHead>
             <TableHead className="text-slate-300">Role</TableHead>
             <TableHead className="text-slate-300">Phone</TableHead>
             <TableHead className="text-slate-300">Email</TableHead>
-            <TableHead className="text-slate-300">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("lastContact")}
-                className="hover:bg-slate-700 hover:text-slate-100"
-              >
-                Last Contact
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
+            <TableHead className="text-slate-300">Last Contact</TableHead>
             <TableHead className="text-slate-300 text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>

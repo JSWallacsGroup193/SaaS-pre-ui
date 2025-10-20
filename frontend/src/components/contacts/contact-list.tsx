@@ -1,7 +1,7 @@
 
 
 import { useState } from "react"
-import type { Contact, ContactFilters } from "@/types/contact"
+import type { Contact, ContactFilters } from "@/types/view-models/contact"
 import { ContactListHeader } from "./contact-list-header"
 import { ContactStats } from "./contact-stats"
 import { ContactFilters as ContactFiltersComponent } from "./contact-filters"
