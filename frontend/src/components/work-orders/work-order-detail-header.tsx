@@ -68,7 +68,7 @@ export function WorkOrderDetailHeader({ woNumber, status, onEdit, onPrint, onDel
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="icon"
+                size="sm"
                 className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
               >
                 <MoreVertical className="w-4 h-4" />

@@ -7,7 +7,7 @@ interface PartsTabProps {
   onAddPart: (part: Omit<Part, "id" | "total">) => void
 }
 
-export function PartsTab({ parts, onAddPart }: PartsTabProps) {
+export function PartsTab({ parts }: PartsTabProps) {
   const totalCost = parts.reduce((sum, part) => sum + part.total, 0)
 
   return (

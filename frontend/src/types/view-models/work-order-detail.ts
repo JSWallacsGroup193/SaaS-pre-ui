@@ -1,4 +1,8 @@
-import type { WorkOrderView, WorkOrderStatus, WorkOrderPriority, JobType } from './work-order'
+import type { WorkOrderView, WorkOrderStatusView, WorkOrderPriorityView, JobTypeView } from './work-order'
+
+export type WorkOrderStatus = WorkOrderStatusView
+export type WorkOrderPriority = WorkOrderPriorityView
+export type JobType = JobTypeView
 
 export interface Customer {
   id: string
@@ -75,4 +79,3 @@ export interface WorkOrderDetail extends Omit<WorkOrderView, 'customer' | 'techn
   }>
 }
 
-export type { WorkOrderStatus, WorkOrderPriority, JobType }

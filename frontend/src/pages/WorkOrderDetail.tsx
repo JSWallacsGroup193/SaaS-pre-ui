@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WorkOrderDetailHeader } from '@/components/work-orders/work-order-detail-header'
 import { WorkOrderSidebar } from '@/components/work-orders/work-order-sidebar'
@@ -107,7 +106,6 @@ const mockWorkOrder: WorkOrderDetail = {
 }
 
 export default function WorkOrderDetail() {
-  const { id } = useParams()
   const [workOrder, setWorkOrder] = useState<WorkOrderDetail>(mockWorkOrder)
 
   const handleStatusChange = (status: WorkOrderStatus) => {

@@ -56,7 +56,7 @@ export function OverviewTab({ workOrder }: OverviewTabProps) {
             )}
           </div>
 
-          <Button variant="link" className="text-teal-500 hover:text-teal-400 p-0 h-auto">
+          <Button variant="ghost" className="text-teal-500 hover:text-teal-400 p-0 h-auto">
             View Customer Profile →
           </Button>
         </div>
