@@ -295,6 +295,14 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       {scanning && !scannedBarcode && (
         <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
           <div className="relative">
+            {/* Animated Scanning Frame */}
+            <div className="relative h-48 w-64 rounded-lg border-[3px] border-teal-400">
+              {/* Animated Corners */}
+              <div className="absolute -top-1 -left-1 h-8 w-8 animate-pulse rounded-tl-lg border-l-4 border-t-4 border-teal-400" />
+              <div className="absolute -top-1 -right-1 h-8 w-8 animate-pulse rounded-tr-lg border-r-4 border-t-4 border-teal-400" />
+              <div className="absolute -bottom-1 -left-1 h-8 w-8 animate-pulse rounded-bl-lg border-b-4 border-l-4 border-teal-400" />
+              <div className="absolute -bottom-1 -right-1 h-8 w-8 animate-pulse rounded-br-lg border-b-4 border-r-4 border-teal-400" />
+            </div>
             <p className="mt-4 text-center text-sm text-slate-100">Position barcode within frame</p>
           </div>
         </div>
