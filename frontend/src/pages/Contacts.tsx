@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { ContactList } from '@/components/contacts/contact-list'
 import type { Contact, ContactFilters } from '@/types/view-models/contact'
 
@@ -108,7 +107,6 @@ const mockContactsData: Contact[] = [
 ]
 
 export default function Contacts() {
-  const navigate = useNavigate()
   const [filters, setFilters] = useState<ContactFilters>({
     search: '',
     accountIds: [],
