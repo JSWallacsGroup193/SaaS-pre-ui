@@ -82,6 +82,23 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 - Accessible with ARIA labels and keyboard support
 - Mobile-responsive positioning (top-right on desktop, centered on mobile)
 
+**Form System (NEW - October 20, 2025):**
+- **Comprehensive Form Components** in `frontend/src/components/form/`:
+  - `Form` - Main wrapper with React Hook Form, Zod validation, auto-save functionality
+  - `FormField` - Universal field component (input/textarea/select) with validation states
+  - `FormSection` - Collapsible sections for organizing complex forms
+  - `FormActions` - Button container with optional sticky positioning
+  - `MultiStepForm` - Wizard-style multi-step forms with progress tracking
+- **Features:**
+  - Zod schema validation with real-time error messages
+  - Auto-save with debouncing (configurable delay)
+  - Visual validation states (emerald for valid, red for errors)
+  - Collapsible form sections for better UX
+  - Multi-step forms with step indicators and progress bars
+  - Full TypeScript support with generic types
+  - OpsNex dark theme styling throughout
+- **Dependencies:** react-hook-form (v7.60.0) and @hookform/resolvers (v3.10.0)
+
 **Environment Configuration:**
 - Development: API proxied through Vite dev server (`/api/v1` → `http://localhost:3000/api/v1`)
 - Production: Direct API calls to `/api/v1`
