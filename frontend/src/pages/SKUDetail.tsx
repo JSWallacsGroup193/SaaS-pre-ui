@@ -120,7 +120,6 @@ const mockRelatedItems: RelatedSKU[] = [
 ]
 
 export default function SKUDetail() {
-  const { id } = useParams()
   const [activeTab, setActiveTab] = useState('overview')
 
   return (
