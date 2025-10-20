@@ -918,8 +918,65 @@ Include collapse/expand button for desktop (teal icon).
 ### 2.2 Top Bar
 
 ```
-g
-`
+Create TopBar navigation component for HVAC app (OpsNex dark theme) using React TypeScript.
+
+Dark Theme Colors:
+- Top Bar BG: #1e293b (slate-800)
+- Border Bottom: #334155 (slate-700)
+- Text: #f1f5f9 (slate-100)
+- Search BG: #334155 (slate-700)
+- Search Border: #475569 (slate-600), focus: #14b8a6 (teal)
+- Icon Buttons: #94a3b8 (slate-400), hover: #14b8a6 (teal-500)
+
+Requirements:
+- Fixed top, full width, 64px height
+- Dark slate background (#1e293b), bottom border (#334155)
+
+Left Section:
+- Page title (24px, slate-100, font-bold)
+- Optional subtitle (14px, slate-400)
+
+Center Section (Desktop):
+- Global search bar:
+  - Dark input background (#334155)
+  - Search icon (left, slate-400)
+  - Placeholder: "Search work orders, customers..." (slate-400)
+  - Width: 400px
+  - Height: 40px
+  - Teal focus ring (#14b8a6)
+  - Results dropdown below (if typing, dark #334155)
+
+Right Section:
+- Notification bell icon (slate-400, hover: teal-500)
+  - Badge if unread (red dot, #ef4444)
+- User avatar (32px circle)
+- User name (slate-100, 14px)
+- Dropdown arrow (slate-400)
+- Dropdown menu on click:
+  - Profile (person icon)
+  - Settings (gear icon)
+  - Logout (logout icon)
+  - Dark background (#334155)
+  - Teal hover states
+
+Mobile (<768px):
+- Hide search bar (show search icon button instead)
+- Keep notifications and user menu
+- Smaller padding
+
+Props: 
+- pageTitle: string
+- subtitle?: string
+- userName: string
+- userAvatar?: string
+- notifications?: number
+- onSearch?: (query: string) => void
+- onNotificationClick?: () => void
+- onLogout?: () => void
+
+Use Tailwind CSS dark theme, TypeScript, responsive.
+Search autocomplete with work order numbers and customer names.
+```
 
 ---
 
