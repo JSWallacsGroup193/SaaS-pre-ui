@@ -2603,7 +2603,7 @@ Props:
 Use Tailwind CSS dark theme, TypeScript
 Tabs component from Part 1
 Responsive, accessible
-```
+```#
 
 ---
 
