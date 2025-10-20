@@ -1,34 +1,24 @@
-
-import { useState } from 'react'
-import api from '../utils/axiosClient'
+import { BarcodeScanner } from "@/components/barcode-scanner/barcode-scanner"
+import type { SKUData } from "@/types/view-models/barcode"
 
 export default function Scanner() {
-  const [code,setCode] = useState('123456789012')
-  const [res,setRes] = useState<any>(null)
+  const handleScan = (barcode: string) => {
+    console.log("Barcode scanned:", barcode)
+    // In real app, this could trigger an API call to verify the barcode
+  }
 
-  async function scan() {
-    const { data } = await api.get('/inventory/scan', { params: { barcode: code } })
-    setRes(data)
+  const handleSKUFound = (sku: SKUData) => {
+    console.log("SKU found:", sku)
+    // In real app, this could:
+    // 1. Update inventory state
+    // 2. Show toast notification
+    // 3. Navigate to SKU detail page
+    // 4. Add to work order parts list
   }
 
   return (
-    <div>
-      <h2>Barcode Scanner</h2>
-      <div style={{display:'flex',gap:8,marginBottom:12}}>
-        <input value={code} onChange={e=>setCode(e.target.value)} style={{padding:8,border:'1px solid #e5e7eb',borderRadius:6}} placeholder="Barcode or Code" />
-        <button onClick={scan} style={{padding:'8px 12px',border:'none',borderRadius:6,background:'#2563eb',color:'#fff',cursor:'pointer'}}>Scan</button>
-      </div>
-      {res && (
-        <div style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:12}}>
-          {res.found ? (
-            <div>
-              <div><b>Code:</b> {res.sku.code}</div>
-              <div><b>Description:</b> {res.sku.description}</div>
-              <div><b>Barcode:</b> {res.sku.barcode || '-'}</div>
-            </div>
-          ) : <div>Not found</div>}
-        </div>
-      )}
+    <div className="h-screen w-full">
+      <BarcodeScanner onScan={handleScan} onSKUFound={handleSKUFound} />
     </div>
   )
 }
