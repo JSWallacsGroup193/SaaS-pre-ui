@@ -44,6 +44,7 @@
     "@nestjs/serve-static": "^5.0.4",
     "html5-qrcode": "^2.3.8",
     "qrcode.react": "^4.2.0",
+    "react-markdown": "^10.1.0",
     "recharts": "^3.3.0"
   }
 }
