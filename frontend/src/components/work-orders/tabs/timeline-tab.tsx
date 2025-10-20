@@ -1,5 +1,5 @@
-import { FileText, UserCheck, RefreshCw, Package, CheckCircle, DollarSign, MessageSquare } from "lucide-react"
-import type { TimelineEvent } from "@/types/view-models/work-order-detail"
+import { FileText, UserCheck, RefreshCw, Package, CheckCircle, DollarSign, MessageSquare } from 'lucide-react"
+import type { TimelineEvent } from '@/types/view-models/work-order"
 
 interface TimelineTabProps {
   timeline: TimelineEvent[]
@@ -27,7 +27,7 @@ export function TimelineTab({ timeline }: TimelineTabProps) {
 
           {/* Timeline Events */}
           <div className="space-y-6">
-            {timeline.map((event) => {
+            {timeline.map((event, index) => {
               const Icon = eventIcons[event.type]
               return (
                 <div key={event.id} className="relative flex gap-4">

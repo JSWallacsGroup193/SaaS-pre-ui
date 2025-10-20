@@ -1,6 +1,6 @@
-import { Plus, Scan } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { Part } from "@/types/view-models/work-order-detail"
+import { Plus, Scan } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import type { Part } from '@/types/view-models/work-order"
 
 interface PartsTabProps {
   parts: Part[]
@@ -24,19 +24,7 @@ export function PartsTab({ parts, onAddPart }: PartsTabProps) {
               <Scan className="w-4 h-4 mr-2" />
               Scan Barcode
             </Button>
-            <Button
-              onClick={() => {
-                const newPart = {
-                  sku: 'PART-' + Math.random().toString(36).substring(7).toUpperCase(),
-                  description: 'New Part',
-                  quantity: 1,
-                  unitPrice: Math.floor(Math.random() * 100) + 10,
-                }
-                onAddPart(newPart)
-              }}
-              size="sm"
-              className="bg-teal-500 hover:bg-teal-600 text-white"
-            >
+            <Button size="sm" className="bg-teal-500 hover:bg-teal-600 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Add Part
             </Button>

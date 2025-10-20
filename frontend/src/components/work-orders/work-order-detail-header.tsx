@@ -1,8 +1,8 @@
-import { ChevronRight, Edit, Printer, Trash2, MoreVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import type { WorkOrderStatus } from "@/types/view-models/work-order-detail"
+import { ChevronRight, Edit, Printer, Trash2, MoreVertical } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu"
+import { Badge } from '@/components/ui/badge"
+import type { WorkOrderStatus } from '@/types/view-models/work-order"
 
 interface WorkOrderDetailHeaderProps {
   woNumber: string
@@ -68,7 +68,7 @@ export function WorkOrderDetailHeader({ woNumber, status, onEdit, onPrint, onDel
             <DropdownMenuTrigger asChild>
               <Button
                 variant="outline"
-                size="sm"
+                size="icon"
                 className="border-slate-600 text-slate-300 hover:bg-slate-700 bg-transparent"
               >
                 <MoreVertical className="w-4 h-4" />

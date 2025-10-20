@@ -1,9 +1,9 @@
-import { useState } from "react"
-import { Paperclip, Send, ImageIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { Note } from "@/types/view-models/work-order-detail"
+import { useState } from 'react'
+import { Paperclip, Send, ImageIcon } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import { Textarea } from '@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar"
+import type { Note } from '@/types/view-models/work-order"
 
 interface NotesTabProps {
   notes: Note[]

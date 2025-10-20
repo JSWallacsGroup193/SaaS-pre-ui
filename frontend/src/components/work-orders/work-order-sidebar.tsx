@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { Calendar, User, FileText, Send, CheckCircle, XCircle } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { WorkOrderStatus, WorkOrderDetail } from "@/types/view-models/work-order-detail"
+import { useState } from 'react'
+import { Calendar, User, FileText, Send, CheckCircle, XCircle } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import { Badge } from '@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select"
+import type { WorkOrderStatus, WorkOrderDetail } from '@/types/view-models/work-order"
 
 interface WorkOrderSidebarProps {
   workOrder: WorkOrderDetail
@@ -27,6 +27,8 @@ const statusConfig: Record<WorkOrderStatus, { label: string; className: string }
 export function WorkOrderSidebar({
   workOrder,
   onStatusChange,
+  onReassign,
+  onReschedule,
   onGenerateInvoice,
   onSendUpdate,
   onMarkComplete,

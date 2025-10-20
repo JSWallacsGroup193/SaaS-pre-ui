@@ -1,11 +1,12 @@
-import type React from "react"
-import { useState } from "react"
-import { Eye, Edit, Trash2, Calendar, User, Wrench } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { WorkOrderView } from "@/types/view-models/work-order"
+import type React from 'react'
+
+import { useState } from 'react'
+import { Eye, Edit, Trash2, Calendar, User, Wrench } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import type { WorkOrder } from '@/types/view-models/work-order"
 
 interface WorkOrderCardProps {
-  workOrder: WorkOrderView
+  workOrder: WorkOrder
   onView: (id: string) => void
   onEdit: (id: string) => void
   onDelete: (id: string) => void

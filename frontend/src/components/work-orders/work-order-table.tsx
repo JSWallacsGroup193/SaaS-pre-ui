@@ -1,10 +1,10 @@
-import { useState } from "react"
-import { Eye, Edit, Trash2, ChevronUp, ChevronDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import type { WorkOrderView } from "@/types/view-models/work-order"
+import { useState } from 'react'
+import { Eye, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import type { WorkOrder } from '@/types/view-models/work-order"
 
 interface WorkOrderTableProps {
-  workOrders: WorkOrderView[]
+  workOrders: WorkOrder[]
   onView: (id: string) => void
   onEdit: (id: string) => void
   onDelete: (id: string) => void
@@ -222,7 +222,7 @@ export function WorkOrderTable({ workOrders, onView, onEdit, onDelete }: WorkOrd
               <Button
                 key={page}
                 size="sm"
-                variant={currentPage === page ? "primary" : "outline"}
+                variant={currentPage === page ? "default" : "outline"}
                 onClick={() => setCurrentPage(page)}
                 className={
                   currentPage === page

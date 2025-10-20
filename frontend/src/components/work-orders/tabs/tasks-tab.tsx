@@ -1,9 +1,9 @@
-import { useState } from "react"
-import { Check, Plus } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Input } from "@/components/ui/input"
-import type { Task } from "@/types/view-models/work-order-detail"
+import { useState } from 'react'
+import { Check, Plus } from 'lucide-react"
+import { Button } from '@/components/ui/button"
+import { Checkbox } from '@/components/ui/checkbox"
+import { Input } from '@/components/ui/input"
+import type { Task } from '@/types/view-models/work-order"
 
 interface TasksTabProps {
   tasks: Task[]

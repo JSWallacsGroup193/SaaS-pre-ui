@@ -1,5 +1,5 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import type { FilterState } from "@/types/view-models/work-order"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select"
+import type { FilterState } from '@/types/view-models/work-order"
 
 interface WorkOrderFiltersProps {
   filters: FilterState
