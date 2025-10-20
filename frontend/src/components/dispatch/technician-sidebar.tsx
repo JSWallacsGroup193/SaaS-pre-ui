@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import type { Technician } from '@/types/view-models/dispatch"
+import { useState } from "react"
+import type { Technician } from "@/types/view-models/dispatch"
 
 interface TechnicianSidebarProps {
   technicians: Technician[]

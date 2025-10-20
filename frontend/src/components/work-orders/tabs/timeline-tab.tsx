@@ -1,5 +1,5 @@
-import { FileText, UserCheck, RefreshCw, Package, CheckCircle, DollarSign, MessageSquare } from 'lucide-react"
-import type { TimelineEvent } from '@/types/view-models/work-order"
+import { FileText, UserCheck, RefreshCw, Package, CheckCircle, DollarSign, MessageSquare } from "lucide-react"
+import type { TimelineEvent } from "@/types/view-models/work-order"
 
 interface TimelineTabProps {
   timeline: TimelineEvent[]
@@ -11,6 +11,7 @@ const eventIcons = {
   status_changed: RefreshCw,
   parts_added: Package,
   completed: CheckCircle,
+  task_completed: CheckCircle,
   invoiced: DollarSign,
   note_added: MessageSquare,
 }
@@ -27,7 +28,7 @@ export function TimelineTab({ timeline }: TimelineTabProps) {
 
           {/* Timeline Events */}
           <div className="space-y-6">
-            {timeline.map((event, index) => {
+            {timeline.map((event) => {
               const Icon = eventIcons[event.type]
               return (
                 <div key={event.id} className="relative flex gap-4">

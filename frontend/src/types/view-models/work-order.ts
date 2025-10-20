@@ -117,3 +117,7 @@ export interface WorkOrderStats {
 export type WorkOrder = WorkOrderView
 export type WorkOrderStatus = WorkOrderStatusView
 export type WorkOrderPriority = WorkOrderPriorityView
+export type Task = WorkOrderTask
+export type Part = WorkOrderPart
+export type Note = WorkOrderNote
+export type TimelineEvent = WorkOrderTimelineEvent

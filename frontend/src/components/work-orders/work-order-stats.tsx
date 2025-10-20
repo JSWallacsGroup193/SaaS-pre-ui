@@ -1,4 +1,4 @@
-import { FileText, Clock, CheckCircle } from 'lucide-react"
+import { FileText, Clock, CheckCircle } from "lucide-react"
 
 interface WorkOrderStatsProps {
   stats: {

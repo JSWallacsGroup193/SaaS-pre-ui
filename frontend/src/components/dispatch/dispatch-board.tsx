@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { DispatchHeader } from './dispatch-header"
-import { WeekView } from './week-view"
-import { TechnicianSidebar } from './technician-sidebar"
-import { UnassignedPanel } from './unassigned-panel"
-import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from '@dnd-kit/core"
-import { WorkOrderCard } from './work-order-card"
-import type { WorkOrder, Technician } from '@/types/view-models/dispatch"
+import { useState } from "react"
+import { DispatchHeader } from "./dispatch-header"
+import { WeekView } from "./week-view"
+import { TechnicianSidebar } from "./technician-sidebar"
+import { UnassignedPanel } from "./unassigned-panel"
+import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from "@dnd-kit/core"
+import { WorkOrderCard } from "./work-order-card"
+import type { WorkOrder, Technician } from "@/types/view-models/dispatch"
 
 // Mock data
 const mockTechnicians: Technician[] = [

@@ -1,7 +1,7 @@
-import { useState } from 'react'
-import { Eye, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react"
-import { Button } from '@/components/ui/button"
-import type { WorkOrder } from '@/types/view-models/work-order"
+import { useState } from "react"
+import { Eye, Edit, Trash2, ChevronUp, ChevronDown } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import type { WorkOrder } from "@/types/view-models/work-order"
 
 interface WorkOrderTableProps {
   workOrders: WorkOrder[]

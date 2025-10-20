@@ -1,7 +1,7 @@
-import { useDraggable } from '@dnd-kit/core"
-import { CSS } from '@dnd-kit/utilities"
-import { AlertCircle, Clock, GripVertical, Wrench } from 'lucide-react"
-import type { WorkOrder } from '@/types/view-models/dispatch"
+import { useDraggable } from "@dnd-kit/core"
+import { CSS } from "@dnd-kit/utilities"
+import { AlertCircle, Clock, GripVertical, Wrench } from "lucide-react"
+import type { WorkOrder } from "@/types/view-models/dispatch"
 
 interface WorkOrderCardProps {
   workOrder: WorkOrder

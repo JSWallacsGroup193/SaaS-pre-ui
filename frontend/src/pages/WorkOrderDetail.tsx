@@ -146,7 +146,7 @@ export default function WorkOrderDetail() {
     const newNote = {
       id: String(workOrder.notes.length + 1),
       text,
-      author: { name: 'Current User' },
+      author: { name: 'Current User', avatar: '/placeholder.svg?height=40&width=40' },
       timestamp: new Date().toISOString(),
     }
     setWorkOrder({ ...workOrder, notes: [newNote, ...workOrder.notes] })

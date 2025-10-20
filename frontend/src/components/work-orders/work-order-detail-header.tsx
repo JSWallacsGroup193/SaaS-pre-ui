@@ -1,8 +1,8 @@
-import { ChevronRight, Edit, Printer, Trash2, MoreVertical } from 'lucide-react"
-import { Button } from '@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu"
-import { Badge } from '@/components/ui/badge"
-import type { WorkOrderStatus } from '@/types/view-models/work-order"
+import { ChevronRight, Edit, Printer, Trash2, MoreVertical } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { Badge } from "@/components/ui/badge"
+import type { WorkOrderStatus } from "@/types/view-models/work-order"
 
 interface WorkOrderDetailHeaderProps {
   woNumber: string

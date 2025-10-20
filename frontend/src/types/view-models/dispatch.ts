@@ -18,3 +18,6 @@ export interface Technician {
 }
 
 export type DispatchViewMode = 'day' | 'week' | 'month'
+
+// Alias for component compatibility
+export type WorkOrder = DispatchWorkOrder

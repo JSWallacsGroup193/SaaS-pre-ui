@@ -1,6 +1,6 @@
-import { Plus, Scan } from 'lucide-react"
-import { Button } from '@/components/ui/button"
-import type { Part } from '@/types/view-models/work-order"
+import { Plus, Scan } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import type { Part } from "@/types/view-models/work-order"
 
 interface PartsTabProps {
   parts: Part[]

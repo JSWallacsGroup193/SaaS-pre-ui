@@ -1,8 +1,8 @@
-import { Phone, Mail, MapPin, User, Calendar, Clock, Wrench } from 'lucide-react"
-import { Button } from '@/components/ui/button"
-import { Badge } from '@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar"
-import type { WorkOrderDetail, WorkOrderPriority } from '@/types/view-models/work-order"
+import { Phone, Mail, MapPin, User, Calendar, Clock, Wrench } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import type { WorkOrderDetail, WorkOrderPriority } from "@/types/view-models/work-order"
 
 interface OverviewTabProps {
   workOrder: WorkOrderDetail

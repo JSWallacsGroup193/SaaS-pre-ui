@@ -1,7 +1,7 @@
-import { WorkOrderCard } from './work-order-card"
-import { Button } from '@/components/ui/button"
-import { AlertCircle } from 'lucide-react"
-import type { WorkOrder } from '@/types/view-models/dispatch"
+import { WorkOrderCard } from "./work-order-card"
+import { Button } from "@/components/ui/button"
+import { AlertCircle } from "lucide-react"
+import type { WorkOrder } from "@/types/view-models/dispatch"
 
 interface UnassignedPanelProps {
   workOrders: WorkOrder[]

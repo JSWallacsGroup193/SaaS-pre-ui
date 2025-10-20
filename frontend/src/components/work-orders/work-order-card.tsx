@@ -1,9 +1,9 @@
-import type React from 'react'
+import type React from "react"
 
-import { useState } from 'react'
-import { Eye, Edit, Trash2, Calendar, User, Wrench } from 'lucide-react"
-import { Button } from '@/components/ui/button"
-import type { WorkOrder } from '@/types/view-models/work-order"
+import { useState } from "react"
+import { Eye, Edit, Trash2, Calendar, User, Wrench } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import type { WorkOrder } from "@/types/view-models/work-order"
 
 interface WorkOrderCardProps {
   workOrder: WorkOrder

@@ -1,7 +1,7 @@
-import { useDroppable } from '@dnd-kit/core"
-import { WorkOrderCard } from './work-order-card"
-import { startOfWeek, addDays, format, isSameDay } from 'date-fns"
-import type { WorkOrder, Technician } from '@/types/view-models/dispatch"
+import { useDroppable } from "@dnd-kit/core"
+import { WorkOrderCard } from "./work-order-card"
+import { startOfWeek, addDays, format, isSameDay } from "date-fns"
+import type { WorkOrder, Technician } from "@/types/view-models/dispatch"
 
 interface WeekViewProps {
   workOrders: WorkOrder[]
