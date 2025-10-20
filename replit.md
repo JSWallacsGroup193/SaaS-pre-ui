@@ -21,12 +21,14 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 ### Frontend Architecture (Updated: October 20, 2025)
 
 **UI Component System:**
-- **shadcn/ui** integrated with Tailwind CSS v3.4
+- **shadcn/ui** fully integrated with Tailwind CSS v3.4 and OpsNex dark theme
+- **62 production-ready components** in `frontend/src/components/ui/`
 - Component library configured at `frontend/components.json`
-- Reusable UI components in `frontend/src/components/ui/`
-- OpsNex dark theme with teal accent (#14b8a6)
+- OpsNex dark theme with teal accent (#14b8a6) and slate backgrounds (#0f172a, #1e293b, #334155)
 - Utility function for className merging (`cn()`) in `frontend/src/lib/utils.ts`
+- All Radix UI primitives installed (26 packages) + supporting libraries (charts, forms, calendars, etc.)
 - v0.dev components can be installed using: `npx shadcn@latest add <url>`
+- **Complete component inventory:** accordion, alert-dialog, alert, aspect-ratio, avatar, badge, breadcrumb, button-group, button, calendar, card, carousel, chart, checkbox, collapsible, command, context-menu, date-input, dialog, drawer, dropdown-menu, empty, field, form, hover-card, input-group, input-otp, input, item, kbd, label, menubar, navigation-menu, number-input, pagination, popover, progress, radio-group, resizable, scroll-area, select-input, select, separator, sheet, sidebar, skeleton, slider, sonner, spinner, switch, table, tabs, text-area, textarea, text-input, toaster, toast, toggle-group, toggle, tooltip, and custom hooks
 
 **TypeScript Type System:**
 - Comprehensive type definitions in `frontend/src/types/index.ts` (750+ lines)
