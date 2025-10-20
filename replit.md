@@ -65,3 +65,13 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Barcode Generation**: `bwip-js` library
 - **OpenAPI Documentation**: `@nestjs/swagger`
 - **OpenAI API**: For the AI-powered chat assistant (requires `OPENAI_API_KEY`)
+
+## Development Resources
+
+### UI Component Library (v0.dev Prompts)
+- **Location**: `docs/V0_PROMPTS_COMPLETE.md`
+- **Description**: Comprehensive collection of 68 copy-paste-ready v0.dev prompts for generating all UI components and pages
+- **Coverage**: Complete design system, authentication, dashboards, work orders, CRM, inventory, purchasing, dispatch, Field Tools (all 21 calculators), and utility pages
+- **Theme**: All prompts use OpsNex dark theme with teal accents (#14b8a6) matching the application's design system
+- **Usage**: Copy any prompt to https://v0.dev to generate production-ready React + TypeScript components with Tailwind CSS
+- **Organization**: 13 categorized parts with table of contents for easy navigation
