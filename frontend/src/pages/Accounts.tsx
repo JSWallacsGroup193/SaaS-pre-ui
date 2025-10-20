@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AccountList } from '@/components/accounts/account-list'
 import type { Account, AccountFilters, AccountStats } from '@/types/view-models/account'
 
 // Mock data
-const mockAccounts: Account[] = [
+const mockAccountsData: Account[] = [
   {
     id: '1',
     name: 'Johnson Residence',
@@ -91,39 +91,99 @@ const mockStats: AccountStats = {
 
 export default function Accounts() {
   const navigate = useNavigate()
-  const [accounts] = useState<Account[]>(mockAccounts)
-  const [stats] = useState<AccountStats>(mockStats)
+  const [filters, setFilters] = useState<AccountFilters>({
+    search: '',
+    accountType: 'both',
+    status: 'all',
+    serviceArea: '',
+    sortBy: 'name',
+  })
 
-  const handleFilterChange = (filters: AccountFilters) => {
-    console.log('[Accounts] Filter changed:', filters)
-    // TODO: Implement filtering logic here
+  // Filter and sort accounts based on current filters
+  const filteredAndSortedAccounts = useMemo(() => {
+    let result = [...mockAccountsData]
+
+    // Apply search filter
+    if (filters.search) {
+      const searchLower = filters.search.toLowerCase()
+      result = result.filter(
+        (account) =>
+          account.name.toLowerCase().includes(searchLower) ||
+          account.contactName.toLowerCase().includes(searchLower) ||
+          account.phone.includes(filters.search) ||
+          account.email.toLowerCase().includes(searchLower) ||
+          account.address.toLowerCase().includes(searchLower)
+      )
+    }
+
+    // Apply account type filter
+    if (filters.accountType !== 'both') {
+      result = result.filter((account) => account.type === filters.accountType)
+    }
+
+    // Apply status filter
+    if (filters.status !== 'all') {
+      result = result.filter((account) => account.status === filters.status)
+    }
+
+    // Apply service area filter
+    if (filters.serviceArea) {
+      result = result.filter((account) => account.serviceArea === filters.serviceArea)
+    }
+
+    // Apply sorting
+    result.sort((a, b) => {
+      switch (filters.sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name)
+        case 'lastService':
+          if (!a.lastServiceDate) return 1
+          if (!b.lastServiceDate) return -1
+          return new Date(b.lastServiceDate).getTime() - new Date(a.lastServiceDate).getTime()
+        case 'revenue':
+          return b.totalRevenue - a.totalRevenue
+        default:
+          return 0
+      }
+    })
+
+    return result
+  }, [filters])
+
+  const handleFilterChange = (newFilters: AccountFilters) => {
+    setFilters(newFilters)
   }
 
   const handleCreate = () => {
-    console.log('[Accounts] Create account - TODO: Implement')
+    console.log('[Accounts] Create account')
+    // TODO: Implement create account modal or navigate to create page
     // navigate('/accounts/create')
   }
 
   const handleView = (id: string) => {
     console.log('[Accounts] View account:', id)
+    // TODO: Navigate to account detail page when implemented
     // navigate(`/accounts/${id}`)
   }
 
   const handleEdit = (id: string) => {
     console.log('[Accounts] Edit account:', id)
+    // TODO: Navigate to account edit page when implemented
     // navigate(`/accounts/${id}/edit`)
   }
 
   const handleDelete = (id: string) => {
-    console.log('[Accounts] Delete account:', id)
-    // TODO: Implement delete logic here
+    if (confirm(`Are you sure you want to delete this account?`)) {
+      console.log('[Accounts] Delete account:', id)
+      // TODO: Implement actual delete logic with API call
+    }
   }
 
   return (
     <AccountList
-      accounts={accounts}
-      totalCount={accounts.length}
-      stats={stats}
+      accounts={filteredAndSortedAccounts}
+      totalCount={mockAccountsData.length}
+      stats={mockStats}
       onFilterChange={handleFilterChange}
       onCreate={handleCreate}
       onView={handleView}
