@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { AccountList } from '@/components/accounts/account-list'
 import type { Account, AccountFilters, AccountStats } from '@/types/view-models/account'
 
