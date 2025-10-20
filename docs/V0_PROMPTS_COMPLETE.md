@@ -918,54 +918,8 @@ Include collapse/expand button for desktop (teal icon).
 ### 2.2 Top Bar
 
 ```
-Create TopBar component for HVAC app (OpsNex dark theme) using React TypeScript.
-
-Dark Theme Colors:
-- TopBar BG: #1e293b (slate-800)
-- Border Bottom: #334155 (slate-700)
-- Text: #f1f5f9 (slate-100)
-- Icons: #94a3b8 (slate-400), hover: #14b8a6 (teal-500)
-- Search BG: #334155 (slate-700)
-- Search Border: #475569 (slate-600), focus: #14b8a6 (teal)
-- Dropdown BG: #334155 (slate-700)
-- Badge: #ef4444 (red) for notifications
-
-Requirements:
-- Fixed top, full width, 64px height
-- Dark slate background (#1e293b), bottom border (#334155)
-- Layout (left to right):
-  1. Hamburger menu icon (mobile only, toggle sidebar) - slate-400/teal-500
-  2. Page title (20px, bold, slate-100)
-  3. Search bar (center on desktop, hidden on mobile):
-     - Dark input background (#334155)
-     - Magnifying glass icon (teal)
-     - Placeholder: "Search work orders, customers, SKUs..." (slate-400)
-     - Width: 400px max on desktop
-     - Focus: teal ring (#14b8a6)
-     - White text
-  4. Notification bell icon with red badge count (#ef4444)
-  5. User avatar with dropdown menu
-- Notification badge:
-  - Red dot if unread
-  - Number badge if count > 1
-  - Dropdown: dark card list (#334155) of recent notifications
-- User dropdown:
-  - Dark background (#334155)
-  - Profile, Settings, Logout
-  - Hover: slate-600 background
-  - Teal icons
-- Z-index high for fixed positioning
-
-Props: 
-- pageTitle: string
-- notificationCount: number
-- userInfo: { name, avatar, role }
-- onSearch: (query: string) => void
-
-Use Tailwind CSS dark theme, TypeScript, responsive.
-Dropdown menus with click-outside-to-close.
-Teal accents for interactive elements.
-```
+g
+`
 
 ---
 
