@@ -20,6 +20,14 @@ The frontend is a React application built with Vite, utilizing Zustand for state
 
 ### Frontend Architecture (Updated: October 20, 2025)
 
+**UI Component System:**
+- **shadcn/ui** integrated with Tailwind CSS v3.4
+- Component library configured at `frontend/components.json`
+- Reusable UI components in `frontend/src/components/ui/`
+- OpsNex dark theme with teal accent (#14b8a6)
+- Utility function for className merging (`cn()`) in `frontend/src/lib/utils.ts`
+- v0.dev components can be installed using: `npx shadcn@latest add <url>`
+
 **TypeScript Type System:**
 - Comprehensive type definitions in `frontend/src/types/index.ts` (750+ lines)
 - Covers all 69 Prisma models and backend DTOs
