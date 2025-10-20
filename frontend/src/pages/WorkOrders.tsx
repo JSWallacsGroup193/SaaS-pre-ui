@@ -155,7 +155,7 @@ export default function WorkOrders() {
   }
 
   const handleCreate = () => {
-    console.log('Create work order - TODO: Implement modal or navigate to create page')
+    navigate('/work-orders/create')
   }
 
   const handleView = (id: string) => {
