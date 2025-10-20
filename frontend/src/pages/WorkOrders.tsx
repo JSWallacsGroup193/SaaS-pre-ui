@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { WorkOrderList } from '@/components/work-orders/work-order-list'
 import type { FilterState, WorkOrderView } from '@/types/view-models/work-order'
 
@@ -91,6 +92,7 @@ const mockWorkOrders: WorkOrderView[] = [
 ]
 
 export default function WorkOrders() {
+  const navigate = useNavigate()
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     status: 'all',
@@ -157,7 +159,7 @@ export default function WorkOrders() {
   }
 
   const handleView = (id: string) => {
-    console.log('View work order:', id)
+    navigate(`/work-orders/${id}`)
   }
 
   const handleEdit = (id: string) => {

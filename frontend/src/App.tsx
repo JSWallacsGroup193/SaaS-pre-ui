@@ -8,6 +8,7 @@ import { TopBar } from './components/TopBar'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const WorkOrders = lazy(() => import('./pages/WorkOrders'))
+const WorkOrderDetail = lazy(() => import('./pages/WorkOrderDetail'))
 const CRM = lazy(() => import('./pages/CRM'))
 const Inventory = lazy(() => import('./pages/Inventory'))
 const Purchasing = lazy(() => import('./pages/Purchasing'))
@@ -39,6 +40,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/work-orders" element={<WorkOrders />} />
+              <Route path="/work-orders/:id" element={<WorkOrderDetail />} />
               <Route path="/crm" element={<CRM />} />
               <Route path="/inventory" element={<Inventory />} />
               <Route path="/purchasing" element={<Purchasing />} />
