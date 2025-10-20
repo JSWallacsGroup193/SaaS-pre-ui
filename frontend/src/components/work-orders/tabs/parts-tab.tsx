@@ -7,7 +7,7 @@ interface PartsTabProps {
   onAddPart: (part: Omit<Part, "id" | "total">) => void
 }
 
-export function PartsTab({ parts }: PartsTabProps) {
+export function PartsTab({ parts, onAddPart }: PartsTabProps) {
   const totalCost = parts.reduce((sum, part) => sum + part.total, 0)
 
   return (
@@ -24,7 +24,19 @@ export function PartsTab({ parts }: PartsTabProps) {
               <Scan className="w-4 h-4 mr-2" />
               Scan Barcode
             </Button>
-            <Button size="sm" className="bg-teal-500 hover:bg-teal-600 text-white">
+            <Button
+              onClick={() => {
+                const newPart = {
+                  sku: 'PART-' + Math.random().toString(36).substring(7).toUpperCase(),
+                  description: 'New Part',
+                  quantity: 1,
+                  unitPrice: Math.floor(Math.random() * 100) + 10,
+                }
+                onAddPart(newPart)
+              }}
+              size="sm"
+              className="bg-teal-500 hover:bg-teal-600 text-white"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Add Part
             </Button>

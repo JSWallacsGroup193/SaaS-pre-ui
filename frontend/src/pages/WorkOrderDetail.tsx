@@ -133,6 +133,15 @@ export default function WorkOrderDetail() {
     setWorkOrder({ ...workOrder, tasks: [...workOrder.tasks, newTask] })
   }
 
+  const handleAddPart = (part: Omit<{ id: string; sku: string; description: string; quantity: number; unitPrice: number; total: number }, 'id' | 'total'>) => {
+    const newPart = {
+      id: String(workOrder.parts.length + 1),
+      ...part,
+      total: part.quantity * part.unitPrice,
+    }
+    setWorkOrder({ ...workOrder, parts: [...workOrder.parts, newPart] })
+  }
+
   const handleAddNote = (text: string) => {
     const newNote = {
       id: String(workOrder.notes.length + 1),
@@ -191,7 +200,7 @@ export default function WorkOrderDetail() {
               </TabsContent>
 
               <TabsContent value="parts">
-                <PartsTab parts={workOrder.parts} onAddPart={() => {}} />
+                <PartsTab parts={workOrder.parts} onAddPart={handleAddPart} />
               </TabsContent>
 
               <TabsContent value="notes">
