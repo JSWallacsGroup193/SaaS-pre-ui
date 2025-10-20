@@ -133,7 +133,7 @@ Export as: export const Button = ({ ... }) => { ... }
 ### 1.2 Input Components
 
 ```
-Create comprehensive Input components for HVAC app (OpsNex dark theme) with React TypeScript.
+Create# comprehensive Input components for HVAC app (OpsNex dark theme) with React TypeScript.
 
 Dark Theme Color Scheme:
 - Background: #0f172a (slate-950)
