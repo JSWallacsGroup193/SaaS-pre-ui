@@ -99,6 +99,51 @@ The frontend is a React application built with Vite, utilizing Zustand for state
   - OpsNex dark theme styling throughout
 - **Dependencies:** react-hook-form (v7.60.0) and @hookform/resolvers (v3.10.0)
 
+**Work Orders Module (NEW - October 20, 2025):**
+- **12 Components** in `frontend/src/components/work-orders/`:
+  - `work-order-list.tsx` - Main list component with filters, stats, table/card views
+  - `work-order-filters.tsx` - Search, status, date range, technician, priority filters
+  - `work-order-stats.tsx` - KPI cards (total, pending, in-progress, completed, revenue)
+  - `work-order-table.tsx` - Desktop table view with sorting
+  - `work-order-card.tsx` - Mobile card view
+  - `work-order-detail-header.tsx` - Detail page header with actions
+  - `work-order-sidebar.tsx` - Detail page sidebar with quick actions
+  - **5 Detail Tabs** in `tabs/`: overview, tasks, parts, notes, timeline
+- **Pages:**
+  - `WorkOrders.tsx` (/work-orders) - List view with filtering and search
+  - `WorkOrderDetail.tsx` (/work-orders/:id) - Detail view with 5-tab interface
+  - `CreateWorkOrder.tsx` (/work-orders/create) - Form-based creation (6 sections)
+- **Types** in `frontend/src/types/view-models/work-order.ts`:
+  - WorkOrderDetail, WorkOrderTask, WorkOrderPart, WorkOrderNote, WorkOrderTimelineEvent
+  - FilterState, WorkOrderStats, WorkOrderStatusHistory
+- **Features:**
+  - Real-time filtering by status, priority, date range, technician
+  - Task tracking with completion status
+  - Parts management with pricing
+  - Notes with photo attachments
+  - Activity timeline with 8 event types
+  - Mobile-responsive design (table → cards)
+
+**Dispatch Module (NEW - October 20, 2025):**
+- **6 Components** in `frontend/src/components/dispatch/`:
+  - `dispatch-board.tsx` - Main drag-and-drop scheduling board
+  - `dispatch-header.tsx` - Date navigation, view mode selector (day/week/month)
+  - `week-view.tsx` - Weekly calendar grid with time slots
+  - `technician-sidebar.tsx` - Technician list with status indicators
+  - `unassigned-panel.tsx` - Unassigned work orders queue
+  - `work-order-card.tsx` - Draggable work order cards for scheduling
+- **Page:**
+  - `Dispatch.tsx` (/dispatch) - Full dispatch board with drag-and-drop
+- **Types** in `frontend/src/types/view-models/dispatch.ts`:
+  - DispatchWorkOrder, Technician, DispatchViewMode
+- **Features:**
+  - Drag-and-drop work order assignment (using @dnd-kit)
+  - Real-time technician status (available, on-job, off)
+  - Week/day/month view modes
+  - Emergency work order prioritization
+  - Time slot scheduling
+  - Unassigned work orders panel
+
 **Environment Configuration:**
 - Development: API proxied through Vite dev server (`/api/v1` → `http://localhost:3000/api/v1`)
 - Production: Direct API calls to `/api/v1`
