@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react"
 import { useNavigate } from "react-router-dom"
-import { ArrowLeft, Flashlight, CheckCircle2, AlertTriangle } from "lucide-react"
+import { ArrowLeft, Flashlight, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react"
+import { Html5Qrcode } from "html5-qrcode"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { scannerService } from "@/services/scanner.service"
 import type { SKUData } from "@/types/view-models/barcode"
+import type { SKU } from "@/types"
 
 interface BarcodeScannerProps {
   onScan: (barcode: string) => void
@@ -16,40 +19,71 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
   const [scanning, setScanning] = useState(true)
   const [scannedBarcode, setScannedBarcode] = useState<string | null>(null)
   const [skuData, setSkuData] = useState<SKUData | null>(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [cameraError, setCameraError] = useState<string | null>(null)
   const [flashlightOn, setFlashlightOn] = useState(false)
   const [hasFlashlight, setHasFlashlight] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  
+  const html5QrcodeRef = useRef<Html5Qrcode | null>(null)
   const streamRef = useRef<MediaStream | null>(null)
   const scanningRef = useRef(true)
+  const readerElementId = "barcode-reader"
 
   useEffect(() => {
-    startCamera()
+    startScanner()
     return () => {
-      stopCamera()
+      stopScanner()
     }
   }, [])
 
-  const startCamera = async () => {
+  const startScanner = async () => {
     try {
+      // Request camera access first
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "environment" },
       })
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream
-        streamRef.current = stream
-      }
+      streamRef.current = stream
 
       // Check if flashlight is available
       const track = stream.getVideoTracks()[0]
       const capabilities = track.getCapabilities() as any
       setHasFlashlight("torch" in capabilities)
-    } catch (error) {
+
+      // Initialize html5-qrcode
+      const html5Qrcode = new Html5Qrcode(readerElementId)
+      html5QrcodeRef.current = html5Qrcode
+
+      // Start scanning
+      await html5Qrcode.start(
+        { facingMode: "environment" },
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 },
+        },
+        onScanSuccess,
+        onScanError
+      )
+    } catch (error: any) {
       console.error("Camera access error:", error)
+      setCameraError(
+        error.name === "NotAllowedError"
+          ? "Camera access denied. Please allow camera permissions and reload."
+          : "Unable to access camera. Please check your device settings."
+      )
     }
   }
 
-  const stopCamera = () => {
+  const stopScanner = async () => {
+    if (html5QrcodeRef.current) {
+      try {
+        await html5QrcodeRef.current.stop()
+        html5QrcodeRef.current.clear()
+      } catch (error) {
+        console.error("Error stopping scanner:", error)
+      }
+    }
+
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((track) => track.stop())
       streamRef.current = null
@@ -71,7 +105,7 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
     }
   }
 
-  const simulateScan = (barcode: string) => {
+  const onScanSuccess = async (decodedText: string) => {
     if (!scanningRef.current) return
 
     // Vibrate on scan
@@ -79,48 +113,77 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       navigator.vibrate(200)
     }
 
-    setScannedBarcode(barcode)
+    setScannedBarcode(decodedText)
     setScanning(false)
     scanningRef.current = false
-    onScan(barcode)
+    setLoading(true)
+    setError(null)
+    onScan(decodedText)
 
-    // Simulate SKU lookup
-    setTimeout(() => {
-      const mockSKU = mockSKULookup(barcode)
-      setSkuData(mockSKU)
-      if (mockSKU) {
-        onSKUFound(mockSKU)
+    // Pause scanner
+    if (html5QrcodeRef.current) {
+      try {
+        await html5QrcodeRef.current.pause()
+      } catch (error) {
+        console.error("Error pausing scanner:", error)
       }
-    }, 500)
-  }
-
-  const mockSKULookup = (barcode: string): SKUData | null => {
-    // Mock data - in real app, this would be an API call
-    const mockDatabase: Record<string, SKUData> = {
-      "123456789012": {
-        barcode: "123456789012",
-        description: "HVAC Filter 16x20x1 MERV 13",
-        category: "Filters",
-        stock: 24,
-        location: "Warehouse A - Bin 12",
-      },
-      "987654321098": {
-        barcode: "987654321098",
-        description: "Refrigerant R-410A 25lb Cylinder",
-        category: "Refrigerants",
-        stock: 8,
-        location: "Warehouse B - Cage 3",
-      },
     }
 
-    return mockDatabase[barcode] || null
+    // Lookup SKU from backend
+    try {
+      const response = await scannerService.scanBarcode(decodedText)
+      
+      if (response.found && response.sku) {
+        const mappedSKU = mapSKUtoSKUData(response.sku)
+        setSkuData(mappedSKU)
+        onSKUFound(mappedSKU)
+      } else {
+        setSkuData(null)
+      }
+    } catch (error: any) {
+      console.error("SKU lookup error:", error)
+      setError(error.response?.data?.message || "Failed to lookup barcode")
+      setSkuData(null)
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleScanAnother = () => {
+  const onScanError = (errorMessage: string) => {
+    // Ignore continuous scanning errors (they're normal)
+    if (errorMessage.includes("NotFoundException") || errorMessage.includes("No MultiFormat")) {
+      return
+    }
+    console.log("Scan error:", errorMessage)
+  }
+
+  const mapSKUtoSKUData = (sku: SKU): SKUData => {
+    // Map backend SKU to component SKUData format
+    return {
+      barcode: sku.barcode || "",
+      description: sku.description || sku.name || "Unknown item",
+      category: sku.category || "Uncategorized",
+      stock: sku.onHand || 0,
+      location: "See inventory for location details",
+    }
+  }
+
+  const handleScanAnother = async () => {
     setScannedBarcode(null)
     setSkuData(null)
+    setError(null)
     setScanning(true)
     scanningRef.current = true
+    setLoading(false)
+
+    // Resume scanner
+    if (html5QrcodeRef.current) {
+      try {
+        await html5QrcodeRef.current.resume()
+      } catch (error) {
+        console.error("Error resuming scanner:", error)
+      }
+    }
   }
 
   const handleBack = () => {
@@ -128,39 +191,63 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
   }
 
   const handleViewDetails = () => {
+    if (!skuData) return
+    // Navigate to SKU detail page
+    // Note: We need the SKU ID, but we only have barcode in SKUData
+    // In real implementation, we'd store the full SKU object
+    navigate("/inventory")
     console.log("View details:", skuData)
-    alert("View Details - would navigate to SKU detail page")
   }
 
   const handleAddToWorkOrder = () => {
-    console.log("Add to work order:", skuData)
+    if (!skuData) return
+    // In real implementation, this would open a modal to select work order
     alert("Add to Work Order - would open work order selection modal")
+    console.log("Add to work order:", skuData)
   }
 
   const handleSearchManually = () => {
-    console.log("Search manually")
     navigate("/inventory")
   }
 
-  // Simulate barcode detection (in real app, use a barcode scanning library)
-  useEffect(() => {
-    if (!scanning) return
-
-    const timer = setTimeout(() => {
-      // Simulate scanning a barcode after 3 seconds for demo
-      simulateScan("123456789012")
-    }, 3000)
-
-    return () => clearTimeout(timer)
-  }, [scanning])
+  // Camera error state
+  if (cameraError) {
+    return (
+      <div className="relative h-screen w-full overflow-hidden bg-[#0f172a] flex items-center justify-center p-6">
+        <Card className="border-red-600 bg-[#1e293b] p-8 max-w-md">
+          <div className="text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
+                <AlertTriangle className="h-8 w-8 text-red-400" />
+              </div>
+            </div>
+            <h2 className="text-xl font-bold text-slate-100">Camera Access Required</h2>
+            <p className="text-slate-400">{cameraError}</p>
+            <div className="space-y-2 pt-4">
+              <Button onClick={handleBack} className="w-full bg-teal-500 text-white hover:bg-teal-600">
+                Go Back
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="w-full border-slate-600 text-slate-300 hover:bg-slate-700"
+              >
+                Try Again
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    )
+  }
 
   return (
     <div className="relative h-screen w-full overflow-hidden bg-[#0f172a]">
-      {/* Camera View */}
-      <video ref={videoRef} autoPlay playsInline muted className="absolute inset-0 h-full w-full object-cover" />
+      {/* Scanner Container */}
+      <div id={readerElementId} className="absolute inset-0" />
 
       {/* Dark Overlay */}
-      <div className="absolute inset-0 bg-[#0f172a]/40" />
+      <div className="absolute inset-0 bg-[#0f172a]/40 pointer-events-none" />
 
       {/* Header */}
       <div className="absolute top-0 left-0 right-0 z-10 bg-gradient-to-b from-[#0f172a] to-transparent p-4 pb-8">
@@ -192,17 +279,9 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       </div>
 
       {/* Scanning Guide */}
-      {scanning && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center">
+      {scanning && !scannedBarcode && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
           <div className="relative">
-            {/* Scanning Frame */}
-            <div className="relative h-48 w-64 rounded-lg border-[3px] border-teal-400">
-              {/* Animated Corners */}
-              <div className="absolute -top-1 -left-1 h-8 w-8 animate-pulse rounded-tl-lg border-l-4 border-t-4 border-teal-400" />
-              <div className="absolute -top-1 -right-1 h-8 w-8 animate-pulse rounded-tr-lg border-r-4 border-t-4 border-teal-400" />
-              <div className="absolute -bottom-1 -left-1 h-8 w-8 animate-pulse rounded-bl-lg border-b-4 border-l-4 border-teal-400" />
-              <div className="absolute -bottom-1 -right-1 h-8 w-8 animate-pulse rounded-br-lg border-b-4 border-r-4 border-teal-400" />
-            </div>
             <p className="mt-4 text-center text-sm text-slate-100">Position barcode within frame</p>
           </div>
         </div>
@@ -211,7 +290,40 @@ export function BarcodeScanner({ onScan, onSKUFound }: BarcodeScannerProps) {
       {/* Bottom Sheet - Result */}
       {scannedBarcode && (
         <div className="absolute bottom-0 left-0 right-0 z-20 animate-slide-up rounded-t-2xl bg-[#334155] p-6 shadow-2xl">
-          {skuData ? (
+          {loading ? (
+            // Loading State
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <Loader2 className="h-8 w-8 text-teal-400 animate-spin" />
+                <div>
+                  <h2 className="text-lg font-bold text-slate-100">Looking up barcode...</h2>
+                  <p className="font-mono text-xl text-teal-400">{scannedBarcode}</p>
+                </div>
+              </div>
+            </div>
+          ) : error ? (
+            // Error State
+            <div className="space-y-4">
+              <div className="flex items-center justify-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20">
+                  <AlertTriangle className="h-6 w-6 text-red-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-slate-100">Error</h2>
+                  <p className="text-sm text-red-400">{error}</p>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Button
+                  variant="secondary"
+                  onClick={handleScanAnother}
+                  className="w-full bg-slate-600 text-slate-100 hover:bg-slate-700"
+                >
+                  Try Again
+                </Button>
+              </div>
+            </div>
+          ) : skuData ? (
             // Success State
             <div className="space-y-4">
               {/* Success Header */}
