@@ -33,11 +33,10 @@ export interface InventoryFilters {
 }
 
 export function getStockStatus(onHand: number, reorderPoint: number): StockStatus {
-  if (onHand === 0 || onHand < reorderPoint) {
+  if (onHand === 0) {
     return 'out-of-stock'
   }
-  const threshold = reorderPoint * 1.2
-  if (onHand <= threshold) {
+  if (onHand <= reorderPoint) {
     return 'low-stock'
   }
   return 'in-stock'
