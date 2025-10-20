@@ -38,6 +38,7 @@
     ]
   },
   "dependencies": {
-    "@nestjs/serve-static": "^5.0.4"
+    "@nestjs/serve-static": "^5.0.4",
+    "qrcode.react": "^4.2.0"
   }
 }
