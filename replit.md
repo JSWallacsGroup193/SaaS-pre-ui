@@ -22,7 +22,7 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Purchasing**: Management of purchase orders.
 - **Dispatch**: Drag-and-drop scheduling of technicians with real-time status and various view modes.
 - **Forecasting**: Demand forecasting capabilities.
-- **Barcode System**: Generation and scanning for inventory, supporting exact and fuzzy matching, with live camera feed and scan result actions.
+- **Barcode System**: Production-ready camera-based scanning with html5-qrcode, supporting 8 barcode formats (QR Code, EAN-13/8, UPC-A/E, Code-128/39, ITF), exact and fuzzy SKU matching via `/api/v1/scanner/:barcode`, real-time backend lookup, comprehensive error handling, and direct navigation to SKU detail pages.
 - **Field Tools with Work Order Integration**: 21 professional HVAC calculators across electrical, refrigeration, airflow, gas/combustion, hydronic/boiler, and utilities categories, with results savable to work orders.
 - **AI Chat**: An AI-powered assistant integrated into the system.
 - **Monitoring**: Health checks and application metrics endpoints.
@@ -47,6 +47,6 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **HTTP Client**: Axios
 - **Build Tool**: Vite
 - **Testing Framework**: Jest
-- **Barcode Generation**: `bwip-js` library
+- **Barcode Generation & Scanning**: `bwip-js` for generation, `html5-qrcode` for camera-based scanning
 - **OpenAPI Documentation**: `@nestjs/swagger`
 - **OpenAI API**: For the AI-powered chat assistant
