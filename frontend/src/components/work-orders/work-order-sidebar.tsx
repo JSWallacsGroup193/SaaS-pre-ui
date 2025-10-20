@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Calendar, User, FileText, Send, CheckCircle, XCircle } from "lucide-react"
+import { Calendar, User, FileText, Send, CheckCircle, XCircle, CreditCard } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -15,6 +15,7 @@ interface WorkOrderSidebarProps {
   onSendUpdate: () => void
   onMarkComplete: () => void
   onCancel: () => void
+  onPayNow?: () => void
 }
 
 const statusConfig: Record<WorkOrderStatus, { label: string; className: string }> = {
@@ -33,6 +34,7 @@ export function WorkOrderSidebar({
   onSendUpdate,
   onMarkComplete,
   onCancel,
+  onPayNow,
 }: WorkOrderSidebarProps) {
   const [selectedStatus, setSelectedStatus] = useState(workOrder.status)
 
@@ -156,6 +158,13 @@ export function WorkOrderSidebar({
         <h3 className="text-slate-100 font-semibold mb-3">Quick Actions</h3>
 
         <div className="space-y-2">
+          {onPayNow && (
+            <Button onClick={onPayNow} className="w-full bg-teal-500 hover:bg-teal-600 text-white">
+              <CreditCard className="w-4 h-4 mr-2" />
+              Accept Payment
+            </Button>
+          )}
+
           <Button onClick={onGenerateInvoice} className="w-full bg-teal-500 hover:bg-teal-600 text-white">
             <FileText className="w-4 h-4 mr-2" />
             Generate Invoice

@@ -7,6 +7,7 @@ import { TasksTab } from '@/components/work-orders/tabs/tasks-tab'
 import { PartsTab } from '@/components/work-orders/tabs/parts-tab'
 import { NotesTab } from '@/components/work-orders/tabs/notes-tab'
 import { TimelineTab } from '@/components/work-orders/tabs/timeline-tab'
+import { PaymentModal } from '@/components/payments/payment-modal'
 import type { WorkOrderDetail, WorkOrderStatus } from '@/types/view-models/work-order'
 
 const mockWorkOrder: WorkOrderDetail = {
@@ -107,10 +108,24 @@ const mockWorkOrder: WorkOrderDetail = {
 
 export default function WorkOrderDetail() {
   const [workOrder, setWorkOrder] = useState<WorkOrderDetail>(mockWorkOrder)
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
 
   const handleStatusChange = (status: WorkOrderStatus) => {
     console.log('Status changed to:', status)
     setWorkOrder({ ...workOrder, status })
+  }
+
+  const calculateTotal = () => {
+    return workOrder.parts.reduce((sum, part) => sum + part.total, 0)
+  }
+
+  const handlePayNow = () => {
+    setIsPaymentModalOpen(true)
+  }
+
+  const handlePaymentSuccess = () => {
+    console.log('Payment successful')
+    setIsPaymentModalOpen(false)
   }
 
   const handleToggleTask = (taskId: string) => {
@@ -224,10 +239,21 @@ export default function WorkOrderDetail() {
               onSendUpdate={() => console.log('Send update clicked')}
               onMarkComplete={() => console.log('Mark complete clicked')}
               onCancel={() => console.log('Cancel clicked')}
+              onPayNow={handlePayNow}
             />
           </div>
         </div>
       </div>
+
+      {/* Payment Modal */}
+      <PaymentModal
+        open={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        workOrderId={workOrder.id}
+        amount={calculateTotal()}
+        workOrderNumber={workOrder.woNumber}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   )
 }

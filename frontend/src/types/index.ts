@@ -833,23 +833,51 @@ export interface InvoiceLineItem {
 export interface Payment {
   id: string;
   tenantId: string;
-  invoiceId: string;
+  invoiceId?: string;
+  accountId: string;
+  workOrderId?: string;
   
   // Payment details
+  paymentNumber?: string;
   amount: number;
-  method: 'CASH' | 'CHECK' | 'CREDIT_CARD' | 'ACH' | 'OTHER';
+  paymentMethod?: string;
   reference?: string;
-  
-  // Status
-  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'REFUNDED';
-  
-  // Processing
-  processedDate?: string;
   notes?: string;
   
-  createdBy: string;
+  // Stripe integration fields
+  stripePaymentIntentId?: string;
+  stripeStatus?: string;
+  stripeClientSecret?: string;
+  stripePaymentMethodId?: string;
+  
+  // Dates
+  paymentDate: string;
+  createdBy?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CreatePaymentIntentRequest {
+  amount: number;
+  workOrderId: string;
+  description?: string;
+}
+
+export interface CreatePaymentIntentResponse {
+  paymentId: string;
+  clientSecret: string;
+  paymentIntentId: string;
+}
+
+export interface ConfirmPaymentRequest {
+  paymentIntentId: string;
+  workOrderId: string;
+}
+
+export interface ConfirmPaymentResponse {
+  success: boolean;
+  paymentId: string;
+  status: string;
 }
 
 // ============================================================================
