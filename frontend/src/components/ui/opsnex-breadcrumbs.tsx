@@ -1,5 +1,4 @@
-"use client"
-import Link from "next/link"
+import { Link } from "react-router-dom"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -27,7 +26,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           return (
             <li key={index} className="flex items-center gap-2">
               {!isLast && item.href ? (
-                <Link href={item.href} className="text-slate-400 hover:text-teal-500 hover:underline transition-colors">
+                <Link to={item.href} className="text-slate-400 hover:text-teal-500 hover:underline transition-colors">
                   {item.label}
                 </Link>
               ) : (
@@ -53,7 +52,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
           return (
             <li key={actualIndex} className="flex items-center gap-2">
               {!isLast && item.href ? (
-                <Link href={item.href} className="text-slate-400 hover:text-teal-500 hover:underline transition-colors">
+                <Link to={item.href} className="text-slate-400 hover:text-teal-500 hover:underline transition-colors">
                   {item.label}
                 </Link>
               ) : (

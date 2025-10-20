@@ -10,7 +10,7 @@ interface AccountCardProps {
   onDelete: (id: string) => void
 }
 
-export function AccountCard({ account, onView, onEdit, onDelete }: AccountCardProps) {
+export function AccountCard({ account, onView, onEdit: _onEdit, onDelete }: AccountCardProps) {
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
   const [showDelete, setShowDelete] = useState(false)

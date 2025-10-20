@@ -37,7 +37,7 @@ export function TimelineTab({ activities }: TimelineTabProps) {
 
         {/* Activities */}
         <div className="space-y-6">
-          {activities.map((activity, index) => (
+          {activities.map((activity) => (
             <div key={activity.id} className="relative flex gap-4">
               {/* Icon */}
               <div className="relative z-10 flex-shrink-0 h-12 w-12 rounded-full bg-slate-700 border-2 border-slate-600 flex items-center justify-center">

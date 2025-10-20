@@ -19,7 +19,7 @@ interface AccountListProps {
 
 export function AccountList({
   accounts,
-  totalCount,
+  totalCount: _totalCount,
   stats,
   onFilterChange,
   onCreate,

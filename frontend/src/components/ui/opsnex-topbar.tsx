@@ -51,26 +51,26 @@ export function OpsNexTopBar({
   const searchResults: SearchResult[] = React.useMemo(() => {
     if (!searchQuery.trim()) return []
 
-    return [
+    return ([
       {
         id: "1",
-        type: "work-order",
+        type: "work-order" as const,
         title: `Work Order #${searchQuery}`,
         subtitle: "HVAC Installation - 123 Main St",
       },
       {
         id: "2",
-        type: "customer",
+        type: "customer" as const,
         title: "John Smith",
         subtitle: "john.smith@example.com",
       },
       {
         id: "3",
-        type: "work-order",
+        type: "work-order" as const,
         title: "Work Order #12345",
         subtitle: "AC Repair - 456 Oak Ave",
       },
-    ].filter(
+    ] as SearchResult[]).filter(
       (result) =>
         result.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         result.subtitle?.toLowerCase().includes(searchQuery.toLowerCase()),

@@ -90,7 +90,6 @@ const mockStats: AccountStats = {
 }
 
 export default function Accounts() {
-  const navigate = useNavigate()
   const [filters, setFilters] = useState<AccountFilters>({
     search: '',
     accountType: 'both',
