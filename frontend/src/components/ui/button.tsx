@@ -17,9 +17,11 @@ const buttonVariants = cva(
         outline: "border border-[#475569] bg-transparent text-[#e2e8f0] hover:bg-[#1e293b] hover:border-[#14b8a6]",
       },
       size: {
+        default: "h-12 px-6 py-3 text-base",
         sm: "h-10 px-4 py-2 text-sm",
         md: "h-12 px-6 py-3 text-base",
         lg: "h-14 px-8 py-4 text-lg",
+        icon: "h-10 w-10 p-0",
       },
     },
     defaultVariants: {

@@ -18,6 +18,7 @@ import type {
   AccountNote,
   AccountActivity,
 } from '@/types/view-models/account-detail'
+import type { WorkOrder } from '@/types/view-models/work-order-detail'
 
 const mockAccount: AccountDetail = {
   id: 'ACC-001',
@@ -83,15 +84,15 @@ const mockContacts: AccountContact[] = [
   },
 ]
 
-const mockWorkOrders = [
+const mockWorkOrders: WorkOrder[] = [
   {
     id: '1',
     workOrderNumber: 'WO-2024-001',
     customerName: 'Johnson Residence',
     address: '123 Main Street',
     scheduledDate: '2024-01-15',
-    status: 'completed' as const,
-    priority: 'normal' as const,
+    status: 'completed',
+    priority: 'normal',
     jobType: 'Maintenance',
     assignedTo: 'Mike Rodriguez',
     estimatedCost: 250,
@@ -103,8 +104,8 @@ const mockWorkOrders = [
     customerName: 'Johnson Residence',
     address: '123 Main Street',
     scheduledDate: '2024-02-20',
-    status: 'scheduled' as const,
-    priority: 'high' as const,
+    status: 'scheduled',
+    priority: 'high',
     jobType: 'Repair',
     assignedTo: 'Mike Rodriguez',
     estimatedCost: 450,
@@ -162,19 +163,15 @@ const mockEquipment: AccountEquipment[] = [
 const mockNotes: AccountNote[] = [
   {
     id: '1',
-    text: 'Completed annual maintenance. All systems running smoothly. Recommended filter replacement in 3 months.',
-    author: {
-      name: 'Mike Rodriguez',
-    },
+    content: 'Completed annual maintenance. All systems running smoothly. Recommended filter replacement in 3 months.',
+    author: 'Mike Rodriguez',
     timestamp: '2024-01-15T10:30:00Z',
     isPinned: true,
   },
   {
     id: '2',
-    text: 'Customer called to schedule annual maintenance. Preferred date is mid-January.',
-    author: {
-      name: 'Sarah Chen',
-    },
+    content: 'Customer called to schedule annual maintenance. Preferred date is mid-January.',
+    author: 'Sarah Chen',
     timestamp: '2024-01-10T14:15:00Z',
     isPinned: false,
   },

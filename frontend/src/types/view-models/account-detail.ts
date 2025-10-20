@@ -73,17 +73,17 @@ export interface AccountEquipment {
   location: string
   status: 'operational' | 'needs-service' | 'retired'
   lastServiceDate?: string
+  nextServiceDate?: string
+  isDueSoon?: boolean
 }
 
 export interface AccountNote {
   id: string
-  text: string
-  author: {
-    name: string
-    avatar?: string
-  }
+  content: string
+  author: string
   timestamp: string
   isPinned?: boolean
+  attachments?: string[]
 }
 
 export interface AccountActivity {

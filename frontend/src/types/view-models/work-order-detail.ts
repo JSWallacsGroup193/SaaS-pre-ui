@@ -79,3 +79,17 @@ export interface WorkOrderDetail extends Omit<WorkOrderView, 'customer' | 'techn
   }>
 }
 
+export interface WorkOrder {
+  id: string
+  workOrderNumber: string
+  customerName: string
+  address: string
+  scheduledDate: string
+  status: WorkOrderStatus
+  priority: WorkOrderPriority
+  jobType: string
+  assignedTo: string
+  estimatedCost?: number
+  description?: string
+}
+
