@@ -46,7 +46,7 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@nestjs/platform-socket.io": "^11.1.6",
     "@nestjs/serve-static": "^5.0.4",
-    "@nestjs/websockets": "^11.1.6",
+    "@nestjs/websockets": "^11.1.7",
     "@types/jsbarcode": "^3.11.4",
     "date-fns": "^4.1.0",
     "html5-qrcode": "^2.3.8",
