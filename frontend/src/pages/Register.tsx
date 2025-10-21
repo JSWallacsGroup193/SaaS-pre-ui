@@ -114,10 +114,7 @@ export default function RegisterPage() {
 
       setSuccess(true)
       login(response.access_token)
-
-      setTimeout(() => {
-        navigate("/")
-      }, 1500)
+      navigate("/")
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create account. Please try again.")
     } finally {
