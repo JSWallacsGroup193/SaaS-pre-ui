@@ -662,6 +662,29 @@ export interface ForecastListResponse {
   updated: number;
 }
 
+export interface ForecastData {
+  date: string;
+  historical: number;
+  forecasted: number;
+}
+
+export interface ReorderRecommendation {
+  sku: string;
+  description: string;
+  currentStock: number;
+  reorderPoint: number;
+  suggestedQuantity: number;
+  priority: "high" | "medium" | "low";
+}
+
+export interface TopMover {
+  sku: string;
+  description: string;
+  avgDemand: number;
+  trend: "up" | "down" | "stable";
+  forecast: number;
+}
+
 // ============================================================================
 // FIELD CALCULATIONS
 // ============================================================================
