@@ -8,8 +8,6 @@ import { authService } from '../services/auth.service';
 
 export function Notifications() {
   const [isOpen, setIsOpen] = useState(false);
-  const [userId, setUserId] = useState<string | null>(null);
-  const [tenantId, setTenantId] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
@@ -34,8 +32,6 @@ export function Notifications() {
       
       try {
         const user = await authService.getProfile();
-        setUserId(user.id);
-        setTenantId(user.tenantId);
         
         if (user.id && user.tenantId) {
           connect(user.id, user.tenantId);

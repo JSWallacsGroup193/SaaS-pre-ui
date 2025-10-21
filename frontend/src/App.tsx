@@ -35,6 +35,7 @@ const AdminTenants = lazy(() => import('./pages/admin/Tenants'))
 
 export default function App() {
   const token = useAuthStore(s => s.token)
+  const user = useAuthStore(s => s.user)
   const loadUser = useAuthStore(s => s.loadUser)
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
@@ -90,7 +91,7 @@ export default function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
               <Route path="/ai" element={<AI />} />
-              <Route path="/settings" element={<SettingsPage />} />
+              <Route path="/settings" element={<SettingsPage user={user as any} />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
