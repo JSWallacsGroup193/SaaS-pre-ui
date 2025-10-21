@@ -19,7 +19,7 @@ export function WorkOrderCard({ workOrder, isDragging = false }: WorkOrderCardPr
 
   const statusColors = {
     scheduled: "bg-gray-500 hover:bg-gray-600",
-    "in-progress": "bg-teal-500 hover:bg-teal-600",
+    "in-progress": "bg-primary hover:bg-primary/90",
     completed: "bg-emerald-500 hover:bg-emerald-600",
     emergency: "bg-red-500 hover:bg-red-600",
   }
@@ -35,7 +35,7 @@ export function WorkOrderCard({ workOrder, isDragging = false }: WorkOrderCardPr
       {...attributes}
     >
       <div className="absolute left-1 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
-        <GripVertical className="h-4 w-4 text-teal-300" />
+        <GripVertical className="h-4 w-4 text-primary-foreground/70" />
       </div>
 
       <div className="pl-4">

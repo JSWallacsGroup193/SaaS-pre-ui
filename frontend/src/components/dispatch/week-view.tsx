@@ -31,20 +31,20 @@ export function WeekView({ workOrders, technicians, selectedDate, viewMode }: We
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 
   return (
-    <div className="h-full overflow-auto bg-slate-700">
+    <div className="h-full overflow-auto bg-background">
       <div className="min-w-[1280px]">
         {/* Day headers */}
-        <div className="sticky top-0 z-10 grid grid-cols-[200px_repeat(7,1fr)] border-b border-slate-600 bg-slate-800">
-          <div className="border-r border-slate-600 p-4" />
+        <div className="sticky top-0 z-10 grid grid-cols-[200px_repeat(7,1fr)] border-b border-border bg-card">
+          <div className="border-r border-border p-4" />
           {weekDays.map((day) => {
             const isToday = isSameDay(day, new Date())
             return (
               <div
                 key={day.toISOString()}
-                className={`border-r border-slate-600 p-4 text-center ${isToday ? "border-t-2 border-t-teal-500" : ""}`}
+                className={`border-r border-border p-4 text-center ${isToday ? "border-t-2 border-t-primary" : ""}`}
               >
-                <div className="text-xs font-medium text-slate-400">{format(day, "EEE")}</div>
-                <div className={`text-lg font-semibold ${isToday ? "text-teal-500" : "text-slate-100"}`}>
+                <div className="text-xs font-medium text-muted-foreground">{format(day, "EEE")}</div>
+                <div className={`text-lg font-semibold ${isToday ? "text-primary" : "text-foreground"}`}>
                   {format(day, "d")}
                 </div>
               </div>
@@ -56,18 +56,18 @@ export function WeekView({ workOrders, technicians, selectedDate, viewMode }: We
         {technicians.map((tech, techIndex) => (
           <div
             key={tech.id}
-            className={`grid grid-cols-[200px_repeat(7,1fr)] border-b border-slate-600 ${
-              techIndex % 2 === 0 ? "bg-slate-800" : "bg-slate-700"
+            className={`grid grid-cols-[200px_repeat(7,1fr)] border-b border-border ${
+              techIndex % 2 === 0 ? "bg-card" : "bg-background"
             }`}
           >
             {/* Technician name cell */}
-            <div className="sticky left-0 z-10 border-r border-slate-600 bg-slate-800 p-4">
+            <div className="sticky left-0 z-10 border-r border-border bg-card p-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-600 text-sm font-semibold text-slate-100">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
                   {tech.avatar}
                 </div>
                 <div>
-                  <div className="text-sm font-medium text-slate-100">{tech.name}</div>
+                  <div className="text-sm font-medium text-foreground">{tech.name}</div>
                   <div className="flex items-center gap-1.5">
                     <div
                       className={`h-2 w-2 rounded-full ${
@@ -75,10 +75,10 @@ export function WeekView({ workOrders, technicians, selectedDate, viewMode }: We
                           ? "bg-emerald-500"
                           : tech.status === "on-job"
                             ? "bg-amber-500"
-                            : "bg-slate-500"
+                            : "bg-muted-foreground"
                       }`}
                     />
-                    <span className="text-xs text-slate-400">
+                    <span className="text-xs text-muted-foreground">
                       {tech.status === "available" ? "Available" : tech.status === "on-job" ? "On Job" : "Off Duty"}
                     </span>
                   </div>
@@ -131,8 +131,8 @@ function DayCell({ technicianId, date, workOrders }: DayCellProps) {
   return (
     <div
       ref={setNodeRef}
-      className={`relative min-h-[120px] border-r border-slate-600 p-2 transition-colors ${
-        isOver ? "bg-teal-500/20" : "hover:bg-slate-600"
+      className={`relative min-h-[120px] border-r border-border p-2 transition-colors ${
+        isOver ? "bg-primary/20" : "hover:bg-accent"
       }`}
     >
       <div className="space-y-2">

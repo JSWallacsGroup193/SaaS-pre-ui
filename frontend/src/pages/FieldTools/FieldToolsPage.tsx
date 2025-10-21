@@ -191,18 +191,18 @@ export default function FieldToolsPage() {
     const SelectedComponent = selectedCalc.component;
     
     return (
-      <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+      <div className="min-h-screen bg-background p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCalculator(null)}
-            className="mb-4 flex items-center text-blue-600 hover:text-blue-800 font-medium"
+            className="mb-4 flex items-center text-primary hover:text-primary/90 font-medium"
           >
             <span className="mr-2">←</span> Back to Field Tools
           </button>
           
           <Suspense fallback={
             <div className="flex items-center justify-center p-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
           }>
             <SelectedComponent />
@@ -213,11 +213,11 @@ export default function FieldToolsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Field Tools</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-4xl font-bold text-foreground mb-2">Field Tools</h1>
+          <p className="text-lg text-muted-foreground">
             Professional HVAC calculators and diagnostic tools for field technicians
           </p>
         </div>
@@ -227,12 +227,12 @@ export default function FieldToolsPage() {
             <button
               key={calc.id}
               onClick={() => setSelectedCalculator(calc.id)}
-              className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-left group"
+              className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-left group border border-border"
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="text-5xl">{calc.icon}</div>
                 <svg
-                  className="w-6 h-6 text-gray-400 group-hover:text-blue-600 transition-colors"
+                  className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -246,20 +246,20 @@ export default function FieldToolsPage() {
                 </svg>
               </div>
               
-              <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+              <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
                 {calc.name}
               </h3>
               
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 {calc.description}
               </p>
             </button>
           ))}
         </div>
 
-        <div className="mt-12 bg-blue-50 border border-blue-200 rounded-lg p-6">
-          <h2 className="text-xl font-bold text-blue-900 mb-3">About Field Tools</h2>
-          <div className="text-blue-800 space-y-2">
+        <div className="mt-12 bg-primary/10 border border-primary/20 rounded-lg p-6">
+          <h2 className="text-xl font-bold text-foreground mb-3">About Field Tools</h2>
+          <div className="text-muted-foreground space-y-2">
             <p>
               These professional-grade calculators help HVAC technicians make accurate measurements
               and diagnoses in the field.
@@ -273,9 +273,9 @@ export default function FieldToolsPage() {
           </div>
         </div>
 
-        <div className="mt-8 bg-white rounded-lg shadow p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Coming Soon</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-600">
+        <div className="mt-8 bg-card rounded-lg shadow p-6 border border-border">
+          <h2 className="text-xl font-bold text-foreground mb-4">Coming Soon</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground">
             <div className="flex items-start">
               <span className="mr-2">🏠</span>
               <span>HVAC Load Calculator (Manual J)</span>

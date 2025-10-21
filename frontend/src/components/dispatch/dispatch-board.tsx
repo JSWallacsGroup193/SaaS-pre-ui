@@ -116,7 +116,7 @@ export function DispatchBoard() {
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="flex h-screen flex-col bg-slate-950">
+      <div className="flex h-screen flex-col bg-background">
         <DispatchHeader
           selectedDate={selectedDate}
           viewMode={viewMode}

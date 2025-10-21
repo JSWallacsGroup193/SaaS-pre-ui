@@ -13,11 +13,11 @@ export function UnassignedPanel({ workOrders }: UnassignedPanelProps) {
   const sortedOrders = [...emergencyOrders, ...normalOrders]
 
   return (
-    <div className="w-80 border-l border-slate-600 bg-slate-800">
-      <div className="border-b border-slate-600 p-4">
+    <div className="w-80 border-l border-border bg-card">
+      <div className="border-b border-border p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-100">Unassigned</h2>
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-teal-500 text-xs font-bold text-white">
+          <h2 className="text-lg font-semibold text-foreground">Unassigned</h2>
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
             {workOrders.length}
           </div>
         </div>
@@ -25,14 +25,14 @@ export function UnassignedPanel({ workOrders }: UnassignedPanelProps) {
 
       <div className="space-y-3 p-4">
         {sortedOrders.length === 0 ? (
-          <div className="py-8 text-center text-sm text-slate-400">No unassigned work orders</div>
+          <div className="py-8 text-center text-sm text-muted-foreground">No unassigned work orders</div>
         ) : (
           sortedOrders.map((workOrder) => (
             <div key={workOrder.id} className="space-y-2">
               <WorkOrderCard workOrder={workOrder} />
               <Button
                 size="sm"
-                className="w-full bg-teal-500 text-white hover:bg-teal-600"
+                className="w-full"
                 onClick={() => console.log("[v0] Assign work order:", workOrder.id)}
               >
                 Assign Technician
