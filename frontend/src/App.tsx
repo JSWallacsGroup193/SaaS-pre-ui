@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useState } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
@@ -28,6 +28,7 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 
 export default function App() {
   const token = useAuth(s => s.token)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   if (!token) {
     return (
@@ -41,10 +42,10 @@ export default function App() {
 
   return (
     <div className="grid grid-rows-[56px_1fr] h-screen bg-slate-950 text-slate-100">
-      <TopBar />
-      <div className="grid grid-cols-[240px_1fr]">
-        <Sidebar />
-        <div className="p-4 overflow-auto bg-slate-900">
+      <TopBar onMenuClick={() => setSidebarOpen(true)} />
+      <div className="relative flex lg:grid lg:grid-cols-[240px_1fr] overflow-hidden">
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="flex-1 p-4 overflow-auto bg-slate-900">
           <Suspense fallback={
             <div className="flex items-center justify-center min-h-screen bg-slate-900">
               <div className="text-center">

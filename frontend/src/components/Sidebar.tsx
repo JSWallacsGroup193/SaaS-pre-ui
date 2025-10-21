@@ -11,7 +11,8 @@ import {
   TrendingUp, 
   Scan, 
   Wrench, 
-  Bot 
+  Bot,
+  X
 } from 'lucide-react'
 
 const navItems = [
@@ -28,13 +29,14 @@ const navItems = [
   { to: '/ai', label: 'AI Assistant', icon: Bot },
 ]
 
-const Item = memo(({ to, label, icon: Icon }: { to: string; label: string; icon: any }) => {
+const Item = memo(({ to, label, icon: Icon, onClick }: { to: string; label: string; icon: any; onClick?: () => void }) => {
   const { pathname } = useLocation()
   const active = pathname === to
   
   return (
     <Link 
       to={to} 
+      onClick={onClick}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-all ${
         active 
           ? 'bg-slate-800 text-teal-400 border-l-2 border-teal-500 pl-2.5' 
@@ -47,18 +49,59 @@ const Item = memo(({ to, label, icon: Icon }: { to: string; label: string; icon:
   )
 })
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   return (
-    <aside className="h-full bg-slate-950 border-r border-slate-800 p-3">
-      <div className="mb-6 px-3 py-2">
-        <h1 className="text-xl font-bold text-teal-400">OpsNex</h1>
-        <p className="text-xs text-slate-400 mt-1">HVAC Management</p>
-      </div>
-      <nav className="flex flex-col gap-1">
-        {navItems.map(item => (
-          <Item key={item.to} to={item.to} label={item.label} icon={item.icon} />
-        ))}
-      </nav>
-    </aside>
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside 
+        className={`
+          h-full bg-slate-950 border-r border-slate-800 p-3
+          fixed lg:static inset-y-0 left-0 z-50
+          transform transition-transform duration-300 ease-in-out
+          w-60
+          ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+      >
+        {/* Mobile Close Button */}
+        <div className="flex items-center justify-between mb-6 px-3 py-2">
+          <div>
+            <h1 className="text-xl font-bold text-teal-400">OpsNex</h1>
+            <p className="text-xs text-slate-400 mt-1">HVAC Management</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="lg:hidden text-slate-400 hover:text-slate-100 transition-colors"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <nav className="flex flex-col gap-1">
+          {navItems.map(item => (
+            <Item 
+              key={item.to} 
+              to={item.to} 
+              label={item.label} 
+              icon={item.icon} 
+              onClick={onClose}
+            />
+          ))}
+        </nav>
+      </aside>
+    </>
   )
 }
