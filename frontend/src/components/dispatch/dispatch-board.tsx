@@ -5,114 +5,84 @@ import { TechnicianSidebar } from "./technician-sidebar"
 import { UnassignedPanel } from "./unassigned-panel"
 import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from "@dnd-kit/core"
 import { WorkOrderCard } from "./work-order-card"
-import type { WorkOrder, Technician } from "@/types/view-models/dispatch"
-
-// Mock data
-const mockTechnicians: Technician[] = [
-  { id: "1", name: "John Smith", avatar: "JS", status: "available" },
-  { id: "2", name: "Sarah Johnson", avatar: "SJ", status: "on-job" },
-  { id: "3", name: "Mike Davis", avatar: "MD", status: "available" },
-  { id: "4", name: "Emily Brown", avatar: "EB", status: "off" },
-]
-
-const mockWorkOrders: WorkOrder[] = [
-  {
-    id: "1",
-    customerName: "Acme Corp",
-    startTime: "09:00",
-    endTime: "11:00",
-    status: "in-progress",
-    jobType: "Installation",
-    priority: "normal",
-    technicianId: "1",
-    date: new Date().toISOString().split("T")[0],
-  },
-  {
-    id: "2",
-    customerName: "Tech Solutions",
-    startTime: "13:00",
-    endTime: "15:00",
-    status: "scheduled",
-    jobType: "Maintenance",
-    priority: "normal",
-    technicianId: "2",
-    date: new Date().toISOString().split("T")[0],
-  },
-  {
-    id: "3",
-    customerName: "Global Industries",
-    startTime: "10:00",
-    endTime: "12:00",
-    status: "emergency",
-    jobType: "Repair",
-    priority: "emergency",
-    technicianId: null,
-    date: new Date().toISOString().split("T")[0],
-  },
-  {
-    id: "4",
-    customerName: "City Mall",
-    startTime: "14:00",
-    endTime: "16:00",
-    status: "scheduled",
-    jobType: "Inspection",
-    priority: "normal",
-    technicianId: null,
-    date: new Date().toISOString().split("T")[0],
-  },
-  {
-    id: "5",
-    customerName: "Downtown Office",
-    startTime: "08:00",
-    endTime: "10:00",
-    status: "completed",
-    jobType: "Maintenance",
-    priority: "normal",
-    technicianId: "3",
-    date: new Date().toISOString().split("T")[0],
-  },
-]
+import type { WorkOrder } from "@/types/view-models/dispatch"
+import { useDispatchData } from "@/hooks/useDispatchData"
 
 export function DispatchBoard() {
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<"day" | "week" | "month">("week")
-  const [workOrders, setWorkOrders] = useState<WorkOrder[]>(mockWorkOrders)
-  const [technicians] = useState<Technician[]>(mockTechnicians)
   const [activeId, setActiveId] = useState<string | null>(null)
+  
+  const { workOrders, technicians, isLoading, error, reloadData } = useDispatchData()
 
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string)
   }
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event
 
     if (over && active.id !== over.id) {
-      setWorkOrders((orders) =>
-        orders.map((order) => {
-          if (order.id === active.id) {
-            const [techId, timeSlot, date] = (over.id as string).split("-")
-            return {
-              ...order,
-              technicianId: techId === "unassigned" ? null : techId,
-              startTime: timeSlot || order.startTime,
-              date: date || order.date,
-            }
-          }
-          return order
-        }),
-      )
+      const workOrder = workOrders.find((wo) => wo.id === active.id)
+      if (!workOrder) {
+        setActiveId(null)
+        return
+      }
+
+      const [techId, timeSlot, date] = (over.id as string).split("-")
+      const newTechnicianId = techId === "unassigned" ? null : techId
+
+      // TODO: Call backend API to update dispatch slot
+      // For now, just reload the data
+      console.log("Work order dragged:", {
+        workOrderId: active.id,
+        newTechnicianId,
+        timeSlot,
+        date,
+      })
+
+      // Reload data from backend to get updated state
+      await reloadData()
     }
 
     setActiveId(null)
   }
 
   const handleCreateWorkOrder = () => {
-    console.log("[v0] Create work order clicked")
-    // Implementation for creating new work order
+    console.log("Create work order clicked")
+    // TODO: Navigate to create work order page or open modal
   }
 
   const activeWorkOrder = workOrders.find((wo) => wo.id === activeId)
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <p className="text-muted-foreground">Loading dispatch board...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4 max-w-md text-center">
+          <div className="text-destructive text-4xl">⚠️</div>
+          <h2 className="text-xl font-bold text-foreground">Failed to Load Dispatch Board</h2>
+          <p className="text-muted-foreground">{error}</p>
+          <button
+            onClick={() => reloadData()}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
