@@ -1,12 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../../common/prisma.service';
 import { NotificationGateway } from './gateway';
-
-const prisma = new PrismaClient();
+import { EmailNotificationService } from './channels/email.service';
+import { SmsNotificationService } from './channels/sms.service';
 
 @Injectable()
 export class NotificationService {
-  constructor(private readonly gateway: NotificationGateway) {}
+  constructor(
+    private readonly gateway: NotificationGateway,
+    private readonly prisma: PrismaService,
+    private readonly emailService: EmailNotificationService,
+    private readonly smsService: SmsNotificationService,
+  ) {}
 
   /**
    * Create and send a notification
@@ -35,7 +40,7 @@ export class NotificationService {
     } = params;
 
     // Create notification in database
-    const notification = await prisma.notification.create({
+    const notification = await this.prisma.notification.create({
       data: {
         userId,
         tenantId,
@@ -53,20 +58,31 @@ export class NotificationService {
     this.gateway.emitToUser(userId, notification);
 
     // Check user preferences for email/SMS
-    const prefs = await prisma.notificationPreference.findUnique({
+    const prefs = await this.prisma.notificationPreference.findUnique({
       where: { userId },
     });
 
-    // TODO: Send email if enabled
-    if (prefs?.emailEnabled && this.shouldSendEmail(category, prefs)) {
-      // await this.sendEmail(userId, notification);
-      console.log(`[Email] Would send to user ${userId}: ${title}`);
+    // Get user email/phone for sending
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { email: true, phone: true },
+    });
+
+    // Send email if enabled and user has email
+    if (prefs?.emailEnabled && this.shouldSendEmail(category, prefs) && user?.email) {
+      await this.emailService.sendEmail({
+        to: user.email,
+        subject: title,
+        body: message,
+      });
     }
 
-    // TODO: Send SMS if enabled
-    if (prefs?.smsEnabled && this.shouldSendSMS(category, prefs)) {
-      // await this.sendSMS(userId, notification);
-      console.log(`[SMS] Would send to user ${userId}: ${title}`);
+    // Send SMS if enabled and user has phone
+    if (prefs?.smsEnabled && this.shouldSendSMS(category, prefs) && user?.phone) {
+      await this.smsService.sendSms({
+        to: user.phone,
+        message: `${title}: ${message}`,
+      });
     }
 
     return notification;
@@ -76,7 +92,7 @@ export class NotificationService {
    * Get user's notifications
    */
   async getUserNotifications(userId: string, limit = 50) {
-    return prisma.notification.findMany({
+    return this.prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
       take: limit,
@@ -87,7 +103,7 @@ export class NotificationService {
    * Get unread count
    */
   async getUnreadCount(userId: string) {
-    return prisma.notification.count({
+    return this.prisma.notification.count({
       where: {
         userId,
         isRead: false,
@@ -99,7 +115,7 @@ export class NotificationService {
    * Mark notification as read
    */
   async markAsRead(notificationId: string, userId: string) {
-    return prisma.notification.updateMany({
+    return this.prisma.notification.updateMany({
       where: {
         id: notificationId,
         userId, // Ensure user owns this notification
@@ -115,7 +131,7 @@ export class NotificationService {
    * Mark all as read
    */
   async markAllAsRead(userId: string) {
-    return prisma.notification.updateMany({
+    return this.prisma.notification.updateMany({
       where: {
         userId,
         isRead: false,
@@ -131,7 +147,7 @@ export class NotificationService {
    * Delete notification
    */
   async deleteNotification(notificationId: string, userId: string) {
-    return prisma.notification.deleteMany({
+    return this.prisma.notification.deleteMany({
       where: {
         id: notificationId,
         userId, // Ensure user owns this notification
@@ -143,12 +159,12 @@ export class NotificationService {
    * Get or create user notification preferences
    */
   async getUserPreferences(userId: string) {
-    let prefs = await prisma.notificationPreference.findUnique({
+    let prefs = await this.prisma.notificationPreference.findUnique({
       where: { userId },
     });
 
     if (!prefs) {
-      prefs = await prisma.notificationPreference.create({
+      prefs = await this.prisma.notificationPreference.create({
         data: { userId },
       });
     }
@@ -184,7 +200,7 @@ export class NotificationService {
     // Get or create preferences first
     await this.getUserPreferences(userId);
 
-    return prisma.notificationPreference.update({
+    return this.prisma.notificationPreference.update({
       where: { userId },
       data,
     });

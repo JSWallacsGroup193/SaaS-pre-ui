@@ -5,6 +5,7 @@ import {
   OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { JwtService } from '@nestjs/jwt';
 
 @WebSocketGateway({
   cors: {
@@ -21,22 +22,47 @@ export class NotificationGateway
 
   private userSockets = new Map<string, string>(); // userId -> socketId
 
+  constructor(private jwtService: JwtService) {}
+
   handleConnection(client: Socket) {
-    const { userId, tenantId } = client.handshake.auth;
-    
-    if (userId && tenantId) {
+    try {
+      // Validate JWT token from handshake
+      const token = client.handshake.auth?.token;
+      
+      if (!token) {
+        console.log('[WebSocket] Connection rejected - missing token');
+        client.disconnect();
+        return;
+      }
+
+      // Verify and decode JWT
+      const payload = this.jwtService.verify(token);
+      const userId = payload.userId;
+      const tenantId = payload.tenantId;
+      
+      if (!userId || !tenantId) {
+        console.log('[WebSocket] Connection rejected - invalid token payload');
+        client.disconnect();
+        return;
+      }
+
+      // Store validated user info on socket
+      client.data.userId = userId;
+      client.data.tenantId = tenantId;
+      
+      // Join authenticated rooms
       this.userSockets.set(userId, client.id);
       client.join(`tenant:${tenantId}`);
       client.join(`user:${userId}`);
-      console.log(`[WebSocket] User ${userId} connected to tenant ${tenantId}`);
-    } else {
-      console.log('[WebSocket] Connection rejected - missing auth');
+      console.log(`[WebSocket] User ${userId} authenticated and connected to tenant ${tenantId}`);
+    } catch (error) {
+      console.log('[WebSocket] Connection rejected - token verification failed:', error.message);
       client.disconnect();
     }
   }
 
   handleDisconnect(client: Socket) {
-    const { userId } = client.handshake.auth;
+    const userId = client.data.userId;
     if (userId) {
       this.userSockets.delete(userId);
       console.log(`[WebSocket] User ${userId} disconnected`);
