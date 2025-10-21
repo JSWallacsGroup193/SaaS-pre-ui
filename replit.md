@@ -8,6 +8,16 @@ I prefer simple language and detailed explanations. I want iterative development
 
 ## Recent Changes (October 2025)
 
+### User Settings Module (October 21, 2025)
+- **Settings Page Integration**: Added comprehensive Settings page to navigation (1450 lines)
+- **Backend API Endpoints**: 
+  - PUT /api/v1/users/profile - Update user profile (firstName, lastName, email, phone)
+  - PUT /api/v1/users/password - Change password with current password verification
+- **UsersModule**: Complete module with controller, service, and JWT authentication guard
+- **Settings UI Features**: Three tabs (Profile, Security, Notifications), avatar management, form validation, email uniqueness check, bcrypt password hashing
+- **Navigation**: Settings link added to sidebar (12th item) with gear icon
+- **Profile Updates**: Auto-reload user data after profile changes to reflect in UI
+
 ### Super Admin System (October 21, 2025)
 - **Complete RBAC Implementation**: Full role-based access control with 38 permissions across 5 categories (users, roles, permissions, tenants, system)
 - **Super Admin Role**: Created SUPER_ADMIN role with all permissions, marked as system role (cannot be deleted)

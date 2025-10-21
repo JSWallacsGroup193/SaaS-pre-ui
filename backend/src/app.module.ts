@@ -11,6 +11,7 @@ import { MetricsController } from './metrics.controller';
 
 import { AuthModule } from './modules/auth/module';
 import { AdminModule } from './modules/admin/module';
+import { UsersModule } from './modules/users/module';
 import { WorkOrderModule } from './modules/workorder/module';
 import { BarcodeModule } from './modules/barcode/module';
 import { CrmModule } from './modules/crm/module';
@@ -35,6 +36,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     JwtModule.register({ secret: process.env.JWT_SECRET || 'hvac-secret', signOptions: { expiresIn: '1h' } }),
     AuthModule,
     AdminModule,
+    UsersModule,
     WorkOrderModule,
     BarcodeModule,
     CrmModule,

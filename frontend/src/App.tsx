@@ -24,6 +24,7 @@ const Forecast = lazy(() => import('./pages/Forecast'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const AI = lazy(() => import('./pages/AI'))
 const FieldToolsPage = lazy(() => import('./pages/FieldTools/FieldToolsPage'))
+const SettingsPage = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
@@ -89,6 +90,7 @@ export default function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
               <Route path="/ai" element={<AI />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
