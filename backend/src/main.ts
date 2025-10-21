@@ -14,11 +14,8 @@ async function bootstrap() {
   // Serve static files from frontend/dist
   app.use(express.static(join(__dirname, '..', '..', '..', 'frontend', 'dist')));
   
-  // NOTE: WebSocket adapter disabled due to Socket.IO incompatibility with Node.js 22
-  // WebSocket real-time notifications are temporarily unavailable
-  // HTTP polling endpoints work fine: GET /api/v1/notifications, etc.
-  // TODO: Upgrade to socket.io v5+ when available for Node.js 22 support
-  // app.useWebSocketAdapter(new CustomSocketIoAdapter(app));
+  // WebSocket adapter enabled - Socket.IO 4.8.1+ supports Node.js 22
+  app.useWebSocketAdapter(new CustomSocketIoAdapter(app));
   
   app.use(helmet({
     contentSecurityPolicy: false,
