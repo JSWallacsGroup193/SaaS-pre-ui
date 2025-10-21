@@ -5,7 +5,6 @@ import { TechnicianSidebar } from "./technician-sidebar"
 import { UnassignedPanel } from "./unassigned-panel"
 import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from "@dnd-kit/core"
 import { WorkOrderCard } from "./work-order-card"
-import type { WorkOrder } from "@/types/view-models/dispatch"
 import { useDispatchData } from "@/hooks/useDispatchData"
 import { dispatchService } from "@/services/dispatch.service"
 

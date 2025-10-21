@@ -4,10 +4,10 @@ import type { Part } from "@/types/view-models/work-order"
 
 interface PartsTabProps {
   parts: Part[]
-  onAddPart: (part: Omit<Part, "id" | "total">) => void
+  onAddPart?: (part: Omit<Part, "id" | "total">) => void
 }
 
-export function PartsTab({ parts, onAddPart }: PartsTabProps) {
+export function PartsTab({ parts }: PartsTabProps) {
   const totalCost = parts.reduce((sum, part) => sum + part.total, 0)
 
   return (

@@ -1,9 +1,7 @@
-"use client"
-
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -54,7 +52,7 @@ export default function MFASetupPage({
   onSetup,
   onSkip,
 }: MFASetupPageProps) {
-  const router = useRouter()
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedMethod, setSelectedMethod] = useState<MFAMethod | null>(null)
   const [verificationCode, setVerificationCode] = useState(["", "", "", "", "", ""])
@@ -195,7 +193,7 @@ export default function MFASetupPage({
 
       // Redirect after 2 seconds
       setTimeout(() => {
-        router.push("/")
+        navigate("/")
       }, 2000)
     } catch (err) {
       setError("Failed to complete setup. Please try again.")
@@ -223,7 +221,7 @@ export default function MFASetupPage({
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 mb-4">
               <Check className="h-8 w-8 text-emerald-400" />
             </div>
-            <Button onClick={() => router.push("/")} className="w-full bg-teal-600 hover:bg-teal-700 text-white">
+            <Button onClick={() => navigate("/")} className="w-full bg-teal-600 hover:bg-teal-700 text-white">
               Continue to Dashboard
             </Button>
           </div>

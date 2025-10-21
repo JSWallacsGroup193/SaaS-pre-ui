@@ -7,26 +7,10 @@ interface WeekViewProps {
   workOrders: WorkOrder[]
   technicians: Technician[]
   selectedDate: Date
-  viewMode: "day" | "week" | "month"
+  viewMode?: "day" | "week" | "month"
 }
 
-const timeSlots = [
-  "07:00",
-  "08:00",
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "13:00",
-  "14:00",
-  "15:00",
-  "16:00",
-  "17:00",
-  "18:00",
-  "19:00",
-]
-
-export function WeekView({ workOrders, technicians, selectedDate, viewMode }: WeekViewProps) {
+export function WeekView({ workOrders, technicians, selectedDate }: WeekViewProps) {
   const weekStart = startOfWeek(selectedDate, { weekStartsOn: 1 })
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
 

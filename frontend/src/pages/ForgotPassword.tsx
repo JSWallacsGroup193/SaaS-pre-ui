@@ -1,15 +1,13 @@
-"use client"
-
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, Lock, Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react"
-import Link from "next/link"
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -95,7 +93,7 @@ export default function ForgotPasswordPage({ onSubmit, onBackToLogin, onResend }
       <div className="w-full max-w-md">
         {/* Back to Login Link */}
         <Link
-          href="/login"
+          to="/login"
           onClick={(e) => {
             if (onBackToLogin) {
               e.preventDefault()
@@ -214,7 +212,7 @@ export default function ForgotPasswordPage({ onSubmit, onBackToLogin, onResend }
               <p className="text-slate-400 text-sm">
                 Remember your password?{" "}
                 <Link
-                  href="/login"
+                  to="/login"
                   onClick={(e) => {
                     if (onBackToLogin) {
                       e.preventDefault()

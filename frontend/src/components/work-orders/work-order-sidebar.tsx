@@ -9,8 +9,8 @@ import type { WorkOrderStatus, WorkOrderDetail } from "@/types/view-models/work-
 interface WorkOrderSidebarProps {
   workOrder: WorkOrderDetail
   onStatusChange: (status: WorkOrderStatus) => void
-  onReassign: (technicianId: string) => void
-  onReschedule: (date: string) => void
+  onReassign?: (technicianId: string) => void
+  onReschedule?: (date: string) => void
   onGenerateInvoice: () => void
   onSendUpdate: () => void
   onMarkComplete: () => void
@@ -27,8 +27,6 @@ const statusConfig: Record<WorkOrderStatus, { label: string; className: string }
 export function WorkOrderSidebar({
   workOrder,
   onStatusChange,
-  onReassign,
-  onReschedule,
   onGenerateInvoice,
   onSendUpdate,
   onMarkComplete,

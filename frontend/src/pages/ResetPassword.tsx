@@ -1,15 +1,13 @@
-"use client"
-
 import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Key, Eye, EyeOff, Check, X, AlertCircle, CheckCircle2 } from "lucide-react"
-import Link from "next/link"
 
 // Password strength calculation (simplified zxcvbn-like logic)
 const calculatePasswordStrength = (password: string): { score: number; label: string; color: string } => {
@@ -179,7 +177,7 @@ export default function ResetPasswordPage({ token, onSubmit }: ResetPasswordPage
           </Button>
 
           <div className="mt-6 text-center">
-            <Link href="/login" className="text-sm text-teal-500 hover:text-teal-400 hover:underline">
+            <Link to="/login" className="text-sm text-teal-500 hover:text-teal-400 hover:underline">
               Back to login
             </Link>
           </div>
@@ -209,7 +207,7 @@ export default function ResetPasswordPage({ token, onSubmit }: ResetPasswordPage
             Redirecting to login in {redirectCountdown} seconds...
           </p>
 
-          <Link href="/login">
+          <Link to="/login">
             <Button className="w-full bg-teal-500 hover:bg-teal-600 text-white">Sign in with your new password</Button>
           </Link>
         </div>
@@ -367,7 +365,7 @@ export default function ResetPasswordPage({ token, onSubmit }: ResetPasswordPage
 
         {/* Footer */}
         <div className="mt-6 text-center">
-          <Link href="/login" className="text-sm text-teal-500 hover:text-teal-400 hover:underline">
+          <Link to="/login" className="text-sm text-teal-500 hover:text-teal-400 hover:underline">
             Back to login
           </Link>
         </div>
