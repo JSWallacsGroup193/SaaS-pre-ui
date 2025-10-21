@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -41,6 +41,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Separator } from "@/components/ui/separator"
+import api from "../utils/axiosClient"
+import toast from "react-hot-toast"
 
 interface UserProfile {
   id: string
@@ -196,6 +198,120 @@ export default function SettingsPage({
       endTime: "08:00",
     },
   })
+
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(false)
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false)
+
+  // Load notification preferences from backend
+  useEffect(() => {
+    async function loadNotificationPreferences() {
+      try {
+        setIsLoadingPreferences(true)
+        const { data } = await api.get('/notifications/preferences')
+        
+        // Map backend preferences to frontend state
+        setNotifications({
+          workOrders: {
+            newAssignment: { 
+              email: data.emailWorkOrders ?? true, 
+              push: data.inAppWorkOrders ?? true, 
+              sms: data.smsWorkOrders ?? false 
+            },
+            statusChange: { 
+              email: data.emailWorkOrders ?? true, 
+              push: data.inAppWorkOrders ?? true, 
+              sms: data.smsWorkOrders ?? false 
+            },
+            customerComment: { 
+              email: data.emailWorkOrders ?? true, 
+              push: data.inAppWorkOrders ?? false, 
+              sms: false 
+            },
+          },
+          dispatch: {
+            scheduleChange: { 
+              email: data.emailSystemAlerts ?? true, 
+              push: data.inAppSystemAlerts ?? true, 
+              sms: data.smsSystemAlerts ?? true 
+            },
+            emergencyCall: { 
+              email: data.emailSystemAlerts ?? true, 
+              push: data.inAppSystemAlerts ?? true, 
+              sms: data.smsSystemAlerts ?? true 
+            },
+          },
+          system: {
+            maintenance: { 
+              email: data.emailSystemAlerts ?? true, 
+              push: data.inAppSystemAlerts ?? false, 
+              sms: false 
+            },
+            newFeatures: { 
+              email: data.emailReports ?? false, 
+              push: data.inAppReports ?? false, 
+              sms: false 
+            },
+          },
+          digest: {
+            dailySummary: data.dailyDigest ?? false,
+            dailyTime: data.digestTime ?? "08:00",
+            weeklyReport: data.weeklyDigest ?? true,
+            weeklyDay: "monday",
+          },
+          quietHours: {
+            enabled: false,
+            startTime: "22:00",
+            endTime: "08:00",
+          },
+        })
+      } catch (error: any) {
+        console.error('[Settings] Failed to load notification preferences:', error)
+      } finally {
+        setIsLoadingPreferences(false)
+      }
+    }
+
+    loadNotificationPreferences()
+  }, [])
+
+  // Save notification preferences to backend
+  const saveNotificationPreferences = async () => {
+    try {
+      setIsSavingPreferences(true)
+      
+      // Map frontend state to backend format
+      const backendFormat = {
+        emailEnabled: true,
+        emailWorkOrders: notifications.workOrders.newAssignment.email || notifications.workOrders.statusChange.email,
+        emailInvoices: true,
+        emailReports: notifications.system.newFeatures.email,
+        emailSystemAlerts: notifications.dispatch.scheduleChange.email || notifications.system.maintenance.email,
+        
+        inAppEnabled: true,
+        inAppWorkOrders: notifications.workOrders.newAssignment.push || notifications.workOrders.statusChange.push,
+        inAppInvoices: true,
+        inAppReports: notifications.system.newFeatures.push,
+        inAppSystemAlerts: notifications.dispatch.scheduleChange.push || notifications.system.maintenance.push,
+        
+        smsEnabled: notifications.workOrders.newAssignment.sms || notifications.dispatch.scheduleChange.sms,
+        smsWorkOrders: notifications.workOrders.newAssignment.sms || notifications.workOrders.statusChange.sms,
+        smsInvoices: false,
+        smsSystemAlerts: notifications.dispatch.scheduleChange.sms || notifications.dispatch.emergencyCall.sms,
+        
+        dailyDigest: notifications.digest.dailySummary,
+        weeklyDigest: notifications.digest.weeklyReport,
+        digestTime: notifications.digest.dailyTime,
+      }
+      
+      await api.put('/notifications/preferences', backendFormat)
+      toast.success('Notification preferences saved successfully!')
+    } catch (error: any) {
+      console.error('[Settings] Failed to save notification preferences:', error)
+      toast.error(error?.response?.data?.message || 'Failed to save notification preferences')
+    } finally {
+      setIsSavingPreferences(false)
+    }
+  }
 
   const [preferences, setPreferences] = useState({
     language: "en",
@@ -1394,7 +1510,13 @@ export default function SettingsPage({
               </div>
 
               <div className="flex justify-end">
-                <Button className="bg-teal-500 text-white hover:bg-teal-600">Save Notification Preferences</Button>
+                <Button 
+                  onClick={saveNotificationPreferences}
+                  disabled={isSavingPreferences || isLoadingPreferences}
+                  className="bg-teal-500 text-white hover:bg-teal-600"
+                >
+                  {isSavingPreferences ? 'Saving...' : 'Save Notification Preferences'}
+                </Button>
               </div>
             </div>
           )}
