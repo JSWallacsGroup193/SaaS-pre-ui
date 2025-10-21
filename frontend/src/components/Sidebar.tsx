@@ -12,8 +12,10 @@ import {
   Scan, 
   Wrench, 
   Bot,
+  Shield,
   X
 } from 'lucide-react'
+import { useAuthStore } from '@/store/useAuthStore'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,6 +57,8 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
+  const { user } = useAuthStore()
+  
   return (
     <>
       {/* Mobile Overlay */}
@@ -100,6 +104,18 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
               onClick={onClose}
             />
           ))}
+          
+          {user?.isSuperAdmin && (
+            <>
+              <div className="border-t border-slate-800 my-2" />
+              <Item 
+                to="/admin" 
+                label="Super Admin" 
+                icon={Shield} 
+                onClick={onClose}
+              />
+            </>
+          )}
         </nav>
       </aside>
     </>

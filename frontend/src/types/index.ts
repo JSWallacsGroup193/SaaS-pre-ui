@@ -28,13 +28,22 @@ export interface User {
   jobTitle?: string;
   employeeNumber?: string;
   
+  // Roles & permissions
+  roles?: Array<{
+    id: string;
+    name: string;
+    displayName?: string;
+    color?: string;
+  }>;
+  isSuperAdmin?: boolean;
+  
   // MFA
-  mfaEnabled: boolean;
+  mfaEnabled?: boolean;
   mfaMethod?: string;
   
   // Status & security
   isActive: boolean;
-  emailVerified: boolean;
+  emailVerified?: boolean;
   emailVerifiedAt?: string;
   lastLoginAt?: string;
   lastLoginIp?: string;
@@ -43,8 +52,8 @@ export interface User {
   // Preferences
   preferences?: Record<string, any>;
   
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string;
 }
 

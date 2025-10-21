@@ -26,6 +26,12 @@ const AI = lazy(() => import('./pages/AI'))
 const FieldToolsPage = lazy(() => import('./pages/FieldTools/FieldToolsPage'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
+const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
+const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'))
+const AdminUsers = lazy(() => import('./pages/admin/Users'))
+const AdminRoles = lazy(() => import('./pages/admin/Roles'))
+const AdminTenants = lazy(() => import('./pages/admin/Tenants'))
+
 export default function App() {
   const token = useAuth(s => s.token)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -75,6 +81,12 @@ export default function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
               <Route path="/ai" element={<AI />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="users" element={<AdminUsers />} />
+                <Route path="roles" element={<AdminRoles />} />
+                <Route path="tenants" element={<AdminTenants />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
