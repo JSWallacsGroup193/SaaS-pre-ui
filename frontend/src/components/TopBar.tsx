@@ -1,5 +1,6 @@
 import { useAuth } from '../store/useAuth'
 import { LogOut, Menu } from 'lucide-react'
+import { Notifications } from './Notifications'
 
 interface TopBarProps {
   onMenuClick?: () => void
@@ -29,6 +30,9 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
       </div>
       <div className="flex items-center gap-4">
+        {/* Notifications Bell */}
+        <Notifications />
+        
         <button 
           onClick={logout} 
           className="flex items-center gap-2 px-3 lg:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-md transition-colors"
