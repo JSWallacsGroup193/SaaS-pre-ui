@@ -16,11 +16,10 @@ async function bootstrap() {
   app.use(helmet({
     contentSecurityPolicy: false,
   }));
-  app.enableCors({ origin: (origin, cb) => {
-    const allow = (process.env.CORS_ORIGIN || 'http://localhost:5000').split(',').map(s=>s.trim());
-    if (!origin || allow.includes(origin)) return cb(null, true);
-    return cb(new Error('CORS blocked'), false);
-  }, credentials: true });
+  app.enableCors({ 
+    origin: true,
+    credentials: true 
+  });
   app.setGlobalPrefix('api/v1', {
     exclude: ['/'],
   });
