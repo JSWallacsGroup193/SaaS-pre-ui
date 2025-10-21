@@ -27,7 +27,7 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Field Tools**: 21 professional HVAC calculators across various categories, with results savable to work orders.
 - **AI Chat**: OpenAI-powered HVAC assistant with quick suggestions, rich text support, and feedback options.
 - **Super Admin Panel**: System administration interface for user, role, permission, and tenant management, protected by `AdminGuard`.
-- **Notification System**: In-app, email, and SMS notifications with user preferences using HTTP polling (30-second interval). WebSocket disabled due to engine.io/NestJS compatibility issues; HTTP polling provides reliable real-time notifications.
+- **Notification System**: In-app, email, and SMS notifications with user preferences using HTTP polling (30-second interval). WebSocket disabled due to engine.io/NestJS compatibility issues; HTTP polling provides reliable notification delivery with ~30s latency. Frontend automatically starts polling on login and stops on logout. Toast notifications display for new unread items.
 - **Monitoring**: Health checks and application metrics.
 - **Background Jobs**: Queue module for asynchronous tasks.
 - **Form System**: Comprehensive components with React Hook Form, Zod validation, auto-save, and multi-step capabilities.

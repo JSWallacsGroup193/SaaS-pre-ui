@@ -4,7 +4,6 @@ import { useNotificationStore } from '../stores/useNotificationStore';
 import { useAuth } from '../store/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/auth.service';
 
 export function Notifications() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,37 +15,25 @@ export function Notifications() {
   const {
     notifications,
     unreadCount,
-    isConnected,
-    connect,
-    disconnect,
+    isPolling,
+    startPolling,
+    stopPolling,
     fetchNotifications,
     markAsRead,
     markAllAsRead,
     deleteNotification,
   } = useNotificationStore();
 
-  // Fetch user data and connect to WebSocket on mount
+  // Start HTTP polling on mount
   useEffect(() => {
-    async function fetchUserAndConnect() {
-      if (!token) return;
-      
-      try {
-        const user = await authService.getProfile();
-        
-        if (user.id && user.tenantId) {
-          connect(user.id, user.tenantId);
-        }
-      } catch (error) {
-        console.error('[Notifications] Failed to fetch user profile:', error);
-      }
-    }
+    if (!token) return;
 
-    fetchUserAndConnect();
+    startPolling();
 
     return () => {
-      disconnect();
+      stopPolling();
     };
-  }, [token, connect, disconnect]);
+  }, [token, startPolling, stopPolling]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -103,12 +90,12 @@ export function Notifications() {
           </span>
         )}
         
-        {/* Connection Status Indicator */}
+        {/* Polling Status Indicator */}
         <span
           className={`absolute bottom-1 right-1 w-2 h-2 rounded-full ${
-            isConnected ? 'bg-green-500' : 'bg-slate-600'
+            isPolling ? 'bg-green-500' : 'bg-slate-600'
           }`}
-          title={isConnected ? 'Connected' : 'Disconnected'}
+          title={isPolling ? 'Polling active' : 'Polling inactive'}
         />
       </button>
 

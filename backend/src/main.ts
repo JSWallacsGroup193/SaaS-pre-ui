@@ -6,7 +6,6 @@ import helmet from 'helmet';
 import { SpaFilter } from './spa.filter';
 import * as express from 'express';
 import { join } from 'path';
-import { CustomSocketIoAdapter } from './common/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { io, Socket } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import api from '../utils/axiosClient';
 
@@ -22,13 +21,14 @@ interface Notification {
 interface NotificationStore {
   notifications: Notification[];
   unreadCount: number;
-  socket: Socket | null;
-  isConnected: boolean;
+  pollingInterval: NodeJS.Timeout | null;
+  isPolling: boolean;
   isLoading: boolean;
+  lastNotificationId: string | null;
   
   // Actions
-  connect: (userId: string, tenantId: string) => void;
-  disconnect: () => void;
+  startPolling: () => void;
+  stopPolling: () => void;
   fetchNotifications: () => Promise<void>;
   fetchUnreadCount: () => Promise<void>;
   markAsRead: (notificationId: string) => Promise<void>;
@@ -37,93 +37,47 @@ interface NotificationStore {
   addNotification: (notification: Notification) => void;
 }
 
+const POLLING_INTERVAL = 30000; // 30 seconds
+
 export const useNotificationStore = create<NotificationStore>((set, get) => ({
   notifications: [],
   unreadCount: 0,
-  socket: null,
-  isConnected: false,
+  pollingInterval: null,
+  isPolling: false,
   isLoading: false,
+  lastNotificationId: null,
 
-  connect: (userId: string, tenantId: string) => {
-    const { socket: existingSocket } = get();
+  startPolling: () => {
+    const { pollingInterval, isPolling } = get();
     
-    // Don't reconnect if already connected
-    if (existingSocket?.connected) {
-      console.log('[WebSocket] Already connected');
+    // Don't start if already polling
+    if (isPolling || pollingInterval) {
+      console.log('[HTTP Polling] Already polling');
       return;
     }
 
-    // Disconnect existing socket if any
-    if (existingSocket) {
-      existingSocket.disconnect();
-    }
-
-    const socketUrl = import.meta.env.VITE_WS_URL || window.location.origin;
-    const token = localStorage.getItem('token');
-
-    console.log('[WebSocket] Connecting to:', `${socketUrl}/notifications`);
-
-    const newSocket = io(`${socketUrl}/notifications`, {
-      auth: {
-        userId,
-        tenantId,
-        token,
-      },
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000,
-    });
-
-    newSocket.on('connect', () => {
-      console.log('[WebSocket] Connected successfully');
-      set({ isConnected: true });
-      
-      // Fetch initial data on connect
+    console.log('[HTTP Polling] Starting notification polling (30s interval)');
+    
+    // Fetch immediately
+    get().fetchNotifications();
+    get().fetchUnreadCount();
+    
+    // Set up polling interval
+    const interval = setInterval(() => {
       get().fetchNotifications();
       get().fetchUnreadCount();
-    });
-
-    newSocket.on('disconnect', () => {
-      console.log('[WebSocket] Disconnected');
-      set({ isConnected: false });
-    });
-
-    newSocket.on('notification', (notification: Notification) => {
-      console.log('[WebSocket] New notification received:', notification);
-      
-      // Add to store
-      get().addNotification(notification);
-      
-      // Show toast notification
-      const typeMap: Record<string, any> = {
-        success: () => toast.success(notification.title),
-        error: () => toast.error(notification.title),
-        warning: () => toast(notification.title, { icon: '⚠️' }),
-        info: () => toast(notification.title, { icon: 'ℹ️' }),
-      };
-      
-      const showToast = typeMap[notification.type] || typeMap.info;
-      showToast();
-      
-      // Increment unread count
-      set((state) => ({ unreadCount: state.unreadCount + 1 }));
-    });
-
-    newSocket.on('connect_error', (error: Error) => {
-      console.error('[WebSocket] Connection error:', error);
-      set({ isConnected: false });
-    });
-
-    set({ socket: newSocket });
+    }, POLLING_INTERVAL);
+    
+    set({ pollingInterval: interval, isPolling: true });
   },
 
-  disconnect: () => {
-    const { socket } = get();
-    if (socket) {
-      socket.disconnect();
-      set({ socket: null, isConnected: false });
-      console.log('[WebSocket] Manually disconnected');
+  stopPolling: () => {
+    const { pollingInterval } = get();
+    
+    if (pollingInterval) {
+      clearInterval(pollingInterval);
+      set({ pollingInterval: null, isPolling: false });
+      console.log('[HTTP Polling] Stopped polling');
     }
   },
 
@@ -131,7 +85,40 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     try {
       set({ isLoading: true });
       const { data } = await api.get('/notifications', { params: { limit: 50 } });
-      set({ notifications: data, isLoading: false });
+      
+      const { lastNotificationId } = get();
+      
+      // Check for new notifications (compare with the last known notification ID)
+      if (data.length > 0 && lastNotificationId && data[0].id !== lastNotificationId) {
+        // Find new notifications
+        const newNotifications = [];
+        for (const notification of data) {
+          if (notification.id === lastNotificationId) break;
+          newNotifications.push(notification);
+        }
+        
+        // Show toast for new unread notifications
+        newNotifications.reverse().forEach((notification: Notification) => {
+          if (!notification.isRead) {
+            const typeMap: Record<string, any> = {
+              success: () => toast.success(notification.title),
+              error: () => toast.error(notification.title),
+              warning: () => toast(notification.title, { icon: '⚠️' }),
+              info: () => toast(notification.title, { icon: 'ℹ️' }),
+            };
+            
+            const showToast = typeMap[notification.type] || typeMap.info;
+            showToast();
+          }
+        });
+      }
+      
+      // Update state
+      set({ 
+        notifications: data, 
+        isLoading: false,
+        lastNotificationId: data.length > 0 ? data[0].id : null
+      });
     } catch (error) {
       console.error('[Notifications] Failed to fetch notifications:', error);
       set({ isLoading: false });
