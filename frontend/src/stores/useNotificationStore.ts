@@ -110,7 +110,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       set((state) => ({ unreadCount: state.unreadCount + 1 }));
     });
 
-    newSocket.on('connect_error', (error) => {
+    newSocket.on('connect_error', (error: Error) => {
       console.error('[WebSocket] Connection error:', error);
       set({ isConnected: false });
     });

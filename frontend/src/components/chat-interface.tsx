@@ -203,9 +203,9 @@ function MessageBubble({
                     </code>
                   )
                 },
-                p: ({ children }) => <p className="mb-2 last:mb-0 text-slate-100">{children}</p>,
-                ul: ({ children }) => <ul className="mb-2 ml-4 list-disc text-slate-100">{children}</ul>,
-                li: ({ children }) => <li className="mb-1 text-slate-100">{children}</li>,
+                p: ({ children }: { children?: React.ReactNode }) => <p className="mb-2 last:mb-0 text-slate-100">{children}</p>,
+                ul: ({ children }: { children?: React.ReactNode }) => <ul className="mb-2 ml-4 list-disc text-slate-100">{children}</ul>,
+                li: ({ children }: { children?: React.ReactNode }) => <li className="mb-1 text-slate-100">{children}</li>,
               }}
             >
               {message.content}
