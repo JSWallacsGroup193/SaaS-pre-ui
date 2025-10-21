@@ -7,6 +7,13 @@ import { SpaFilter } from './spa.filter';
 import * as express from 'express';
 import { join } from 'path';
 import { CustomSocketIoAdapter } from './common/socket-io.adapter';
+import * as http from 'http';
+
+// Polyfill for Node.js 20 compatibility with engine.io
+// Engine.io expects server.listeners() to return array, force override
+http.Server.prototype.listeners = function(event: string | symbol) {
+  return this.rawListeners(event);
+};
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
