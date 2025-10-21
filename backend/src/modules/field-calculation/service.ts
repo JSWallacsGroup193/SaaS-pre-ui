@@ -152,4 +152,36 @@ export class FieldCalculationService {
 
     return { deleted: true, id };
   }
+
+  async attachToWorkOrder(calculationId: string, workOrderId: string, tenantId: string) {
+    const calculation = await this.prisma.fieldCalculation.findFirst({
+      where: { id: calculationId, tenantId },
+    });
+
+    if (!calculation) {
+      throw new NotFoundException(`Field calculation with ID ${calculationId} not found`);
+    }
+
+    return this.prisma.fieldCalculation.update({
+      where: { id: calculationId },
+      data: { workOrderId },
+      include: {
+        technician: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+          },
+        },
+        workOrder: {
+          select: {
+            id: true,
+            number: true,
+            title: true,
+          },
+        },
+      },
+    });
+  }
 }

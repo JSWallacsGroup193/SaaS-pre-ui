@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Delete,
   Body,
   Param,
@@ -75,5 +76,21 @@ export class FieldCalculationController {
   @ApiResponse({ status: 404, description: 'Calculation not found' })
   async delete(@Req() req: AuthenticatedRequest, @Param('id') id: string) {
     return this.fieldCalculationService.delete(id, req.user.tenantId);
+  }
+
+  @Put(':calculationId/attach')
+  @ApiOperation({ summary: 'Attach calculation to work order' })
+  @ApiResponse({ status: 200, description: 'Calculation attached successfully', type: FieldCalculationResponseDto })
+  @ApiResponse({ status: 404, description: 'Calculation not found' })
+  async attachToWorkOrder(
+    @Req() req: AuthenticatedRequest,
+    @Param('calculationId') calculationId: string,
+    @Body() body: { workOrderId: string }
+  ) {
+    return this.fieldCalculationService.attachToWorkOrder(
+      calculationId,
+      body.workOrderId,
+      req.user.tenantId
+    );
   }
 }

@@ -47,12 +47,63 @@ export class InventoryService {
     return { items, total, page, pageSize };
   }
 
+  async getSKU(id: string) {
+    const sku = await this.prisma.sKU.findUnique({ where: { id } });
+    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+    return sku;
+  }
+
   async createSKU(data: { tenantId: string; name: string; description?: string; barcode?: string }) {
     const sku = `SKU-${Date.now()}`;
     return this.prisma.sKU.create({ 
       data: {
         ...data,
         sku,
+      }
+    });
+  }
+
+  async updateSKU(id: string, data: { name?: string; description?: string; barcode?: string }) {
+    const sku = await this.prisma.sKU.findUnique({ where: { id } });
+    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+    
+    return this.prisma.sKU.update({
+      where: { id },
+      data,
+    });
+  }
+
+  async deleteSKU(id: string) {
+    const sku = await this.prisma.sKU.findUnique({ where: { id } });
+    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+    
+    await this.prisma.sKU.delete({ where: { id } });
+    return { deleted: true, id };
+  }
+
+  async getStockLedger(skuId: string, tenantId: string) {
+    return this.prisma.stockLedger.findMany({
+      where: { skuId, tenantId },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async createStockLedgerEntry(data: {
+    tenantId: string;
+    skuId: string;
+    binId: string;
+    direction: 'IN' | 'OUT';
+    quantity: number;
+    note?: string;
+  }) {
+    return this.prisma.stockLedger.create({ 
+      data: {
+        tenantId: data.tenantId,
+        skuId: data.skuId,
+        binId: data.binId,
+        direction: data.direction,
+        quantity: data.quantity,
+        note: data.note,
       }
     });
   }

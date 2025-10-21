@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put, Delete } from '@nestjs/common';
 import { DispatchService } from './service';
 
 @Controller('dispatch')
@@ -24,6 +24,11 @@ export class DispatchController {
       startTime: body.startTime ? new Date(body.startTime) : undefined,
       endTime: body.endTime ? new Date(body.endTime) : undefined,
     });
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string) {
+    return this.service.deleteSlot(id);
   }
 
   @Get('technician/:id')

@@ -28,8 +28,18 @@ export class PurchasingController {
     return this.service.createPO({ ...body, tenantId: String(tenantId) });
   }
 
+  @Get(':id')
+  getOne(@Param('id') id: string) {
+    return this.service.getPO(id);
+  }
+
   @Put(':id/receive')
   receive(@Param('id') id: string) {
     return this.service.receivePO(id);
+  }
+
+  @Put(':id/cancel')
+  cancel(@Param('id') id: string) {
+    return this.service.cancelPO(id);
   }
 }

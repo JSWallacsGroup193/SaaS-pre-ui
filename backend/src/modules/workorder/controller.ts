@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req } from '@nestjs/common';
 import { WorkOrderService } from './service';
 import { WorkOrderStatus } from '@prisma/client';
 
@@ -6,9 +6,20 @@ import { WorkOrderStatus } from '@prisma/client';
 export class WorkOrderController {
   constructor(private readonly service: WorkOrderService) {}
 
-  @Get(':tenantId')
+  @Get('by-tenant/:tenantId/stats')
+  getStats(@Param('tenantId') tenantId: string) {
+    return this.service.getStats(tenantId);
+  }
+
+  @Get('by-tenant/:tenantId')
   findAll(@Param('tenantId') tenantId: string) {
     return this.service.findAll(tenantId);
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.findOne(id, String(tenantId));
   }
 
   @Post()
@@ -17,7 +28,14 @@ export class WorkOrderController {
   }
 
   @Put(':id/status')
-  updateStatus(@Param('id') id: string, @Body() body: { status: WorkOrderStatus }) {
-    return this.service.updateStatus(id, body.status);
+  updateStatus(@Param('id') id: string, @Body() body: { status: WorkOrderStatus }, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.updateStatus(id, body.status, String(tenantId));
+  }
+
+  @Delete(':id')
+  delete(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.delete(id, String(tenantId));
   }
 }

@@ -46,4 +46,13 @@ export class ForecastService {
   async getForecasts(tenantId: string) {
     return this.prisma.forecast.findMany({ where: { tenantId }, include: { sku: true } });
   }
+
+  async getForecastForSKU(skuId: string, tenantId: string) {
+    const forecast = await this.prisma.forecast.findUnique({
+      where: { tenantId_skuId: { tenantId, skuId } },
+      include: { sku: true }
+    });
+    if (!forecast) throw new Error(`Forecast for SKU ${skuId} not found`);
+    return forecast;
+  }
 }

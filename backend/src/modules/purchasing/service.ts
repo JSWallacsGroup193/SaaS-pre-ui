@@ -29,7 +29,26 @@ export class PurchasingService {
     });
   }
 
+  async getPO(id: string) {
+    const po = await this.prisma.purchaseOrder.findUnique({ 
+      where: { id },
+      include: { sku: true }
+    });
+    if (!po) throw new Error(`Purchase order with ID ${id} not found`);
+    return po;
+  }
+
   async receivePO(id: string) {
     return this.prisma.purchaseOrder.update({ where: { id }, data: { status: 'RECEIVED', receivedAt: new Date() } });
+  }
+
+  async cancelPO(id: string) {
+    const po = await this.prisma.purchaseOrder.findUnique({ where: { id } });
+    if (!po) throw new Error(`Purchase order with ID ${id} not found`);
+    
+    return this.prisma.purchaseOrder.update({ 
+      where: { id }, 
+      data: { status: 'CANCELLED' } 
+    });
   }
 }

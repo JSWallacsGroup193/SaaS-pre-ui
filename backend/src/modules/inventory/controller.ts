@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Body, Req, Query, ParseIntPipe, Param } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Req, Query, ParseIntPipe, Param } from '@nestjs/common';
 import { ApiBearerAuth, ApiQuery, ApiTags, ApiOkResponse } from '@nestjs/swagger';
 import { InventoryService } from './service';
 import { CreateSkuDto } from './dto/create-sku.dto';
@@ -24,10 +24,43 @@ export class InventoryController {
     return this.service.getSKUs(String(tenantId), q, page, pageSize);
   }
 
+  @Get('skus/:id')
+  getSKU(@Param('id') id: string) {
+    return this.service.getSKU(id);
+  }
+
   @Post('skus')
   createSKU(@Body() body: CreateSkuDto, @Req() req: any) {
     const tenantId = body.tenantId || req.user?.tenantId;
     return this.service.createSKU({ ...body, tenantId: String(tenantId) });
+  }
+
+  @Put('skus/:id')
+  updateSKU(@Param('id') id: string, @Body() body: { name?: string; description?: string; barcode?: string }) {
+    return this.service.updateSKU(id, body);
+  }
+
+  @Delete('skus/:id')
+  deleteSKU(@Param('id') id: string) {
+    return this.service.deleteSKU(id);
+  }
+
+  @Get('stock-ledger/:skuId')
+  getStockLedger(@Param('skuId') skuId: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getStockLedger(skuId, String(tenantId));
+  }
+
+  @Post('stock-ledger')
+  createStockLedgerEntry(@Body() body: {
+    skuId: string;
+    binId: string;
+    direction: 'IN' | 'OUT';
+    quantity: number;
+    note?: string;
+  }, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.body?.tenantId;
+    return this.service.createStockLedgerEntry({ ...body, tenantId: String(tenantId) });
   }
 
   @Get('warehouses')

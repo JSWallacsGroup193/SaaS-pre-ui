@@ -40,4 +40,14 @@ export class DispatchService {
       orderBy: { startTime: 'asc' },
     });
   }
+
+  async deleteSlot(id: string) {
+    const slot = await prisma.dispatchSlot.findUnique({ where: { id } });
+    if (!slot) {
+      throw new NotFoundException(`Dispatch slot with ID ${id} not found`);
+    }
+
+    await prisma.dispatchSlot.delete({ where: { id } });
+    return { deleted: true, id };
+  }
 }
