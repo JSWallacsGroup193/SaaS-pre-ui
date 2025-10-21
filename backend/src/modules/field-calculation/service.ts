@@ -162,6 +162,15 @@ export class FieldCalculationService {
       throw new NotFoundException(`Field calculation with ID ${calculationId} not found`);
     }
 
+    // Verify work order belongs to same tenant
+    const workOrder = await this.prisma.workOrder.findFirst({
+      where: { id: workOrderId, tenantId },
+    });
+
+    if (!workOrder) {
+      throw new NotFoundException(`Work order with ID ${workOrderId} not found`);
+    }
+
     return this.prisma.fieldCalculation.update({
       where: { id: calculationId },
       data: { workOrderId },

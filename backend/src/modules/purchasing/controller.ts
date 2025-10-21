@@ -29,17 +29,20 @@ export class PurchasingController {
   }
 
   @Get(':id')
-  getOne(@Param('id') id: string) {
-    return this.service.getPO(id);
+  getOne(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getPO(id, String(tenantId));
   }
 
   @Put(':id/receive')
-  receive(@Param('id') id: string) {
-    return this.service.receivePO(id);
+  receive(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.receivePO(id, String(tenantId));
   }
 
   @Put(':id/cancel')
-  cancel(@Param('id') id: string) {
-    return this.service.cancelPO(id);
+  cancel(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.cancelPO(id, String(tenantId));
   }
 }

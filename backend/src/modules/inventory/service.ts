@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 
 @Injectable()
@@ -47,9 +47,9 @@ export class InventoryService {
     return { items, total, page, pageSize };
   }
 
-  async getSKU(id: string) {
-    const sku = await this.prisma.sKU.findUnique({ where: { id } });
-    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+  async getSKU(id: string, tenantId: string) {
+    const sku = await this.prisma.sKU.findFirst({ where: { id, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${id} not found`);
     return sku;
   }
 
@@ -63,9 +63,9 @@ export class InventoryService {
     });
   }
 
-  async updateSKU(id: string, data: { name?: string; description?: string; barcode?: string }) {
-    const sku = await this.prisma.sKU.findUnique({ where: { id } });
-    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+  async updateSKU(id: string, data: { name?: string; description?: string; barcode?: string }, tenantId: string) {
+    const sku = await this.prisma.sKU.findFirst({ where: { id, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${id} not found`);
     
     return this.prisma.sKU.update({
       where: { id },
@@ -73,15 +73,19 @@ export class InventoryService {
     });
   }
 
-  async deleteSKU(id: string) {
-    const sku = await this.prisma.sKU.findUnique({ where: { id } });
-    if (!sku) throw new Error(`SKU with ID ${id} not found`);
+  async deleteSKU(id: string, tenantId: string) {
+    const sku = await this.prisma.sKU.findFirst({ where: { id, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${id} not found`);
     
     await this.prisma.sKU.delete({ where: { id } });
     return { deleted: true, id };
   }
 
   async getStockLedger(skuId: string, tenantId: string) {
+    // Verify SKU belongs to tenant
+    const sku = await this.prisma.sKU.findFirst({ where: { id: skuId, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${skuId} not found`);
+    
     return this.prisma.stockLedger.findMany({
       where: { skuId, tenantId },
       orderBy: { createdAt: 'desc' },
@@ -96,6 +100,16 @@ export class InventoryService {
     quantity: number;
     note?: string;
   }) {
+    // Verify SKU and Bin belong to same tenant
+    const sku = await this.prisma.sKU.findFirst({ where: { id: data.skuId, tenantId: data.tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${data.skuId} not found`);
+    
+    const bin = await this.prisma.bin.findFirst({ 
+      where: { id: data.binId, warehouse: { tenantId: data.tenantId } },
+      include: { warehouse: true }
+    });
+    if (!bin) throw new NotFoundException(`Bin with ID ${data.binId} not found`);
+    
     return this.prisma.stockLedger.create({ 
       data: {
         tenantId: data.tenantId,
@@ -126,11 +140,19 @@ export class InventoryService {
     return this.prisma.bin.findMany({ where: { warehouse: { tenantId } }, include: { warehouse: true } });
   }
 
-  async createBin(data: { warehouseId: string; name: string }) {
+  async createBin(data: { warehouseId: string; name: string }, tenantId: string) {
+    // Verify warehouse belongs to tenant
+    const warehouse = await this.prisma.warehouse.findFirst({ where: { id: data.warehouseId, tenantId } });
+    if (!warehouse) throw new NotFoundException(`Warehouse with ID ${data.warehouseId} not found`);
+    
     return this.prisma.bin.create({ data });
   }
 
   async getOnHand(tenantId: string, skuId: string) {
+    // Verify SKU belongs to tenant
+    const sku = await this.prisma.sKU.findFirst({ where: { id: skuId, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${skuId} not found`);
+    
     const [ins, outs] = await Promise.all([
       this.prisma.stockLedger.aggregate({ where: { tenantId, skuId, direction: 'IN' }, _sum: { quantity: true } }),
       this.prisma.stockLedger.aggregate({ where: { tenantId, skuId, direction: 'OUT' }, _sum: { quantity: true } }),

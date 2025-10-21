@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma.service';
 
 @Injectable()
@@ -48,11 +48,15 @@ export class ForecastService {
   }
 
   async getForecastForSKU(skuId: string, tenantId: string) {
+    // Verify SKU belongs to tenant
+    const sku = await this.prisma.sKU.findFirst({ where: { id: skuId, tenantId } });
+    if (!sku) throw new NotFoundException(`SKU with ID ${skuId} not found`);
+    
     const forecast = await this.prisma.forecast.findUnique({
       where: { tenantId_skuId: { tenantId, skuId } },
       include: { sku: true }
     });
-    if (!forecast) throw new Error(`Forecast for SKU ${skuId} not found`);
+    if (!forecast) throw new NotFoundException(`Forecast for SKU ${skuId} not found`);
     return forecast;
   }
 }

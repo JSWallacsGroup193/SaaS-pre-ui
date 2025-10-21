@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -9,9 +9,9 @@ export class CrmService {
     return prisma.account.findMany({ where: { tenantId } });
   }
 
-  async getAccount(id: string) {
-    const account = await prisma.account.findUnique({ where: { id } });
-    if (!account) throw new Error(`Account with ID ${id} not found`);
+  async getAccount(id: string, tenantId: string) {
+    const account = await prisma.account.findFirst({ where: { id, tenantId } });
+    if (!account) throw new NotFoundException(`Account with ID ${id} not found`);
     return account;
   }
 
@@ -25,9 +25,9 @@ export class CrmService {
     });
   }
 
-  async updateAccount(id: string, data: { name?: string }) {
-    const account = await prisma.account.findUnique({ where: { id } });
-    if (!account) throw new Error(`Account with ID ${id} not found`);
+  async updateAccount(id: string, data: { name?: string }, tenantId: string) {
+    const account = await prisma.account.findFirst({ where: { id, tenantId } });
+    if (!account) throw new NotFoundException(`Account with ID ${id} not found`);
     
     return prisma.account.update({
       where: { id },
@@ -39,19 +39,30 @@ export class CrmService {
     return prisma.contact.findMany({ where: { tenantId } });
   }
 
-  async getContact(id: string) {
-    const contact = await prisma.contact.findUnique({ where: { id } });
-    if (!contact) throw new Error(`Contact with ID ${id} not found`);
+  async getContact(id: string, tenantId: string) {
+    const contact = await prisma.contact.findFirst({ where: { id, tenantId } });
+    if (!contact) throw new NotFoundException(`Contact with ID ${id} not found`);
     return contact;
   }
 
   async createContact(data: { tenantId: string; name: string; email?: string; phone?: string; accountId?: string }) {
+    // Verify accountId belongs to same tenant if provided
+    if (data.accountId) {
+      const account = await prisma.account.findFirst({ where: { id: data.accountId, tenantId: data.tenantId } });
+      if (!account) throw new NotFoundException(`Account with ID ${data.accountId} not found`);
+    }
     return prisma.contact.create({ data });
   }
 
-  async updateContact(id: string, data: { name?: string; email?: string; phone?: string; accountId?: string }) {
-    const contact = await prisma.contact.findUnique({ where: { id } });
-    if (!contact) throw new Error(`Contact with ID ${id} not found`);
+  async updateContact(id: string, data: { name?: string; email?: string; phone?: string; accountId?: string }, tenantId: string) {
+    const contact = await prisma.contact.findFirst({ where: { id, tenantId } });
+    if (!contact) throw new NotFoundException(`Contact with ID ${id} not found`);
+    
+    // Verify accountId belongs to same tenant if being updated
+    if (data.accountId) {
+      const account = await prisma.account.findFirst({ where: { id: data.accountId, tenantId } });
+      if (!account) throw new NotFoundException(`Account with ID ${data.accountId} not found`);
+    }
     
     return prisma.contact.update({
       where: { id },
@@ -64,12 +75,31 @@ export class CrmService {
   }
 
   async createLead(data: { tenantId: string; contactId?: string; accountId?: string; status?: any; source?: string; description?: string }) {
+    // Verify contactId and accountId belong to same tenant if provided
+    if (data.contactId) {
+      const contact = await prisma.contact.findFirst({ where: { id: data.contactId, tenantId: data.tenantId } });
+      if (!contact) throw new NotFoundException(`Contact with ID ${data.contactId} not found`);
+    }
+    if (data.accountId) {
+      const account = await prisma.account.findFirst({ where: { id: data.accountId, tenantId: data.tenantId } });
+      if (!account) throw new NotFoundException(`Account with ID ${data.accountId} not found`);
+    }
     return prisma.lead.create({ data });
   }
 
-  async updateLead(id: string, data: { contactId?: string; accountId?: string; status?: any; source?: string; description?: string }) {
-    const lead = await prisma.lead.findUnique({ where: { id } });
-    if (!lead) throw new Error(`Lead with ID ${id} not found`);
+  async updateLead(id: string, data: { contactId?: string; accountId?: string; status?: any; source?: string; description?: string }, tenantId: string) {
+    const lead = await prisma.lead.findFirst({ where: { id, tenantId } });
+    if (!lead) throw new NotFoundException(`Lead with ID ${id} not found`);
+    
+    // Verify contactId and accountId belong to same tenant if being updated
+    if (data.contactId) {
+      const contact = await prisma.contact.findFirst({ where: { id: data.contactId, tenantId } });
+      if (!contact) throw new NotFoundException(`Contact with ID ${data.contactId} not found`);
+    }
+    if (data.accountId) {
+      const account = await prisma.account.findFirst({ where: { id: data.accountId, tenantId } });
+      if (!account) throw new NotFoundException(`Account with ID ${data.accountId} not found`);
+    }
     
     return prisma.lead.update({
       where: { id },
@@ -77,11 +107,19 @@ export class CrmService {
     });
   }
 
-  async getNotes(contactId: string) {
-    return prisma.note.findMany({ where: { contactId } });
+  async getNotes(contactId: string, tenantId: string) {
+    // Verify contact belongs to tenant
+    const contact = await prisma.contact.findFirst({ where: { id: contactId, tenantId } });
+    if (!contact) throw new NotFoundException(`Contact with ID ${contactId} not found`);
+    
+    return prisma.note.findMany({ where: { contactId, tenantId } });
   }
 
   async createNote(data: { tenantId: string; contactId: string; content: string }) {
+    // Verify contact belongs to tenant
+    const contact = await prisma.contact.findFirst({ where: { id: data.contactId, tenantId: data.tenantId } });
+    if (!contact) throw new NotFoundException(`Contact with ID ${data.contactId} not found`);
+    
     return prisma.note.create({ data });
   }
 }

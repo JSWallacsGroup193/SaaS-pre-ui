@@ -25,8 +25,9 @@ export class InventoryController {
   }
 
   @Get('skus/:id')
-  getSKU(@Param('id') id: string) {
-    return this.service.getSKU(id);
+  getSKU(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.getSKU(id, String(tenantId));
   }
 
   @Post('skus')
@@ -36,13 +37,15 @@ export class InventoryController {
   }
 
   @Put('skus/:id')
-  updateSKU(@Param('id') id: string, @Body() body: { name?: string; description?: string; barcode?: string }) {
-    return this.service.updateSKU(id, body);
+  updateSKU(@Param('id') id: string, @Body() body: { name?: string; description?: string; barcode?: string }, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.updateSKU(id, body, String(tenantId));
   }
 
   @Delete('skus/:id')
-  deleteSKU(@Param('id') id: string) {
-    return this.service.deleteSKU(id);
+  deleteSKU(@Param('id') id: string, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.deleteSKU(id, String(tenantId));
   }
 
   @Get('stock-ledger/:skuId')
@@ -82,8 +85,9 @@ export class InventoryController {
   }
 
   @Post('bins')
-  createBin(@Body() body: { warehouseId: string; name: string }) {
-    return this.service.createBin(body);
+  createBin(@Body() body: { warehouseId: string; name: string }, @Req() req: any) {
+    const tenantId = req.user?.tenantId || req.query?.tenantId;
+    return this.service.createBin(body, String(tenantId));
   }
 
   @Get('skus/:id/onhand')
