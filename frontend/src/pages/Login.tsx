@@ -3,13 +3,14 @@ import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { Eye, EyeOff, Loader2, X, Wrench } from "lucide-react"
+import { Eye, EyeOff, Loader2, X } from "lucide-react"
 import { Button } from "../components/ui/button"
 import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Checkbox } from "../components/ui/checkbox"
 import { Alert, AlertDescription } from "../components/ui/alert"
 import { useAuthStore } from "../store/useAuthStore"
+import logo from "@/assets/logo.png"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -25,7 +26,6 @@ interface LoginPageProps {
   error?: string
   onForgotPassword?: () => void
   onSignUp?: () => void
-  companyName?: string
 }
 
 export default function LoginPage({
@@ -34,7 +34,6 @@ export default function LoginPage({
   error: externalError,
   onForgotPassword,
   onSignUp,
-  companyName = "OpsNex",
 }: LoginPageProps = {}) {
   const navigate = useNavigate()
   const login = useAuthStore((s) => s.login)
@@ -113,9 +112,8 @@ export default function LoginPage({
         <div className="bg-card rounded-xl shadow-2xl p-8 md:p-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Wrench className="w-8 h-8 text-primary" />
-              <h1 className="text-2xl font-bold text-foreground">{companyName}</h1>
+            <div className="flex items-center justify-center mb-4">
+              <img src={logo} alt="OpsNex Logo" className="h-16 w-auto" />
             </div>
             <p className="text-sm text-muted-foreground">Sign in to your account</p>
           </div>

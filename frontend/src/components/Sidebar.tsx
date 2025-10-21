@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
+import logo from '@/assets/logo.png'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
@@ -83,9 +84,8 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       >
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 border-b border-slate-800 flex-shrink-0">
-          <div>
-            <h1 className="text-xl font-bold text-teal-400">OpsNex</h1>
-            <p className="text-xs text-slate-400 mt-1">HVAC Management</p>
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="OpsNex Logo" className="h-10 w-auto" />
           </div>
           <button
             onClick={onClose}

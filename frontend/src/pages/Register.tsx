@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "../components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { cn } from "../lib/utils"
 import { useAuthStore } from "../store/useAuthStore"
+import logo from "@/assets/logo.png"
 
 const calculatePasswordStrength = (password: string): "weak" | "medium" | "strong" => {
   let strength = 0
@@ -137,7 +138,9 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
       <div className="w-full max-w-[500px] bg-[#334155] rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-slate-100 mb-2">OpsNex</h1>
+          <div className="flex items-center justify-center mb-4">
+            <img src={logo} alt="OpsNex Logo" className="h-16 w-auto" />
+          </div>
           <p className="text-slate-400">Create your account</p>
         </div>
 

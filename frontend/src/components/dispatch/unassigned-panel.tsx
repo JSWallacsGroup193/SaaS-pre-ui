@@ -13,7 +13,7 @@ export function UnassignedPanel({ workOrders }: UnassignedPanelProps) {
   const sortedOrders = [...emergencyOrders, ...normalOrders]
 
   return (
-    <div className="w-80 border-l border-border bg-card">
+    <div className="w-64 border-l border-border bg-card">
       <div className="border-b border-border p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">Unassigned</h2>
