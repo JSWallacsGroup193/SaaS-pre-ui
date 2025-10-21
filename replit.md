@@ -21,10 +21,10 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Inventory**: Tracking SKUs, warehouses, bins, and a stock ledger with real-time on-hand quantity.
 - **Purchasing**: Management of purchase orders.
 - **Dispatch**: Drag-and-drop scheduling of technicians with real-time status and various view modes.
-- **Forecasting**: Demand forecasting capabilities.
-- **Barcode System**: Production-ready camera-based scanning with html5-qrcode, supporting 8 barcode formats (QR Code, EAN-13/8, UPC-A/E, Code-128/39, ITF), exact and fuzzy SKU matching via `/api/v1/scanner/:barcode`, real-time backend lookup, comprehensive error handling, and direct navigation to SKU detail pages.
+- **Demand Forecasting Dashboard**: Comprehensive forecasting module with interactive line charts (historical vs. forecasted demand using Recharts), 4 KPI cards (Forecasted Demand, Stockout Risk, Overstock Items, Forecast Accuracy), priority-based reorder recommendations with Create PO integration, Top Movers table with trend indicators (up/down/stable), time period selection (7/30/60/90 days), and Generate Forecast button for backend recalculation.
+- **Barcode Scanner**: Production-ready camera-based scanning with html5-qrcode, supporting 8 barcode formats (QR Code, EAN-13/8, UPC-A/E, Code-128/39, ITF), exact and fuzzy SKU matching via `/api/v1/scanner/:barcode`, real-time backend lookup, animated scanning frame with pulsing teal corners, sliding bottom sheet UI for results, and direct navigation to SKU detail pages.
 - **Field Tools with Work Order Integration**: 21 professional HVAC calculators across electrical, refrigeration, airflow, gas/combustion, hydronic/boiler, and utilities categories, with results savable to work orders.
-- **AI Chat**: An AI-powered assistant integrated into the system.
+- **AI Chat**: OpenAI-powered HVAC assistant with HVAC-specific quick suggestions (superheat calculation, diagnostics, procedures), typing indicator with animated dots, feedback buttons (copy/thumbs up/down), ReactMarkdown support for code blocks and formatted responses, and full integration with existing OpenAI backend.
 - **Monitoring**: Health checks and application metrics endpoints.
 - **Background Jobs**: Queue module for asynchronous task processing.
 - **Form System**: Comprehensive form components with React Hook Form, Zod validation, auto-save, and multi-step form capabilities.
@@ -50,3 +50,4 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Barcode Generation & Scanning**: `bwip-js` for generation, `html5-qrcode` for camera-based scanning
 - **OpenAPI Documentation**: `@nestjs/swagger`
 - **OpenAI API**: For the AI-powered chat assistant
+- **Data Visualization**: Recharts for demand forecasting charts
