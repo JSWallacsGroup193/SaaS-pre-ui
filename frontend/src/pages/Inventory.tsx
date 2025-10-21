@@ -1,121 +1,136 @@
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import { InventoryList } from '@/components/inventory/inventory-list'
 import type { SKU, InventoryStats } from '@/types/view-models/inventory'
-
-// Mock data
-const mockSKUs: SKU[] = [
-  {
-    id: '1',
-    sku: 'HVAC-001',
-    description: 'Air Filter 16x20x1',
-    category: 'Filters',
-    onHand: 150,
-    reorderPoint: 50,
-    unitCost: 12.99,
-    location: { warehouse: 'Warehouse A', bin: 'A-12' },
-    barcode: '123456789012',
-    lastRestocked: '2024-01-15',
-  },
-  {
-    id: '2',
-    sku: 'HVAC-002',
-    description: 'Thermostat Digital Programmable',
-    category: 'Controls',
-    onHand: 25,
-    reorderPoint: 20,
-    unitCost: 89.99,
-    location: { warehouse: 'Warehouse A', bin: 'B-05' },
-    barcode: '123456789013',
-    lastRestocked: '2024-01-18',
-  },
-  {
-    id: '3',
-    sku: 'HVAC-003',
-    description: 'Refrigerant R-410A 25lb',
-    category: 'Refrigerants',
-    onHand: 0,
-    reorderPoint: 10,
-    unitCost: 245.0,
-    location: { warehouse: 'Warehouse B', bin: 'C-08' },
-    barcode: '123456789014',
-    lastRestocked: '2024-01-10',
-  },
-  {
-    id: '4',
-    sku: 'HVAC-004',
-    description: 'Condenser Fan Motor 1/4 HP',
-    category: 'Motors',
-    onHand: 8,
-    reorderPoint: 5,
-    unitCost: 156.5,
-    location: { warehouse: 'Warehouse A', bin: 'D-15' },
-    barcode: '123456789015',
-    lastRestocked: '2024-01-20',
-  },
-  {
-    id: '5',
-    sku: 'HVAC-005',
-    description: 'Copper Tubing 3/4" x 50ft',
-    category: 'Piping',
-    onHand: 45,
-    reorderPoint: 30,
-    unitCost: 78.25,
-    location: { warehouse: 'Warehouse B', bin: 'E-22' },
-    barcode: '123456789016',
-    lastRestocked: '2024-01-12',
-  },
-]
-
-const mockStats: InventoryStats = {
-  totalSKUs: 247,
-  lowStockAlerts: 12,
-  outOfStock: 5,
-  totalInventoryValue: 125840,
-}
-
-const mockCategories = ['Filters', 'Controls', 'Refrigerants', 'Motors', 'Piping', 'Tools', 'Parts']
-const mockWarehouses = ['Warehouse A', 'Warehouse B', 'Warehouse C']
+import api from '../utils/axiosClient'
 
 export default function Inventory() {
+  const navigate = useNavigate()
+  const [skus, setSkus] = useState<SKU[]>([])
+  const [stats, setStats] = useState<InventoryStats>({
+    totalSKUs: 0,
+    lowStockAlerts: 0,
+    outOfStock: 0,
+    totalInventoryValue: 0,
+  })
+  const [categories, setCategories] = useState<string[]>([])
+  const [warehouses, setWarehouses] = useState<string[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const loadInventory = async () => {
+    try {
+      setLoading(true)
+      const [skusRes, warehousesRes] = await Promise.all([
+        api.get('/inventory/skus'),
+        api.get('/inventory/warehouses'),
+      ])
+
+      const skuData = skusRes.data
+      setSkus(skuData)
+
+      const uniqueCategories = [...new Set(skuData.map((s: any) => s.category).filter(Boolean))]
+      setCategories(uniqueCategories as string[])
+
+      const warehouseNames = warehousesRes.data.map((w: any) => w.name)
+      setWarehouses(warehouseNames)
+
+      const lowStock = skuData.filter((s: any) => s.onHand > 0 && s.onHand <= s.reorderPoint).length
+      const outOfStock = skuData.filter((s: any) => s.onHand === 0).length
+      const totalValue = skuData.reduce((sum: number, s: any) => sum + (s.onHand * (s.unitCost || 0)), 0)
+
+      setStats({
+        totalSKUs: skuData.length,
+        lowStockAlerts: lowStock,
+        outOfStock: outOfStock,
+        totalInventoryValue: totalValue,
+      })
+    } catch (error) {
+      console.error('Error loading inventory:', error)
+      toast.error('Failed to load inventory data')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadInventory()
+  }, [])
+
   const handleCreateSKU = () => {
-    alert('Create SKU clicked - Will connect to API')
+    toast('Create SKU feature coming soon', { icon: 'ℹ️' })
   }
 
   const handleView = (id: string) => {
-    alert(`View SKU: ${id} - Will navigate to detail page`)
+    navigate(`/inventory/${id}`)
   }
 
-  const handleEdit = (id: string) => {
-    alert(`Edit SKU: ${id} - Will open edit modal`)
+  const handleEdit = (_id: string) => {
+    toast('Edit SKU feature coming soon', { icon: 'ℹ️' })
   }
 
   const handlePrintLabel = (id: string) => {
-    alert(`Print label for SKU: ${id} - Will print barcode label`)
+    navigate(`/labels?skuId=${id}`)
   }
 
-  const handleDelete = (id: string) => {
-    if (confirm(`Delete SKU ${id}?`)) {
-      alert(`Delete SKU: ${id} - Will call API`)
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this SKU?')) {
+      try {
+        await api.delete(`/inventory/skus/${id}`)
+        toast.success('SKU deleted successfully')
+        loadInventory()
+      } catch (error) {
+        console.error('Error deleting SKU:', error)
+        toast.error('Failed to delete SKU')
+      }
     }
   }
 
   const handleScanBarcode = () => {
-    alert('Scan barcode clicked - Will open scanner')
+    navigate('/scanner')
   }
 
   const handleImportSKUs = () => {
-    alert('Import SKUs clicked - Will open file upload')
+    toast('Import SKUs feature coming soon', { icon: 'ℹ️' })
   }
 
   const handleExportCSV = () => {
-    alert('Export CSV clicked - Will download CSV file')
+    try {
+      const csvContent = [
+        ['SKU', 'Description', 'Category', 'On Hand', 'Unit Cost', 'Barcode'].join(','),
+        ...skus.map((s) =>
+          [s.sku, s.description, s.category, s.onHand, s.unitCost, s.barcode || ''].join(',')
+        ),
+      ].join('\n')
+
+      const blob = new Blob([csvContent], { type: 'text/csv' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `inventory-${new Date().toISOString().split('T')[0]}.csv`
+      a.click()
+      window.URL.revokeObjectURL(url)
+      toast.success('CSV exported successfully')
+    } catch (error) {
+      console.error('Error exporting CSV:', error)
+      toast.error('Failed to export CSV')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-teal-500">Loading inventory...</div>
+      </div>
+    )
   }
 
   return (
     <InventoryList
-      skus={mockSKUs}
-      stats={mockStats}
-      categories={mockCategories}
-      warehouses={mockWarehouses}
+      skus={skus}
+      stats={stats}
+      categories={categories}
+      warehouses={warehouses}
       onCreateSKU={handleCreateSKU}
       onView={handleView}
       onEdit={handleEdit}
