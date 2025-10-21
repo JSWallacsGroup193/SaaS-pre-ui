@@ -1,41 +1,46 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards } from '@nestjs/common';
 import { WorkOrderService } from './service';
 import { WorkOrderStatus } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('work-orders')
+@UseGuards(JwtAuthGuard)
 export class WorkOrderController {
   constructor(private readonly service: WorkOrderService) {}
 
-  @Get('by-tenant/:tenantId/stats')
-  getStats(@Param('tenantId') tenantId: string) {
+  @Get('stats')
+  getStats(@Req() req: any) {
+    const tenantId = req.user.tenantId;
     return this.service.getStats(tenantId);
   }
 
-  @Get('by-tenant/:tenantId')
-  findAll(@Param('tenantId') tenantId: string) {
+  @Get()
+  findAll(@Req() req: any) {
+    const tenantId = req.user.tenantId;
     return this.service.findAll(tenantId);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.query?.tenantId;
-    return this.service.findOne(id, String(tenantId));
+    const tenantId = req.user.tenantId;
+    return this.service.findOne(id, tenantId);
   }
 
   @Post()
-  create(@Body() body: { tenantId: string, title: string, description?: string }) {
-    return this.service.create(body);
+  create(@Body() body: { title: string; description?: string }, @Req() req: any) {
+    const tenantId = req.user.tenantId;
+    return this.service.create({ ...body, tenantId });
   }
 
   @Put(':id/status')
   updateStatus(@Param('id') id: string, @Body() body: { status: WorkOrderStatus }, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.query?.tenantId;
-    return this.service.updateStatus(id, body.status, String(tenantId));
+    const tenantId = req.user.tenantId;
+    return this.service.updateStatus(id, body.status, tenantId);
   }
 
   @Delete(':id')
   delete(@Param('id') id: string, @Req() req: any) {
-    const tenantId = req.user?.tenantId || req.query?.tenantId;
-    return this.service.delete(id, String(tenantId));
+    const tenantId = req.user.tenantId;
+    return this.service.delete(id, tenantId);
   }
 }
