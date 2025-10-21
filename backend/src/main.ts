@@ -6,9 +6,13 @@ import helmet from 'helmet';
 import { SpaFilter } from './spa.filter';
 import * as express from 'express';
 import { join } from 'path';
+import { IoAdapter } from '@nestjs/platform-socket.io';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Enable WebSocket support
+  app.useWebSocketAdapter(new IoAdapter(app));
   
   // Serve static files from frontend/dist
   app.use(express.static(join(__dirname, '..', '..', '..', 'frontend', 'dist')));
