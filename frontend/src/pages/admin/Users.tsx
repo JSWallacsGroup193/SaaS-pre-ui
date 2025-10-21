@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { UserPlus, Mail, Shield, CheckCircle, XCircle } from 'lucide-react';
 import { adminService } from '@/services/admin.service';
+import AddUserModal from '@/components/admin/AddUserModal';
 
 interface User {
   id: string;
@@ -15,6 +16,7 @@ interface User {
 export default function AdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const loadUsers = () => {
     setLoading(true);
@@ -57,7 +59,10 @@ export default function AdminUsers() {
           <h1 className="text-3xl font-bold text-slate-100">User Management</h1>
           <p className="text-slate-400 mt-2">Manage system users and permissions</p>
         </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors">
+        <button
+          onClick={() => setIsAddModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+        >
           <UserPlus className="w-5 h-5" />
           Add User
         </button>
@@ -140,6 +145,12 @@ export default function AdminUsers() {
           </tbody>
         </table>
       </div>
+
+      <AddUserModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSuccess={loadUsers}
+      />
     </div>
   );
 }
