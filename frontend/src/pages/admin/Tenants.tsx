@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Building2, Users, CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE = '/api/v1/admin';
+import { adminService } from '@/services/admin.service';
 
 interface Tenant {
   id: string;
@@ -18,9 +16,9 @@ export default function AdminTenants() {
 
   const loadTenants = () => {
     setLoading(true);
-    axios
-      .get(`${API_BASE}/tenants`)
-      .then((res) => setTenants(res.data))
+    adminService
+      .getAllTenants()
+      .then((res) => setTenants(res))
       .catch((err) => console.error('Failed to load tenants:', err))
       .finally(() => setLoading(false));
   };
@@ -30,9 +28,12 @@ export default function AdminTenants() {
   }, []);
 
   const toggleStatus = async (tenantId: string, isActive: boolean) => {
-    const endpoint = isActive ? 'deactivate' : 'activate';
     try {
-      await axios.post(`${API_BASE}/tenants/${tenantId}/${endpoint}`);
+      if (isActive) {
+        await adminService.deactivateTenant(tenantId);
+      } else {
+        await adminService.activateTenant(tenantId);
+      }
       loadTenants();
     } catch (err) {
       console.error('Failed to toggle tenant status:', err);

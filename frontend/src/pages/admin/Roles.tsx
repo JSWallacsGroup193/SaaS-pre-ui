@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Shield, Users } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE = '/api/v1/admin';
+import { adminService } from '@/services/admin.service';
 
 interface Role {
   id: string;
@@ -26,9 +24,9 @@ export default function AdminRoles() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/roles`)
-      .then((res) => setRoles(res.data))
+    adminService
+      .getAllRoles()
+      .then((res) => setRoles(res))
       .catch((err) => console.error('Failed to load roles:', err))
       .finally(() => setLoading(false));
   }, []);

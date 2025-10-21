@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Users, Shield, Key, Building2 } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE = '/api/v1/admin';
+import { adminService } from '@/services/admin.service';
 
 interface DashboardStats {
   users: {
@@ -20,9 +18,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/dashboard`)
-      .then((res) => setStats(res.data))
+    adminService
+      .getDashboard()
+      .then((res) => setStats(res))
       .catch((err) => console.error('Failed to load stats:', err))
       .finally(() => setLoading(false));
   }, []);

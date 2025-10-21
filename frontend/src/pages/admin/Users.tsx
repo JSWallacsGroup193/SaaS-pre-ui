@@ -1,8 +1,6 @@
 import { useState, useEffect } from 'react';
 import { UserPlus, Mail, Shield, CheckCircle, XCircle } from 'lucide-react';
-import axios from 'axios';
-
-const API_BASE = '/api/v1/admin';
+import { adminService } from '@/services/admin.service';
 
 interface User {
   id: string;
@@ -20,9 +18,9 @@ export default function AdminUsers() {
 
   const loadUsers = () => {
     setLoading(true);
-    axios
-      .get(`${API_BASE}/users`)
-      .then((res) => setUsers(res.data))
+    adminService
+      .getAllUsers()
+      .then((res) => setUsers(res))
       .catch((err) => console.error('Failed to load users:', err))
       .finally(() => setLoading(false));
   };
@@ -32,9 +30,12 @@ export default function AdminUsers() {
   }, []);
 
   const toggleStatus = async (userId: string, isActive: boolean) => {
-    const endpoint = isActive ? 'deactivate' : 'activate';
     try {
-      await axios.post(`${API_BASE}/users/${userId}/${endpoint}`);
+      if (isActive) {
+        await adminService.deactivateUser(userId);
+      } else {
+        await adminService.activateUser(userId);
+      }
       loadUsers();
     } catch (err) {
       console.error('Failed to toggle user status:', err);
