@@ -9,6 +9,7 @@
     "start:prod": "node dist/src/main.js",
     "postinstall": "prisma generate",
     "seed": "ts-node scripts/seed.ts",
+    "seed:admin": "ts-node scripts/seed-admin.ts",
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
