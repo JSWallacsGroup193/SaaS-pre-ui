@@ -40,16 +40,16 @@ export default function App() {
   }
 
   return (
-    <div style={{display:'grid',gridTemplateRows:'56px 1fr',height:'100vh'}}>
+    <div className="grid grid-rows-[56px_1fr] h-screen bg-background text-foreground">
       <TopBar />
-      <div style={{display:'grid',gridTemplateColumns:'240px 1fr'}}>
+      <div className="grid grid-cols-[240px_1fr]">
         <Sidebar />
-        <div style={{padding:'16px',overflow:'auto'}}>
+        <div className="p-4 overflow-auto bg-background">
           <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center min-h-screen bg-background">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                <p className="text-gray-600">Loading...</p>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading...</p>
               </div>
             </div>
           }>

@@ -109,27 +109,27 @@ export default function LoginPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Login Card */}
-        <div className="bg-[#334155] rounded-xl shadow-2xl p-8 md:p-10">
+        <div className="bg-card rounded-xl shadow-2xl p-8 md:p-10">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Wrench className="w-8 h-8 text-[#14b8a6]" />
-              <h1 className="text-2xl font-bold text-slate-100">{companyName}</h1>
+              <Wrench className="w-8 h-8 text-primary" />
+              <h1 className="text-2xl font-bold text-foreground">{companyName}</h1>
             </div>
-            <p className="text-sm text-slate-400">Sign in to your account</p>
+            <p className="text-sm text-muted-foreground">Sign in to your account</p>
           </div>
 
           {/* Error Alert */}
           {error && showError && (
-            <Alert variant="destructive" className="mb-6 bg-red-900/50 border-red-800 text-red-100">
+            <Alert variant="destructive" className="mb-6">
               <AlertDescription className="flex items-center justify-between">
                 <span>{error}</span>
                 <button
                   onClick={() => setShowError(false)}
-                  className="text-red-100 hover:text-white transition-colors"
+                  className="text-destructive-foreground hover:text-foreground transition-colors"
                   aria-label="Dismiss error"
                 >
                   <X className="w-4 h-4" />
@@ -142,7 +142,7 @@ export default function LoginPage({
           <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
             {/* Email Input */}
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-slate-100">
+              <Label htmlFor="email" className="text-foreground">
                 Email
               </Label>
               <Input
@@ -151,17 +151,17 @@ export default function LoginPage({
                 placeholder="you@company.com"
                 autoComplete="email"
                 autoFocus
-                className={`h-12 bg-[#1e293b] border-[#475569] text-slate-100 placeholder:text-slate-400 focus:border-[#14b8a6] focus:ring-[#14b8a6] ${
-                  errors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
+                className={`h-12 ${
+                  errors.email ? "border-destructive focus:border-destructive focus:ring-destructive" : ""
                 }`}
                 {...register("email")}
               />
-              {errors.email && <p className="text-sm text-red-400">{errors.email.message}</p>}
+              {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
             </div>
 
             {/* Password Input */}
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-slate-100">
+              <Label htmlFor="password" className="text-foreground">
                 Password
               </Label>
               <div className="relative">
@@ -170,21 +170,21 @@ export default function LoginPage({
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className={`h-12 bg-[#1e293b] border-[#475569] text-slate-100 placeholder:text-slate-400 focus:border-[#14b8a6] focus:ring-[#14b8a6] pr-12 ${
-                    errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
+                  className={`h-12 pr-12 ${
+                    errors.password ? "border-destructive focus:border-destructive focus:ring-destructive" : ""
                   }`}
                   {...register("password")}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#14b8a6] transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-sm text-red-400">{errors.password.message}</p>}
+              {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
             </div>
 
             {/* Remember Me & Forgot Password */}
@@ -194,16 +194,15 @@ export default function LoginPage({
                   id="rememberMe"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setValue("rememberMe", checked as boolean)}
-                  className="border-[#475569] data-[state=checked]:bg-[#14b8a6] data-[state=checked]:border-[#14b8a6]"
                 />
-                <Label htmlFor="rememberMe" className="text-sm text-slate-400 cursor-pointer">
+                <Label htmlFor="rememberMe" className="text-sm text-muted-foreground cursor-pointer">
                   Remember me
                 </Label>
               </div>
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-sm text-[#14b8a6] hover:text-[#0d9488] transition-colors"
+                className="text-sm text-primary hover:text-primary/90 transition-colors"
               >
                 Forgot password?
               </button>
@@ -213,7 +212,7 @@ export default function LoginPage({
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-medium transition-colors disabled:opacity-50"
+              className="w-full h-12 font-medium"
             >
               {isLoading ? (
                 <>
@@ -230,17 +229,17 @@ export default function LoginPage({
           <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600" />
+                <div className="w-full border-t border-border" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-slate-700 text-slate-400">Don't have an account?</span>
+                <span className="px-2 bg-card text-muted-foreground">Don't have an account?</span>
               </div>
             </div>
             <div className="mt-4 text-center">
               <button
                 type="button"
                 onClick={handleSignUp}
-                className="text-[#14b8a6] hover:text-[#0d9488] font-medium transition-colors"
+                className="text-primary hover:text-primary/90 font-medium transition-colors"
               >
                 Sign up
               </button>
@@ -249,7 +248,7 @@ export default function LoginPage({
         </div>
 
         {/* Additional Info */}
-        <p className="mt-6 text-center text-sm text-slate-500">
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           By signing in, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>
