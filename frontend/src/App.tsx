@@ -1,6 +1,6 @@
 
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Login from './pages/Login'
 import { useAuth } from './store/useAuth'
 import { Sidebar } from './components/Sidebar'
@@ -24,6 +24,7 @@ const Forecast = lazy(() => import('./pages/Forecast'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const AI = lazy(() => import('./pages/AI'))
 const FieldToolsPage = lazy(() => import('./pages/FieldTools/FieldToolsPage'))
+const NotFound = lazy(() => import('./pages/NotFound'))
 
 export default function App() {
   const token = useAuth(s => s.token)
@@ -62,7 +63,7 @@ export default function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
               <Route path="/ai" element={<AI />} />
-              <Route path="*" element={<Navigate to='/' />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
         </div>

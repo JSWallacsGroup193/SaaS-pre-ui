@@ -1,4 +1,5 @@
 import React from 'react';
+import { ErrorPage } from './error/ErrorPage';
 
 export class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { error?: Error }> {
   constructor(props: any) { 
@@ -13,14 +14,25 @@ export class ErrorBoundary extends React.Component<{ children: React.ReactNode }
   componentDidCatch(error: Error) { 
     console.error('ErrorBoundary caught:', error); 
   }
+
+  resetError = () => {
+    this.setState({ error: undefined });
+  }
   
   render() {
     if (this.state.error) {
       return (
-        <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
-          <h2 className="text-red-800 text-xl font-bold mb-2">Something went wrong</h2>
-          <p className="text-red-600">{this.state.error.message}</p>
-        </div>
+        <ErrorPage
+          errorCode={500}
+          onRetry={this.resetError}
+          errorDetails={{
+            code: this.state.error.name,
+            timestamp: new Date().toISOString(),
+            requestId: `ERR-${Date.now()}`,
+            stackTrace: this.state.error.stack,
+          }}
+          isAdmin={false}
+        />
       );
     }
     return this.props.children;
