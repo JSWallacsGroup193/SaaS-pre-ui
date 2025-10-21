@@ -74,15 +74,15 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside 
         className={`
-          h-full bg-slate-950 border-r border-slate-800 p-3
+          h-full bg-slate-950 border-r border-slate-800
           fixed lg:static inset-y-0 left-0 z-50
           transform transition-transform duration-300 ease-in-out
-          w-60
+          w-60 flex flex-col
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
-        {/* Mobile Close Button */}
-        <div className="flex items-center justify-between mb-6 px-3 py-2">
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-800 flex-shrink-0">
           <div>
             <h1 className="text-xl font-bold text-teal-400">OpsNex</h1>
             <p className="text-xs text-slate-400 mt-1">HVAC Management</p>
@@ -96,7 +96,8 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </button>
         </div>
         
-        <nav className="flex flex-col gap-1">
+        {/* Navigation - Scrollable */}
+        <nav className="flex flex-col gap-1 p-3 overflow-y-auto flex-1">
           {navItems.map(item => (
             <Item 
               key={item.to} 
