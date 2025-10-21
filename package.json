@@ -6,6 +6,7 @@
     "start": "node backend/dist/main.js",
     "seed:admin": "cd backend && npx ts-node scripts/seed-admin.ts",
     "seed:crm": "cd backend && npx ts-node scripts/seed-crm-purchasing.ts",
+    "test:tenant-isolation": "cd backend && npx ts-node scripts/test-tenant-isolation.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier -w .",
