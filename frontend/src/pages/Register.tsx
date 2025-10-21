@@ -11,8 +11,7 @@ import { Checkbox } from "../components/ui/checkbox"
 import { Alert, AlertDescription } from "../components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
 import { cn } from "../lib/utils"
-import { authService } from "../services/auth.service"
-import { useAuth } from "../store/useAuth"
+import { useAuthStore } from "../store/useAuthStore"
 
 const calculatePasswordStrength = (password: string): "weak" | "medium" | "strong" => {
   let strength = 0
@@ -54,7 +53,7 @@ type RegisterFormData = z.infer<typeof registerSchema>
 
 export default function RegisterPage() {
   const navigate = useNavigate()
-  const login = useAuth((s) => s.login)
+  const registerUser = useAuthStore((s) => s.register)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState<"weak" | "medium" | "strong">("weak")
@@ -106,14 +105,14 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      const response = await authService.register({
+      await registerUser({
         email: data.email,
         password: data.password,
-        tenantId: data.companyName.toLowerCase().replace(/\s+/g, '-'),
+        firstName: data.firstName,
+        lastName: data.lastName,
       })
 
       setSuccess(true)
-      login(response.access_token)
       navigate("/")
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to create account. Please try again.")

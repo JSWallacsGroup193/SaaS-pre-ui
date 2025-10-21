@@ -9,8 +9,7 @@ import { Input } from "../components/ui/input"
 import { Label } from "../components/ui/label"
 import { Checkbox } from "../components/ui/checkbox"
 import { Alert, AlertDescription } from "../components/ui/alert"
-import { authService } from "../services/auth.service"
-import { useAuth } from "../store/useAuth"
+import { useAuthStore } from "../store/useAuthStore"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -38,7 +37,7 @@ export default function LoginPage({
   companyName = "OpsNex",
 }: LoginPageProps = {}) {
   const navigate = useNavigate()
-  const login = useAuth((s) => s.login)
+  const login = useAuthStore((s) => s.login)
   const [showPassword, setShowPassword] = useState(false)
   const [internalLoading, setInternalLoading] = useState(false)
   const [internalError, setInternalError] = useState<string | null>(null)
@@ -78,11 +77,10 @@ export default function LoginPage({
     } else {
       setInternalLoading(true)
       try {
-        const response = await authService.login({
+        await login({
           email: data.email,
           password: data.password,
         })
-        login(response.access_token)
         navigate("/")
       } catch (err: any) {
         setInternalError(err.response?.data?.message || "Invalid email or password")

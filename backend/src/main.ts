@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { SpaFilter } from './spa.filter';
 import * as express from 'express';
 import { join } from 'path';
+import { CustomSocketIoAdapter } from './common/socket-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,14 +14,19 @@ async function bootstrap() {
   // Serve static files from frontend/dist
   app.use(express.static(join(__dirname, '..', '..', '..', 'frontend', 'dist')));
   
+  // NOTE: WebSocket adapter disabled due to Socket.IO incompatibility with Node.js 22
+  // WebSocket real-time notifications are temporarily unavailable
+  // HTTP polling endpoints work fine: GET /api/v1/notifications, etc.
+  // TODO: Upgrade to socket.io v5+ when available for Node.js 22 support
+  // app.useWebSocketAdapter(new CustomSocketIoAdapter(app));
+  
   app.use(helmet({
     contentSecurityPolicy: false,
   }));
-  app.enableCors({ origin: (origin, cb) => {
-    const allow = (process.env.CORS_ORIGIN || 'http://localhost:5000').split(',').map(s=>s.trim());
-    if (!origin || allow.includes(origin)) return cb(null, true);
-    return cb(new Error('CORS blocked'), false);
-  }, credentials: true });
+  app.enableCors({ 
+    origin: true,
+    credentials: true 
+  });
   app.setGlobalPrefix('api/v1', {
     exclude: ['/'],
   });

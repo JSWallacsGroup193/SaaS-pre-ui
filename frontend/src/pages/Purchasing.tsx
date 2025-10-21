@@ -5,13 +5,13 @@ import api from '../utils/axiosClient'
 export default function Purchasing() {
   const [items,setItems] = useState<any[]>([])
   async function load() {
-    const { data } = await api.get('/purchasing/pos')
+    const { data } = await api.get('/api/v1/purchasing')
     setItems(data)
   }
   useEffect(() => { load() }, [])
 
   async function receive(poId:string) {
-    await api.post('/purchasing/receive', { poId })
+    await api.put(`/api/v1/purchasing/${poId}/receive`)
     await load()
   }
 

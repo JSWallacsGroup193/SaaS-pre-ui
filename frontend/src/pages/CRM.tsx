@@ -5,7 +5,7 @@ import api from '../utils/axiosClient'
 export default function CRM() {
   const [items,setItems] = useState<any[]>([])
   useEffect(() => { (async () => {
-    const { data } = await api.get('/crm/contacts')
+    const { data } = await api.get('/api/v1/crm/contacts')
     setItems(data)
   })() }, [])
   return (

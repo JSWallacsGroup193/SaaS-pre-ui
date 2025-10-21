@@ -1,8 +1,8 @@
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import { useAuth } from './store/useAuth'
+import { useAuthStore } from './store/useAuthStore'
 import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
 
@@ -24,6 +24,7 @@ const Forecast = lazy(() => import('./pages/Forecast'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const AI = lazy(() => import('./pages/AI'))
 const FieldToolsPage = lazy(() => import('./pages/FieldTools/FieldToolsPage'))
+const SettingsPage = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
@@ -33,8 +34,16 @@ const AdminRoles = lazy(() => import('./pages/admin/Roles'))
 const AdminTenants = lazy(() => import('./pages/admin/Tenants'))
 
 export default function App() {
-  const token = useAuth(s => s.token)
+  const token = useAuthStore(s => s.token)
+  const loadUser = useAuthStore(s => s.loadUser)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  // Load user profile on mount if token exists
+  useEffect(() => {
+    if (token) {
+      loadUser()
+    }
+  }, [])
 
   if (!token) {
     return (
@@ -81,6 +90,7 @@ export default function App() {
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
               <Route path="/ai" element={<AI />} />
+              <Route path="/settings" element={<SettingsPage />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />

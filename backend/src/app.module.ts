@@ -11,6 +11,7 @@ import { MetricsController } from './metrics.controller';
 
 import { AuthModule } from './modules/auth/module';
 import { AdminModule } from './modules/admin/module';
+import { UsersModule } from './modules/users/module';
 import { WorkOrderModule } from './modules/workorder/module';
 import { BarcodeModule } from './modules/barcode/module';
 import { CrmModule } from './modules/crm/module';
@@ -22,6 +23,7 @@ import { LabelModule } from './modules/labels/label.module';
 import { ChatModule } from './modules/chat/module';
 import { ScannerModule } from './modules/scanner/module';
 import { FieldCalculationModule } from './modules/field-calculation/module';
+import { NotificationModule } from './modules/notifications/module';
 import { QueueModule } from './queue/queue.module';
 import { PrismaService } from './common/prisma.service';
 import { JwtAttachMiddleware } from './middleware/jwt.middleware';
@@ -35,6 +37,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     JwtModule.register({ secret: process.env.JWT_SECRET || 'hvac-secret', signOptions: { expiresIn: '1h' } }),
     AuthModule,
     AdminModule,
+    UsersModule,
     WorkOrderModule,
     BarcodeModule,
     CrmModule,
@@ -46,6 +49,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     ChatModule,
     ScannerModule,
     FieldCalculationModule,
+    NotificationModule,
     QueueModule,
   ],
   controllers: [AppController, HealthController, MetricsController],

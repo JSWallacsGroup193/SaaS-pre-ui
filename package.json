@@ -5,6 +5,8 @@
     "build": "cd frontend && npm run build && cd ../backend && npm run build",
     "start": "node backend/dist/main.js",
     "seed:admin": "cd backend && npx ts-node scripts/seed-admin.ts",
+    "seed:crm": "cd backend && npx ts-node scripts/seed-crm-purchasing.ts",
+    "test:tenant-isolation": "cd backend && npx ts-node scripts/test-tenant-isolation.ts",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier -w .",
@@ -42,12 +44,18 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@nestjs/platform-socket.io": "^11.1.6",
     "@nestjs/serve-static": "^5.0.4",
+    "@nestjs/websockets": "^11.1.6",
     "@types/jsbarcode": "^3.11.4",
+    "date-fns": "^4.1.0",
     "html5-qrcode": "^2.3.8",
     "jsbarcode": "^3.12.1",
     "qrcode.react": "^4.2.0",
+    "react-hot-toast": "^2.6.0",
     "react-markdown": "^10.1.0",
-    "recharts": "^3.3.0"
+    "recharts": "^3.3.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1"
   }
 }
