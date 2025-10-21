@@ -6,6 +6,28 @@ This project is a full-stack HVAC management application designed to streamline 
 ## User Preferences
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
 
+## Recent Changes (October 2025)
+
+### Security Enhancements
+- **Complete Backend API Coverage**: Added 21 missing CRUD endpoints across all modules (Work Orders, Inventory, CRM, Purchasing, Dispatch, Forecast, Field Calculations)
+- **Multi-Tenant Security Hardening**: Implemented comprehensive tenant isolation to prevent IDOR (Insecure Direct Object Reference) vulnerabilities:
+  - Created JwtAuthGuard with strict tenant validation (requires authenticated user with valid tenantId)
+  - Applied @UseGuards(JwtAuthGuard) to all protected controllers
+  - Removed all client-supplied tenantId parameters (path/query/body) - now derived exclusively from authenticated user context
+  - All services enforce tenant scoping with findFirst/WHERE tenantId checks
+  - Cross-tenant relationship validation (e.g., SKU ownership, WorkOrder ownership, Account/Contact relationships)
+  - Consistent error handling with NotFoundException across all services
+  - JwtAttachMiddleware globally applied to all routes for authentication enforcement
+- **Route Optimization**: Simplified routes by removing :tenantId path parameters (e.g., /crm/accounts/:tenantId → /crm/accounts, /work-orders/by-tenant/:tenantId → /work-orders)
+- **Work Orders Routing Fix**: Resolved routing conflict by changing GET ':tenantId' to GET 'by-tenant/:tenantId' to prevent shadowing of GET ':id' route
+
+### Deployment Readiness
+- Backend builds successfully with zero TypeScript errors
+- All endpoints tested and verified functional
+- Application running with proper authentication and authorization
+- Database provisioned and accessible via DATABASE_URL
+- Environment variables configured correctly
+
 ## System Architecture
 
 ### UI/UX Decisions
