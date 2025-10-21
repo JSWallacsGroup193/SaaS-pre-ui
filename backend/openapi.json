@@ -81,43 +81,12 @@
         }
       }
     },
-    "/admin/dashboard": {
+    "/work-orders/{tenantId}": {
       "get": {
-        "operationId": "AdminController_getDashboard",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/users": {
-      "get": {
-        "operationId": "AdminController_getAllUsers",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "AdminController_createUser",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/users/{id}": {
-      "get": {
-        "operationId": "AdminController_getUser",
+        "operationId": "WorkOrderController_findAll",
         "parameters": [
           {
-            "name": "id",
+            "name": "tenantId",
             "required": true,
             "in": "path",
             "schema": {
@@ -125,378 +94,6 @@
             }
           }
         ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "AdminController_updateUser",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "AdminController_deleteUser",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/users/{id}/activate": {
-      "post": {
-        "operationId": "AdminController_activateUser",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/users/{id}/deactivate": {
-      "post": {
-        "operationId": "AdminController_deactivateUser",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/users/{id}/roles": {
-      "put": {
-        "operationId": "AdminController_updateUserRoles",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/roles": {
-      "get": {
-        "operationId": "AdminController_getAllRoles",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "AdminController_createRole",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/roles/{id}": {
-      "get": {
-        "operationId": "AdminController_getRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "AdminController_updateRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "AdminController_deleteRole",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/roles/{id}/permissions": {
-      "put": {
-        "operationId": "AdminController_updateRolePermissions",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/permissions": {
-      "get": {
-        "operationId": "AdminController_getAllPermissions",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "AdminController_createPermission",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/permissions/{id}": {
-      "put": {
-        "operationId": "AdminController_updatePermission",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "AdminController_deletePermission",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/tenants": {
-      "get": {
-        "operationId": "AdminController_getAllTenants",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/tenants/{id}": {
-      "get": {
-        "operationId": "AdminController_getTenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "AdminController_updateTenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/tenants/{id}/activate": {
-      "post": {
-        "operationId": "AdminController_activateTenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/admin/tenants/{id}/deactivate": {
-      "post": {
-        "operationId": "AdminController_deactivateTenant",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/users/profile": {
-      "put": {
-        "operationId": "UsersController_updateProfile",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/users/password": {
-      "put": {
-        "operationId": "UsersController_changePassword",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/work-orders/stats": {
-      "get": {
-        "operationId": "WorkOrderController_getStats",
-        "parameters": [],
         "responses": {
           "200": {
             "description": ""
@@ -505,58 +102,11 @@
       }
     },
     "/work-orders": {
-      "get": {
-        "operationId": "WorkOrderController_findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
       "post": {
         "operationId": "WorkOrderController_create",
         "parameters": [],
         "responses": {
           "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/work-orders/{id}": {
-      "get": {
-        "operationId": "WorkOrderController_findOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "WorkOrderController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
             "description": ""
           }
         }
@@ -602,32 +152,12 @@
         }
       }
     },
-    "/crm/accounts": {
+    "/crm/accounts/{tenantId}": {
       "get": {
         "operationId": "CrmController_getAccounts",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "post": {
-        "operationId": "CrmController_createAccount",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/crm/accounts/{id}": {
-      "get": {
-        "operationId": "CrmController_getAccount",
         "parameters": [
           {
-            "name": "id",
+            "name": "tenantId",
             "required": true,
             "in": "path",
             "schema": {
@@ -640,12 +170,25 @@
             "description": ""
           }
         }
-      },
-      "put": {
-        "operationId": "CrmController_updateAccount",
+      }
+    },
+    "/crm/accounts": {
+      "post": {
+        "operationId": "CrmController_createAccount",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/crm/contacts/{tenantId}": {
+      "get": {
+        "operationId": "CrmController_getContacts",
         "parameters": [
           {
-            "name": "id",
+            "name": "tenantId",
             "required": true,
             "in": "path",
             "schema": {
@@ -661,15 +204,6 @@
       }
     },
     "/crm/contacts": {
-      "get": {
-        "operationId": "CrmController_getContacts",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
       "post": {
         "operationId": "CrmController_createContact",
         "parameters": [],
@@ -680,30 +214,12 @@
         }
       }
     },
-    "/crm/contacts/{id}": {
+    "/crm/leads/{tenantId}": {
       "get": {
-        "operationId": "CrmController_getContact",
+        "operationId": "CrmController_getLeads",
         "parameters": [
           {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "CrmController_updateContact",
-        "parameters": [
-          {
-            "name": "id",
+            "name": "tenantId",
             "required": true,
             "in": "path",
             "schema": {
@@ -719,15 +235,6 @@
       }
     },
     "/crm/leads": {
-      "get": {
-        "operationId": "CrmController_getLeads",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
       "post": {
         "operationId": "CrmController_createLead",
         "parameters": [],
@@ -738,27 +245,7 @@
         }
       }
     },
-    "/crm/leads/{id}": {
-      "put": {
-        "operationId": "CrmController_updateLead",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/crm/notes/contact/{contactId}": {
+    "/crm/notes/{contactId}": {
       "get": {
         "operationId": "CrmController_getNotes",
         "parameters": [
@@ -795,44 +282,6 @@
         "parameters": [],
         "responses": {
           "201": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/dispatch/{id}": {
-      "put": {
-        "operationId": "DispatchController_update",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "delete": {
-        "operationId": "DispatchController_delete",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
             "description": ""
           }
         }
@@ -925,133 +374,6 @@
             }
           }
         },
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "inventory"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/inventory/skus/{id}": {
-      "get": {
-        "operationId": "InventoryController_getSKU",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "inventory"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "put": {
-        "operationId": "InventoryController_updateSKU",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "inventory"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "InventoryController_deleteSKU",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "inventory"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/inventory/stock-ledger/{skuId}": {
-      "get": {
-        "operationId": "InventoryController_getStockLedger",
-        "parameters": [
-          {
-            "name": "skuId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "inventory"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/inventory/stock-ledger": {
-      "post": {
-        "operationId": "InventoryController_createStockLedgerEntry",
-        "parameters": [],
         "responses": {
           "201": {
             "description": ""
@@ -1239,65 +561,9 @@
         ]
       }
     },
-    "/purchasing/{id}": {
-      "get": {
-        "operationId": "PurchasingController_getOne",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "purchasing"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
     "/purchasing/{id}/receive": {
       "put": {
         "operationId": "PurchasingController_receive",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": [
-          "purchasing"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/purchasing/{id}/cancel": {
-      "put": {
-        "operationId": "PurchasingController_cancel",
         "parameters": [
           {
             "name": "id",
@@ -1336,26 +602,6 @@
       "get": {
         "operationId": "ForecastController_get",
         "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/forecast/sku/{skuId}": {
-      "get": {
-        "operationId": "ForecastController_getForSKU",
-        "parameters": [
-          {
-            "name": "skuId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": ""
@@ -1455,343 +701,6 @@
           }
         ]
       }
-    },
-    "/field-calculations": {
-      "post": {
-        "operationId": "FieldCalculationController_create",
-        "summary": "Save a field calculation",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateFieldCalculationDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Calculation saved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FieldCalculationResponseDto"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request data"
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "get": {
-        "operationId": "FieldCalculationController_findAll",
-        "summary": "Get all field calculations",
-        "parameters": [
-          {
-            "name": "workOrderId",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of calculations",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FieldCalculationResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/field-calculations/technician/{technicianId}": {
-      "get": {
-        "operationId": "FieldCalculationController_findByTechnician",
-        "summary": "Get calculations by technician",
-        "parameters": [
-          {
-            "name": "technicianId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "List of calculations by technician",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/FieldCalculationResponseDto"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/field-calculations/{id}": {
-      "get": {
-        "operationId": "FieldCalculationController_findOne",
-        "summary": "Get a specific field calculation",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Calculation found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FieldCalculationResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Calculation not found"
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      },
-      "delete": {
-        "operationId": "FieldCalculationController_delete",
-        "summary": "Delete a field calculation",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Calculation deleted successfully"
-          },
-          "404": {
-            "description": "Calculation not found"
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/field-calculations/{calculationId}/attach": {
-      "put": {
-        "operationId": "FieldCalculationController_attachToWorkOrder",
-        "summary": "Attach calculation to work order",
-        "parameters": [
-          {
-            "name": "calculationId",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Calculation attached successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FieldCalculationResponseDto"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Calculation not found"
-          }
-        },
-        "tags": [
-          "field-calculations"
-        ],
-        "security": [
-          {
-            "bearer": []
-          }
-        ]
-      }
-    },
-    "/notifications": {
-      "get": {
-        "operationId": "NotificationController_getNotifications",
-        "parameters": [
-          {
-            "name": "limit",
-            "required": true,
-            "in": "query",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/unread-count": {
-      "get": {
-        "operationId": "NotificationController_getUnreadCount",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/{id}/read": {
-      "put": {
-        "operationId": "NotificationController_markAsRead",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/mark-all-read": {
-      "put": {
-        "operationId": "NotificationController_markAllAsRead",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/{id}": {
-      "delete": {
-        "operationId": "NotificationController_deleteNotification",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/preferences": {
-      "get": {
-        "operationId": "NotificationController_getPreferences",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      },
-      "put": {
-        "operationId": "NotificationController_updatePreferences",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        }
-      }
-    },
-    "/notifications/test": {
-      "post": {
-        "operationId": "NotificationController_createTestNotification",
-        "parameters": [],
-        "responses": {
-          "201": {
-            "description": ""
-          }
-        }
-      }
     }
   },
   "info": {
@@ -1847,126 +756,6 @@
         "required": [
           "skuId",
           "quantity"
-        ]
-      },
-      "CreateFieldCalculationDto": {
-        "type": "object",
-        "properties": {
-          "calculatorType": {
-            "type": "string",
-            "description": "Calculator type/name",
-            "example": "Ohm's Law"
-          },
-          "category": {
-            "type": "string",
-            "description": "Calculator category",
-            "enum": [
-              "electrical",
-              "refrigeration",
-              "airflow",
-              "gas",
-              "hydronic",
-              "utility"
-            ],
-            "example": "electrical"
-          },
-          "inputs": {
-            "type": "object",
-            "description": "Calculator input data as JSON",
-            "example": {
-              "voltage": 120,
-              "current": 10,
-              "resistance": 12
-            }
-          },
-          "results": {
-            "type": "object",
-            "description": "Calculator result data as JSON",
-            "example": {
-              "V": 120,
-              "I": 10,
-              "R": 12,
-              "P": 1200
-            }
-          },
-          "workOrderId": {
-            "type": "string",
-            "description": "Work order ID to attach calculation to",
-            "example": "wo-uuid-123"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Optional notes about the calculation",
-            "example": "Measured at main panel"
-          }
-        },
-        "required": [
-          "calculatorType",
-          "category",
-          "inputs",
-          "results"
-        ]
-      },
-      "FieldCalculationResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "tenantId": {
-            "type": "string"
-          },
-          "technicianId": {
-            "type": "string"
-          },
-          "calculatorType": {
-            "type": "string"
-          },
-          "category": {
-            "type": "string"
-          },
-          "inputs": {
-            "type": "object"
-          },
-          "results": {
-            "type": "object"
-          },
-          "workOrderId": {
-            "type": "string"
-          },
-          "notes": {
-            "type": "string"
-          },
-          "isAttached": {
-            "type": "boolean"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "technician": {
-            "type": "object"
-          },
-          "workOrder": {
-            "type": "object"
-          }
-        },
-        "required": [
-          "id",
-          "tenantId",
-          "technicianId",
-          "calculatorType",
-          "category",
-          "inputs",
-          "results",
-          "isAttached",
-          "createdAt",
-          "updatedAt",
-          "technician"
         ]
       }
     }
