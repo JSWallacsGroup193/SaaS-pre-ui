@@ -1,7 +1,7 @@
 # HVAC Management System
 
 ## Overview
-This project is a full-stack HVAC management application designed to streamline operations for HVAC businesses. It offers comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, aiming to provide a complete SaaS solution for the HVAC industry.
+This project is a full-stack HVAC management application designed to streamline operations for HVAC businesses. It offers comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, aiming to provide a complete SaaS solution for the HVAC industry. The entire application uses the OpsNex dark theme (#14b8a6 teal accent with dark slate backgrounds) for consistent UX across all pages.
 
 ## User Preferences
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
