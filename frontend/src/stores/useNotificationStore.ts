@@ -25,6 +25,7 @@ interface NotificationStore {
   isPolling: boolean;
   isLoading: boolean;
   lastNotificationId: string | null;
+  hasFetchedOnce: boolean;
   
   // Actions
   startPolling: () => void;
@@ -46,6 +47,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   isPolling: false,
   isLoading: false,
   lastNotificationId: null,
+  hasFetchedOnce: false,
 
   startPolling: () => {
     const { pollingInterval, isPolling } = get();
@@ -86,30 +88,36 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       set({ isLoading: true });
       const { data } = await api.get('/notifications', { params: { limit: 50 } });
       
-      const { lastNotificationId } = get();
+      const { lastNotificationId, hasFetchedOnce } = get();
       
-      // Check for new notifications (compare with the last known notification ID)
-      if (data.length > 0 && lastNotificationId && data[0].id !== lastNotificationId) {
-        // Find new notifications
-        const newNotifications = [];
-        for (const notification of data) {
-          if (notification.id === lastNotificationId) break;
-          newNotifications.push(notification);
+      // Check for new notifications (skip toasts on initial load)
+      if (data.length > 0 && hasFetchedOnce) {
+        let newNotifications: Notification[] = [];
+        
+        if (lastNotificationId === null) {
+          // First poll after empty inbox - show toasts for all unread notifications
+          newNotifications = data.filter((n: Notification) => !n.isRead);
+        } else if (data[0].id !== lastNotificationId) {
+          // Subsequent polls - find new notifications since last poll
+          for (const notification of data) {
+            if (notification.id === lastNotificationId) break;
+            newNotifications.push(notification);
+          }
+          // Only show toasts for unread notifications
+          newNotifications = newNotifications.filter((n: Notification) => !n.isRead);
         }
         
         // Show toast for new unread notifications
         newNotifications.reverse().forEach((notification: Notification) => {
-          if (!notification.isRead) {
-            const typeMap: Record<string, any> = {
-              success: () => toast.success(notification.title),
-              error: () => toast.error(notification.title),
-              warning: () => toast(notification.title, { icon: '⚠️' }),
-              info: () => toast(notification.title, { icon: 'ℹ️' }),
-            };
-            
-            const showToast = typeMap[notification.type] || typeMap.info;
-            showToast();
-          }
+          const typeMap: Record<string, any> = {
+            success: () => toast.success(notification.title),
+            error: () => toast.error(notification.title),
+            warning: () => toast(notification.title, { icon: '⚠️' }),
+            info: () => toast(notification.title, { icon: 'ℹ️' }),
+          };
+          
+          const showToast = typeMap[notification.type] || typeMap.info;
+          showToast();
         });
       }
       
@@ -117,7 +125,8 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       set({ 
         notifications: data, 
         isLoading: false,
-        lastNotificationId: data.length > 0 ? data[0].id : null
+        lastNotificationId: data.length > 0 ? data[0].id : null,
+        hasFetchedOnce: true
       });
     } catch (error) {
       console.error('[Notifications] Failed to fetch notifications:', error);
