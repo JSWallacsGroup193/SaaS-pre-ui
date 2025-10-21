@@ -40,16 +40,16 @@ export default function App() {
   }
 
   return (
-    <div className="grid grid-rows-[56px_1fr] h-screen bg-background text-foreground">
+    <div className="grid grid-rows-[56px_1fr] h-screen bg-slate-950 text-slate-100">
       <TopBar />
       <div className="grid grid-cols-[240px_1fr]">
         <Sidebar />
-        <div className="p-4 overflow-auto bg-background">
+        <div className="p-4 overflow-auto bg-slate-900">
           <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen bg-background">
+            <div className="flex items-center justify-center min-h-screen bg-slate-900">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-                <p className="text-muted-foreground">Loading...</p>
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-500 mx-auto mb-4"></div>
+                <p className="text-slate-400">Loading dashboard...</p>
               </div>
             </div>
           }>
