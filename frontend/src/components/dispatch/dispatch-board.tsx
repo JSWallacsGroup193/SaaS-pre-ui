@@ -7,6 +7,7 @@ import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from 
 import { WorkOrderCard } from "./work-order-card"
 import type { WorkOrder } from "@/types/view-models/dispatch"
 import { useDispatchData } from "@/hooks/useDispatchData"
+import { dispatchService } from "@/services/dispatch.service"
 
 export function DispatchBoard() {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -29,20 +30,24 @@ export function DispatchBoard() {
         return
       }
 
-      const [techId, timeSlot, date] = (over.id as string).split("-")
+      const [techId] = (over.id as string).split("-")
       const newTechnicianId = techId === "unassigned" ? null : techId
 
-      // TODO: Call backend API to update dispatch slot
-      // For now, just reload the data
-      console.log("Work order dragged:", {
-        workOrderId: active.id,
-        newTechnicianId,
-        timeSlot,
-        date,
-      })
+      try {
+        // Update dispatch slot assignment via backend API
+        // Send null to unassign, or the new technician ID
+        await dispatchService.updateSlot(workOrder.dispatchSlotId, {
+          technicianId: newTechnicianId,
+        } as any) // Type assertion needed due to frontend/backend type mismatch
 
-      // Reload data from backend to get updated state
-      await reloadData()
+        console.log("✅ Dispatch slot updated successfully")
+      } catch (error) {
+        console.error("Failed to update dispatch slot:", error)
+        // TODO: Show error toast to user
+      } finally {
+        // Reload data from backend to get updated state
+        await reloadData()
+      }
     }
 
     setActiveId(null)

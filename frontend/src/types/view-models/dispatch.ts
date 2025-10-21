@@ -1,5 +1,6 @@
 export interface DispatchWorkOrder {
   id: string
+  dispatchSlotId: string
   customerName: string
   startTime: string
   endTime: string

@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Put } from '@nestjs/common';
 import { DispatchService } from './service';
 
 @Controller('dispatch')
@@ -11,6 +11,18 @@ export class DispatchController {
       ...body,
       startTime: new Date(body.startTime),
       endTime: new Date(body.endTime),
+    });
+  }
+
+  @Put(':id')
+  update(
+    @Param('id') id: string,
+    @Body() body: { technicianId?: string | null; startTime?: string; endTime?: string; status?: string }
+  ) {
+    return this.service.updateSlot(id, {
+      ...body,
+      startTime: body.startTime ? new Date(body.startTime) : undefined,
+      endTime: body.endTime ? new Date(body.endTime) : undefined,
     });
   }
 

@@ -94,6 +94,7 @@ export function useDispatchData() {
 
         const workOrder: WorkOrder = {
           id: slot.workOrder.id,
+          dispatchSlotId: slot.id, // Track dispatch slot ID for updates
           customerName: slot.workOrder.title, // TODO: Fetch actual customer name from customerId
           startTime: `${startTime.getHours().toString().padStart(2, '0')}:${startTime.getMinutes().toString().padStart(2, '0')}`,
           endTime: `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`,

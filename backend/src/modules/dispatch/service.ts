@@ -9,6 +9,23 @@ export class DispatchService {
     return prisma.dispatchSlot.create({ data });
   }
 
+  async updateSlot(
+    id: string,
+    data: { technicianId?: string | null; startTime?: Date; endTime?: Date; status?: string }
+  ) {
+    // Check if slot exists
+    const slot = await prisma.dispatchSlot.findUnique({ where: { id } });
+    if (!slot) {
+      throw new NotFoundException(`Dispatch slot with ID ${id} not found`);
+    }
+
+    return prisma.dispatchSlot.update({
+      where: { id },
+      data,
+      include: { workOrder: true, technician: true },
+    });
+  }
+
   async getTechnicianSlots(technicianId: string) {
     return prisma.dispatchSlot.findMany({
       where: { technicianId },
