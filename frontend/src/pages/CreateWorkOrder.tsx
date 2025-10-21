@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { toast } from 'react-hot-toast'
 import { Loader2 } from 'lucide-react'
+import api from '../utils/axiosClient'
 import { WorkOrderFormHeader } from '@/components/work-orders/form/work-order-form-header'
 import { CustomerSection } from '@/components/work-orders/form/customer-section'
 import { JobDetailsSection } from '@/components/work-orders/form/job-details-section'
@@ -77,19 +79,29 @@ export default function CreateWorkOrder() {
 
   const onSubmit = async (data: WorkOrderFormData) => {
     setIsSubmitting(true)
-    console.log('[CreateWorkOrder] Form submitted:', data)
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Show success and redirect
-    alert('Work order created successfully!')
-    navigate('/work-orders')
+    try {
+      await api.post('/work-orders', {
+        title: `${data.jobType} - ${data.description.slice(0, 50)}`,
+        description: data.description,
+        customerName: data.contactPerson || 'TBD',
+        address: data.serviceAddress,
+        scheduledDate: data.scheduledDate,
+        priority: data.priority.toUpperCase(),
+      })
+      toast.success('Work order created successfully!')
+      navigate('/work-orders')
+    } catch (error) {
+      console.error('Error creating work order:', error)
+      toast.error('Failed to create work order')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleSaveDraft = () => {
-    console.log('[CreateWorkOrder] Saving draft:', form.getValues())
-    alert('Draft saved successfully!')
+    const values = form.getValues()
+    localStorage.setItem('workorder_draft', JSON.stringify(values))
+    toast.success('Draft saved to local storage!')
   }
 
   const handleCancel = () => {

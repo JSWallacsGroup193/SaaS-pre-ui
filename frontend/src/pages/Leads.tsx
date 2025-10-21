@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { toast } from 'react-hot-toast'
 import { LeadList } from "@/components/leads/lead-list"
 import type { Lead, LeadStats, LeadStatus } from "@/types/view-models/lead"
+import api from '../utils/axiosClient'
 
 const mockLeads: Lead[] = [
   {
@@ -90,25 +92,84 @@ const mockStats: LeadStats = {
 }
 
 export default function Leads() {
-  const [leads, setLeads] = useState<Lead[]>(mockLeads)
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [stats, setStats] = useState<LeadStats>(mockStats)
+  const [loading, setLoading] = useState(true)
 
-  const handleStatusChange = (leadId: string, newStatus: LeadStatus) => {
-    setLeads((prevLeads) =>
-      prevLeads.map((lead) => (lead.id === leadId ? { ...lead, status: newStatus, daysInStatus: 0 } : lead)),
+  const loadLeads = async () => {
+    try {
+      setLoading(true)
+      const { data } = await api.get('/crm/leads')
+      setLeads(data.map((lead: any) => ({
+        ...lead,
+        assignedTo: lead.assignedTo || { id: '1', name: 'Unassigned' },
+        daysInStatus: Math.floor((Date.now() - new Date(lead.updatedAt).getTime()) / (1000 * 60 * 60 * 24)),
+      })))
+      setStats({ ...mockStats, total: data.length })
+    } catch (error) {
+      console.error('Error loading leads:', error)
+      toast.error('Failed to load leads')
+      setLeads(mockLeads)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadLeads()
+  }, [])
+
+  const handleStatusChange = async (leadId: string, newStatus: LeadStatus) => {
+    try {
+      await api.put(`/crm/leads/${leadId}`, { status: newStatus })
+      setLeads((prevLeads) =>
+        prevLeads.map((lead) => (lead.id === leadId ? { ...lead, status: newStatus, daysInStatus: 0 } : lead)),
+      )
+      toast.success('Lead status updated')
+    } catch (error) {
+      console.error('Error updating lead:', error)
+      toast.error('Failed to update lead status')
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-teal-500">Loading leads...</div>
+      </div>
     )
   }
 
   return (
     <LeadList
       leads={leads}
-      stats={mockStats}
-      totalCount={mockStats.total}
+      stats={stats}
+      totalCount={stats.total}
       onFilterChange={() => {}}
-      onCreate={() => console.log("Create lead")}
-      onViewLead={(id) => console.log("View lead:", id)}
-      onConvert={(id) => console.log("Convert lead:", id)}
-      onMarkLost={(id) => console.log("Mark lost:", id)}
-      onScheduleFollowup={(id) => console.log("Schedule followup:", id)}
+      onCreate={async () => {
+        const company = prompt("Enter company name:")
+        if (company) {
+          try {
+            await api.post('/crm/leads', { description: company })
+            toast.success('Lead created successfully')
+            loadLeads()
+          } catch (error) {
+            toast.error('Failed to create lead')
+          }
+        }
+      }}
+      onViewLead={(id) => toast(`Lead detail page coming soon for ID: ${id}`, { icon: 'ℹ️' })}
+      onConvert={(id) => toast(`Convert lead to customer - coming soon (ID: ${id})`, { icon: 'ℹ️' })}
+      onMarkLost={async (id) => {
+        try {
+          await api.put(`/crm/leads/${id}`, { status: 'lost' })
+          toast.success('Lead marked as lost')
+          loadLeads()
+        } catch (error) {
+          toast.error('Failed to mark lead as lost')
+        }
+      }}
+      onScheduleFollowup={(id) => toast(`Schedule follow-up coming soon (ID: ${id})`, { icon: 'ℹ️' })}
       onStatusChange={handleStatusChange}
     />
   )

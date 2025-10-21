@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { toast } from 'react-hot-toast'
 import { WorkOrderList } from '@/components/work-orders/work-order-list'
 import type { FilterState, WorkOrderView } from '@/types/view-models/work-order'
+import api from '../utils/axiosClient'
 
-// Mock data for demonstration
+// Mock data for demonstration (fallback if API fails)
 const mockWorkOrders: WorkOrderView[] = [
   {
     id: '1',
@@ -93,6 +95,8 @@ const mockWorkOrders: WorkOrderView[] = [
 
 export default function WorkOrders() {
   const navigate = useNavigate()
+  const [workOrders, setWorkOrders] = useState<WorkOrderView[]>([])
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<FilterState>({
     search: '',
     status: 'all',
@@ -104,8 +108,46 @@ export default function WorkOrders() {
     priority: 'all',
   })
 
+  const loadWorkOrders = async () => {
+    try {
+      setLoading(true)
+      const { data } = await api.get('/work-orders')
+      
+      const transformedOrders: WorkOrderView[] = data.map((wo: any) => ({
+        id: wo.id,
+        woNumber: wo.woNumber || `WO-${wo.id.slice(0, 8)}`,
+        customer: {
+          name: wo.customerName || 'Unknown',
+          address: wo.address || 'No address',
+        },
+        status: wo.status?.toLowerCase() || 'pending',
+        technician: wo.technician ? {
+          id: wo.technician.id,
+          name: wo.technician.name,
+        } : null,
+        date: wo.scheduledDate || wo.createdAt,
+        jobType: wo.jobType || 'general',
+        priority: wo.priority?.toLowerCase() || 'medium',
+        description: wo.description || wo.title || '',
+        createdAt: wo.createdAt,
+      }))
+      
+      setWorkOrders(transformedOrders)
+    } catch (error) {
+      console.error('Error loading work orders:', error)
+      toast.error('Failed to load work orders')
+      setWorkOrders(mockWorkOrders)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadWorkOrders()
+  }, [])
+
   // Filter work orders based on current filters
-  const filteredWorkOrders = mockWorkOrders.filter((wo) => {
+  const filteredWorkOrders = workOrders.filter((wo) => {
     // Search filter
     if (filters.search) {
       const query = filters.search.toLowerCase()
@@ -163,17 +205,35 @@ export default function WorkOrders() {
   }
 
   const handleEdit = (id: string) => {
-    console.log('Edit work order:', id)
+    toast('Edit feature coming soon - navigate to detail page to update status', { icon: 'ℹ️' })
+    navigate(`/work-orders/${id}`)
   }
 
-  const handleDelete = (id: string) => {
-    console.log('Delete work order:', id)
+  const handleDelete = async (id: string) => {
+    if (confirm('Are you sure you want to delete this work order? This action cannot be undone.')) {
+      try {
+        await api.delete(`/work-orders/${id}`)
+        toast.success('Work order deleted successfully')
+        loadWorkOrders()
+      } catch (error) {
+        console.error('Error deleting work order:', error)
+        toast.error('Failed to delete work order')
+      }
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-teal-500">Loading work orders...</div>
+      </div>
+    )
   }
 
   return (
     <WorkOrderList
       workOrders={filteredWorkOrders}
-      totalCount={mockWorkOrders.length}
+      totalCount={workOrders.length}
       filters={filters}
       onFilterChange={handleFilterChange}
       onCreate={handleCreate}

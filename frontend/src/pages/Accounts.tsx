@@ -1,8 +1,10 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 import { AccountList } from '@/components/accounts/account-list'
 import type { Account, AccountFilters, AccountStats } from '@/types/view-models/account'
+import api from '../utils/axiosClient'
 
-// Mock data
+// Mock data (fallback)
 const mockAccountsData: Account[] = [
   {
     id: '1',
@@ -89,6 +91,9 @@ const mockStats: AccountStats = {
 }
 
 export default function Accounts() {
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [stats, setStats] = useState<AccountStats>(mockStats)
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<AccountFilters>({
     search: '',
     accountType: 'both',
@@ -97,9 +102,57 @@ export default function Accounts() {
     sortBy: 'name',
   })
 
+  const loadAccounts = async () => {
+    try {
+      setLoading(true)
+      const { data } = await api.get('/crm/accounts')
+      
+      const transformedAccounts: Account[] = data.map((acc: any) => ({
+        id: acc.id,
+        name: acc.name || 'Unnamed Account',
+        type: acc.type || 'residential',
+        status: acc.status || 'active',
+        phone: acc.phone || '',
+        email: acc.email || '',
+        address: acc.address || '',
+        serviceArea: acc.serviceArea || 'central',
+        lastServiceDate: acc.lastServiceDate || null,
+        totalJobs: acc.totalJobs || 0,
+        totalRevenue: acc.totalRevenue || 0,
+        createdAt: acc.createdAt,
+        contactName: acc.contactName || '',
+      }))
+      
+      setAccounts(transformedAccounts)
+      
+      const activeCount = transformedAccounts.filter((a) => a.status === 'active').length
+      const totalRevenue = transformedAccounts.reduce((sum, a) => sum + (a.totalRevenue || 0), 0)
+      setStats({
+        totalAccounts: transformedAccounts.length,
+        activeAccounts: activeCount,
+        revenueThisMonth: totalRevenue,
+        newThisMonth: transformedAccounts.filter((a) => {
+          const created = new Date(a.createdAt)
+          const now = new Date()
+          return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear()
+        }).length,
+      })
+    } catch (error) {
+      console.error('Error loading accounts:', error)
+      toast.error('Failed to load accounts')
+      setAccounts(mockAccountsData)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadAccounts()
+  }, [])
+
   // Filter and sort accounts based on current filters
   const filteredAndSortedAccounts = useMemo(() => {
-    let result = [...mockAccountsData]
+    let result = [...accounts]
 
     // Apply search filter
     if (filters.search) {
@@ -146,42 +199,65 @@ export default function Accounts() {
     })
 
     return result
-  }, [filters])
+  }, [accounts, filters])
 
   const handleFilterChange = (newFilters: AccountFilters) => {
     setFilters(newFilters)
   }
 
-  const handleCreate = () => {
-    console.log('[Accounts] Create account')
-    // TODO: Implement create account modal or navigate to create page
-    // navigate('/accounts/create')
+  const handleCreate = async () => {
+    const name = prompt('Enter account name:')
+    if (name) {
+      try {
+        await api.post('/crm/accounts', { name })
+        toast.success('Account created successfully')
+        loadAccounts()
+      } catch (error) {
+        console.error('Error creating account:', error)
+        toast.error('Failed to create account')
+      }
+    }
   }
 
   const handleView = (id: string) => {
+    toast('Account detail page coming soon', { icon: 'ℹ️' })
     console.log('[Accounts] View account:', id)
-    // TODO: Navigate to account detail page when implemented
-    // navigate(`/accounts/${id}`)
   }
 
-  const handleEdit = (id: string) => {
-    console.log('[Accounts] Edit account:', id)
-    // TODO: Navigate to account edit page when implemented
-    // navigate(`/accounts/${id}/edit`)
-  }
+  const handleEdit = async (id: string) => {
+    const account = accounts.find((a) => a.id === id)
+    if (!account) return
 
-  const handleDelete = (id: string) => {
-    if (confirm(`Are you sure you want to delete this account?`)) {
-      console.log('[Accounts] Delete account:', id)
-      // TODO: Implement actual delete logic with API call
+    const newName = prompt('Edit account name:', account.name)
+    if (newName && newName !== account.name) {
+      try {
+        await api.put(`/crm/accounts/${id}`, { name: newName })
+        toast.success('Account updated successfully')
+        loadAccounts()
+      } catch (error) {
+        console.error('Error updating account:', error)
+        toast.error('Failed to update account')
+      }
     }
+  }
+
+  const handleDelete = (_id: string) => {
+    toast('Delete functionality not available - backend endpoint not implemented', { icon: '⚠️' })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-teal-500">Loading accounts...</div>
+      </div>
+    )
   }
 
   return (
     <AccountList
       accounts={filteredAndSortedAccounts}
-      totalCount={mockAccountsData.length}
-      stats={mockStats}
+      totalCount={accounts.length}
+      stats={stats}
       onFilterChange={handleFilterChange}
       onCreate={handleCreate}
       onView={handleView}

@@ -1,6 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
+import { toast } from 'react-hot-toast'
 import { ContactList } from '@/components/contacts/contact-list'
 import type { Contact, ContactFilters } from '@/types/view-models/contact'
+import api from '../utils/axiosClient'
 
 // Mock accounts data for filtering
 const mockAccounts = [
@@ -107,6 +109,8 @@ const mockContactsData: Contact[] = [
 ]
 
 export default function Contacts() {
+  const [contacts, setContacts] = useState<Contact[]>([])
+  const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<ContactFilters>({
     search: '',
     accountIds: [],
@@ -114,9 +118,42 @@ export default function Contacts() {
     sortBy: 'name',
   })
 
+  const loadContacts = async () => {
+    try {
+      setLoading(true)
+      const { data } = await api.get('/crm/contacts')
+      
+      const transformedContacts: Contact[] = data.map((contact: any) => ({
+        id: contact.id,
+        name: contact.name || 'Unnamed Contact',
+        accountId: contact.accountId || '',
+        accountName: contact.account?.name || 'No Account',
+        role: contact.role || 'other',
+        phone: contact.phone || '',
+        email: contact.email || '',
+        avatar: contact.avatar,
+        isPrimary: contact.isPrimary || false,
+        lastContact: contact.lastContact || contact.createdAt,
+        createdAt: contact.createdAt,
+      }))
+      
+      setContacts(transformedContacts)
+    } catch (error) {
+      console.error('Error loading contacts:', error)
+      toast.error('Failed to load contacts')
+      setContacts(mockContactsData)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadContacts()
+  }, [])
+
   // Filter and sort contacts based on current filters
   const filteredAndSortedContacts = useMemo(() => {
-    let result = [...mockContactsData]
+    let result = [...contacts]
 
     // Apply search filter
     if (filters.search) {
@@ -155,41 +192,66 @@ export default function Contacts() {
     })
 
     return result
-  }, [filters])
+  }, [contacts, filters])
 
   const handleFilterChange = (newFilters: ContactFilters) => {
     setFilters(newFilters)
   }
 
-  const handleCreate = () => {
-    console.log('[Contacts] Create contact')
-    // TODO: Implement create contact modal or navigate to create page
-    // navigate('/contacts/create')
+  const handleCreate = async () => {
+    const name = prompt('Enter contact name:')
+    if (name) {
+      const email = prompt('Enter contact email (optional):')
+      const phone = prompt('Enter contact phone (optional):')
+      try {
+        await api.post('/crm/contacts', { name, email: email || undefined, phone: phone || undefined })
+        toast.success('Contact created successfully')
+        loadContacts()
+      } catch (error) {
+        console.error('Error creating contact:', error)
+        toast.error('Failed to create contact')
+      }
+    }
   }
 
   const handleView = (id: string) => {
+    toast('Contact detail page coming soon', { icon: 'ℹ️' })
     console.log('[Contacts] View contact:', id)
-    // TODO: Navigate to contact detail page when implemented
-    // navigate(`/contacts/${id}`)
   }
 
-  const handleEdit = (id: string) => {
-    console.log('[Contacts] Edit contact:', id)
-    // TODO: Navigate to contact edit page when implemented
-    // navigate(`/contacts/${id}/edit`)
-  }
+  const handleEdit = async (id: string) => {
+    const contact = contacts.find((c) => c.id === id)
+    if (!contact) return
 
-  const handleDelete = (id: string) => {
-    if (confirm(`Are you sure you want to delete this contact?`)) {
-      console.log('[Contacts] Delete contact:', id)
-      // TODO: Implement actual delete logic with API call
+    const newName = prompt('Edit contact name:', contact.name)
+    if (newName && newName !== contact.name) {
+      try {
+        await api.put(`/crm/contacts/${id}`, { name: newName })
+        toast.success('Contact updated successfully')
+        loadContacts()
+      } catch (error) {
+        console.error('Error updating contact:', error)
+        toast.error('Failed to update contact')
+      }
     }
+  }
+
+  const handleDelete = (_id: string) => {
+    toast('Delete functionality not available - backend endpoint not implemented', { icon: '⚠️' })
+  }
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-slate-950">
+        <div className="text-teal-500">Loading contacts...</div>
+      </div>
+    )
   }
 
   return (
     <ContactList
       contacts={filteredAndSortedContacts}
-      totalCount={mockContactsData.length}
+      totalCount={contacts.length}
       onFilterChange={handleFilterChange}
       onCreate={handleCreate}
       onView={handleView}
