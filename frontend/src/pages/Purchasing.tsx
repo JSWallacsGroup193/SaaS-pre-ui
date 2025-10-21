@@ -6,7 +6,7 @@ export default function Purchasing() {
   const [items,setItems] = useState<any[]>([])
   async function load() {
     const { data } = await api.get('/purchasing')
-    setItems(data)
+    setItems(data.items || [])
   }
   useEffect(() => { load() }, [])
 
@@ -31,11 +31,11 @@ export default function Purchasing() {
           <tbody>
             {items.map((it:any) => (
               <tr key={it.id}>
-                <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.id}</td>
+                <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.poNumber || it.id}</td>
                 <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.status}</td>
-                <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.items.map((i:any)=> `${i.sku.code}×${i.qty}`).join(', ')}</td>
+                <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>{it.sku?.sku || it.sku?.name || '-'} × {it.quantity}</td>
                 <td style={{padding:12,borderBottom:'1px solid #f3f4f6'}}>
-                  {it.status !== 'Received' && (
+                  {it.status !== 'RECEIVED' && (
                     <button onClick={()=>receive(it.id)} style={{padding:'6px 10px',border:'none',borderRadius:6,background:'#16a34a',color:'#fff',cursor:'pointer'}}>Mark Received</button>
                   )}
                 </td>
