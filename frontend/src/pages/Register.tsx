@@ -1,22 +1,19 @@
-"use client"
-
-import type React from "react"
-
-import { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useState, useEffect, type ChangeEvent } from "react"
+import { useNavigate, Link } from "react-router-dom"
+import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import Link from "next/link"
 import { Eye, EyeOff, CheckCircle2, XCircle, Loader2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Label } from "../components/ui/label"
+import { Checkbox } from "../components/ui/checkbox"
+import { Alert, AlertDescription } from "../components/ui/alert"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../components/ui/select"
+import { cn } from "../lib/utils"
+import { authService } from "../services/auth.service"
+import { useAuth } from "../store/useAuth"
 
-// Password strength calculation
 const calculatePasswordStrength = (password: string): "weak" | "medium" | "strong" => {
   let strength = 0
   if (password.length >= 8) strength++
@@ -29,7 +26,6 @@ const calculatePasswordStrength = (password: string): "weak" | "medium" | "stron
   return "strong"
 }
 
-// Zod validation schema
 const registerSchema = z
   .object({
     companyName: z.string().min(1, "Company name is required"),
@@ -56,59 +52,39 @@ const registerSchema = z
 
 type RegisterFormData = z.infer<typeof registerSchema>
 
-interface RegisterPageProps {
-  onSubmit?: (data: RegisterFormData) => void
-  isLoading?: boolean
-  error?: string
-  onSignIn?: () => void
-}
-
-export default function RegisterPage({
-  onSubmit,
-  isLoading: externalLoading,
-  error: externalError,
-  onSignIn,
-}: RegisterPageProps = {}) {
+export default function RegisterPage() {
+  const navigate = useNavigate()
+  const login = useAuth((s) => s.login)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState<"weak" | "medium" | "strong">("weak")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-  const [emailExists, setEmailExists] = useState(false)
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    control,
     formState: { errors, isValid },
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: "onChange",
+    defaultValues: {
+      agreeToTerms: false,
+    },
   })
 
   const password = watch("password")
-  const email = watch("email")
 
-  // Update password strength when password changes
-  useState(() => {
+  useEffect(() => {
     if (password) {
       setPasswordStrength(calculatePasswordStrength(password))
     }
-  })
+  }, [password])
 
-  // Simulate email existence check
-  const checkEmailExists = async (email: string) => {
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return
-
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    // For demo: mark test@example.com as existing
-    setEmailExists(email === "test@example.com")
-  }
-
-  // Format phone number
   const formatPhoneNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "")
     const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,4})$/)
@@ -119,7 +95,7 @@ export default function RegisterPage({
     return value
   }
 
-  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoneChange = (e: ChangeEvent<HTMLInputElement>) => {
     const formatted = formatPhoneNumber(e.target.value)
     setValue("phone", formatted)
   }
@@ -127,34 +103,27 @@ export default function RegisterPage({
   const onSubmitForm = async (data: RegisterFormData) => {
     setError(null)
     setSuccess(false)
-
-    if (onSubmit) {
-      onSubmit(data)
-      return
-    }
-
-    // Default behavior
     setIsLoading(true)
+
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      const response = await authService.register({
+        email: data.email,
+        password: data.password,
+        tenantId: data.companyName.toLowerCase().replace(/\s+/g, '-'),
+      })
 
-      // Simulate success
       setSuccess(true)
+      login(response.access_token)
 
-      // Redirect after 2 seconds
       setTimeout(() => {
-        window.location.href = "/dashboard"
-      }, 2000)
-    } catch (err) {
-      setError("Failed to create account. Please try again.")
+        navigate("/")
+      }, 1500)
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to create account. Please try again.")
     } finally {
       setIsLoading(false)
     }
   }
-
-  const loading = externalLoading ?? isLoading
-  const displayError = externalError ?? error
 
   const strengthColors = {
     weak: "bg-red-500",
@@ -169,15 +138,13 @@ export default function RegisterPage({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-[500px] bg-slate-700 rounded-lg shadow-xl p-8">
-        {/* Header */}
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
+      <div className="w-full max-w-[500px] bg-[#334155] rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-100 mb-2">OpsNex</h1>
           <p className="text-slate-400">Create your account</p>
         </div>
 
-        {/* Success Alert */}
         {success && (
           <Alert className="mb-6 bg-emerald-500/10 border-emerald-500 text-emerald-500">
             <CheckCircle2 className="h-4 w-4" />
@@ -185,12 +152,11 @@ export default function RegisterPage({
           </Alert>
         )}
 
-        {/* Error Alert */}
-        {displayError && (
+        {error && (
           <Alert className="mb-6 bg-red-500/10 border-red-500 text-red-500">
             <XCircle className="h-4 w-4" />
             <AlertDescription className="flex items-center justify-between">
-              <span>{displayError}</span>
+              <span>{error}</span>
               <button onClick={() => setError(null)} className="text-red-500 hover:text-red-400">
                 ×
               </button>
@@ -198,9 +164,7 @@ export default function RegisterPage({
           </Alert>
         )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmitForm)} className="space-y-6">
-          {/* Company Name */}
           <div>
             <Label htmlFor="companyName" className="text-slate-100">
               Company Name <span className="text-red-500">*</span>
@@ -209,7 +173,7 @@ export default function RegisterPage({
               id="companyName"
               {...register("companyName")}
               className={cn(
-                "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500",
+                "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6]",
                 errors.companyName && "border-red-500",
               )}
               placeholder="Enter company name"
@@ -217,7 +181,6 @@ export default function RegisterPage({
             {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName.message}</p>}
           </div>
 
-          {/* Email */}
           <div>
             <Label htmlFor="email" className="text-slate-100">
               Email <span className="text-red-500">*</span>
@@ -226,20 +189,15 @@ export default function RegisterPage({
               id="email"
               type="email"
               {...register("email")}
-              onBlur={(e) => checkEmailExists(e.target.value)}
               className={cn(
-                "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500",
-                (errors.email || emailExists) && "border-red-500",
+                "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6]",
+                errors.email && "border-red-500",
               )}
               placeholder="Enter your email"
             />
             {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>}
-            {emailExists && !errors.email && (
-              <p className="text-red-500 text-sm mt-1">This email is already registered</p>
-            )}
           </div>
 
-          {/* Password */}
           <div>
             <Label htmlFor="password" className="text-slate-100">
               Password <span className="text-red-500">*</span>
@@ -250,7 +208,7 @@ export default function RegisterPage({
                 type={showPassword ? "text" : "password"}
                 {...register("password")}
                 className={cn(
-                  "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500 pr-10",
+                  "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6] pr-10",
                   errors.password && "border-red-500",
                 )}
                 placeholder="Enter password"
@@ -264,10 +222,9 @@ export default function RegisterPage({
               </button>
             </div>
 
-            {/* Password Strength Indicator */}
             {password && (
               <div className="mt-2">
-                <div className="h-2 bg-slate-600 rounded-full overflow-hidden">
+                <div className="h-2 bg-[#475569] rounded-full overflow-hidden">
                   <div
                     className={cn(
                       "h-full transition-all duration-300",
@@ -280,7 +237,6 @@ export default function RegisterPage({
               </div>
             )}
 
-            {/* Password Requirements */}
             <div className="mt-2 space-y-1">
               <p className={cn("text-xs", password?.length >= 8 ? "text-emerald-500" : "text-slate-400")}>
                 {password?.length >= 8 ? "✓" : "○"} At least 8 characters
@@ -299,7 +255,6 @@ export default function RegisterPage({
             {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>}
           </div>
 
-          {/* Confirm Password */}
           <div>
             <Label htmlFor="confirmPassword" className="text-slate-100">
               Confirm Password <span className="text-red-500">*</span>
@@ -310,7 +265,7 @@ export default function RegisterPage({
                 type={showConfirmPassword ? "text" : "password"}
                 {...register("confirmPassword")}
                 className={cn(
-                  "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500 pr-10",
+                  "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6] pr-10",
                   errors.confirmPassword && "border-red-500",
                 )}
                 placeholder="Confirm password"
@@ -326,7 +281,6 @@ export default function RegisterPage({
             {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
-          {/* First Name & Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="firstName" className="text-slate-100">
@@ -336,7 +290,7 @@ export default function RegisterPage({
                 id="firstName"
                 {...register("firstName")}
                 className={cn(
-                  "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500",
+                  "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6]",
                   errors.firstName && "border-red-500",
                 )}
                 placeholder="First name"
@@ -352,7 +306,7 @@ export default function RegisterPage({
                 id="lastName"
                 {...register("lastName")}
                 className={cn(
-                  "h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500",
+                  "h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6]",
                   errors.lastName && "border-red-500",
                 )}
                 placeholder="Last name"
@@ -361,7 +315,6 @@ export default function RegisterPage({
             </div>
           </div>
 
-          {/* Phone Number */}
           <div>
             <Label htmlFor="phone" className="text-slate-100">
               Phone Number (Optional)
@@ -370,22 +323,21 @@ export default function RegisterPage({
               id="phone"
               {...register("phone")}
               onChange={handlePhoneChange}
-              className="h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500"
+              className="h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6]"
               placeholder="(XXX) XXX-XXXX"
               maxLength={14}
             />
           </div>
 
-          {/* Role/Job Title */}
           <div>
             <Label htmlFor="role" className="text-slate-100">
               Role/Job Title (Optional)
             </Label>
             <Select onValueChange={(value) => setValue("role", value)}>
-              <SelectTrigger className="h-12 bg-slate-700 border-slate-600 text-slate-100 focus:border-teal-500 focus:ring-teal-500 w-full">
+              <SelectTrigger className="h-12 bg-[#1e293b] border-[#475569] text-slate-100 focus:border-[#14b8a6] focus:ring-[#14b8a6] w-full">
                 <SelectValue placeholder="Select your role" />
               </SelectTrigger>
-              <SelectContent className="bg-slate-700 border-slate-600">
+              <SelectContent className="bg-[#1e293b] border-[#475569]">
                 <SelectItem value="owner" className="text-slate-100">
                   Owner
                 </SelectItem>
@@ -408,12 +360,18 @@ export default function RegisterPage({
             </Select>
           </div>
 
-          {/* Terms & Privacy Checkbox */}
           <div className="flex items-start space-x-2">
-            <Checkbox
-              id="agreeToTerms"
-              onCheckedChange={(checked) => setValue("agreeToTerms", checked as boolean)}
-              className="mt-1 border-slate-600 data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+            <Controller
+              name="agreeToTerms"
+              control={control}
+              render={({ field }) => (
+                <Checkbox
+                  id="agreeToTerms"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  className="mt-1 border-[#475569] data-[state=checked]:bg-[#14b8a6] data-[state=checked]:border-[#14b8a6]"
+                />
+              )}
             />
             <div className="flex-1">
               <Label
@@ -421,25 +379,24 @@ export default function RegisterPage({
                 className={cn("text-sm text-slate-300 cursor-pointer", errors.agreeToTerms && "text-red-500")}
               >
                 I agree to the{" "}
-                <Link href="/terms" className="text-teal-500 hover:text-teal-400 underline">
+                <a href="#" className="text-[#14b8a6] hover:text-[#0d9488] underline">
                   Terms of Service
-                </Link>{" "}
+                </a>{" "}
                 and{" "}
-                <Link href="/privacy" className="text-teal-500 hover:text-teal-400 underline">
+                <a href="#" className="text-[#14b8a6] hover:text-[#0d9488] underline">
                   Privacy Policy
-                </Link>
+                </a>
               </Label>
               {errors.agreeToTerms && <p className="text-red-500 text-sm mt-1">{errors.agreeToTerms.message}</p>}
             </div>
           </div>
 
-          {/* Create Account Button */}
           <Button
             type="submit"
-            disabled={!isValid || loading || emailExists}
-            className="w-full h-12 bg-teal-500 hover:bg-teal-600 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!isValid || isLoading}
+            className="w-full h-12 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? (
+            {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Creating Account...
@@ -450,20 +407,10 @@ export default function RegisterPage({
           </Button>
         </form>
 
-        {/* Footer */}
         <div className="mt-6 text-center">
           <p className="text-slate-400 text-sm">
             Already have an account?{" "}
-            <Link
-              href="/login"
-              onClick={(e) => {
-                if (onSignIn) {
-                  e.preventDefault()
-                  onSignIn()
-                }
-              }}
-              className="text-teal-500 hover:text-teal-400 font-medium"
-            >
+            <Link to="/login" className="text-[#14b8a6] hover:text-[#0d9488] font-medium">
               Sign in
             </Link>
           </p>

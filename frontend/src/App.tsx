@@ -1,7 +1,7 @@
-
 import { lazy, Suspense } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
+import Register from './pages/Register'
 import { useAuth } from './store/useAuth'
 import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
@@ -28,7 +28,16 @@ const NotFound = lazy(() => import('./pages/NotFound'))
 
 export default function App() {
   const token = useAuth(s => s.token)
-  if (!token) return <Login />
+
+  if (!token) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    )
+  }
 
   return (
     <div style={{display:'grid',gridTemplateRows:'56px 1fr',height:'100vh'}}>
@@ -45,6 +54,8 @@ export default function App() {
             </div>
           }>
             <Routes>
+              <Route path="/login" element={<Navigate to="/" replace />} />
+              <Route path="/register" element={<Navigate to="/" replace />} />
               <Route path="/" element={<Dashboard />} />
               <Route path="/work-orders" element={<WorkOrders />} />
               <Route path="/work-orders/create" element={<CreateWorkOrder />} />

@@ -1,15 +1,16 @@
-"use client"
-
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Eye, EyeOff, Loader2, X, Wrench } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Button } from "../components/ui/button"
+import { Input } from "../components/ui/input"
+import { Label } from "../components/ui/label"
+import { Checkbox } from "../components/ui/checkbox"
+import { Alert, AlertDescription } from "../components/ui/alert"
+import { authService } from "../services/auth.service"
+import { useAuth } from "../store/useAuth"
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -34,8 +35,10 @@ export default function LoginPage({
   error: externalError,
   onForgotPassword,
   onSignUp,
-  companyName = "HVAC Pro",
+  companyName = "OpsNex",
 }: LoginPageProps = {}) {
+  const navigate = useNavigate()
+  const login = useAuth((s) => s.login)
   const [showPassword, setShowPassword] = useState(false)
   const [internalLoading, setInternalLoading] = useState(false)
   const [internalError, setInternalError] = useState<string | null>(null)
@@ -73,11 +76,19 @@ export default function LoginPage({
         setInternalLoading(false)
       }
     } else {
-      // Demo mode
       setInternalLoading(true)
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setInternalLoading(false)
-      console.log("[v0] Login submitted:", data)
+      try {
+        const response = await authService.login({
+          email: data.email,
+          password: data.password,
+        })
+        login(response.access_token)
+        navigate("/")
+      } catch (err: any) {
+        setInternalError(err.response?.data?.message || "Invalid email or password")
+      } finally {
+        setInternalLoading(false)
+      }
     }
   }
 
@@ -93,19 +104,19 @@ export default function LoginPage({
     if (onSignUp) {
       onSignUp()
     } else {
-      console.log("[v0] Sign up clicked")
+      navigate("/register")
     }
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0f172a] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Login Card */}
-        <div className="bg-slate-700 rounded-xl shadow-2xl p-8 md:p-10">
+        <div className="bg-[#334155] rounded-xl shadow-2xl p-8 md:p-10">
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Wrench className="w-8 h-8 text-teal-500" />
+              <Wrench className="w-8 h-8 text-[#14b8a6]" />
               <h1 className="text-2xl font-bold text-slate-100">{companyName}</h1>
             </div>
             <p className="text-sm text-slate-400">Sign in to your account</p>
@@ -140,7 +151,7 @@ export default function LoginPage({
                 placeholder="you@company.com"
                 autoComplete="email"
                 autoFocus
-                className={`h-12 bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:ring-teal-500 ${
+                className={`h-12 bg-[#1e293b] border-[#475569] text-slate-100 placeholder:text-slate-400 focus:border-[#14b8a6] focus:ring-[#14b8a6] ${
                   errors.email ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
                 }`}
                 {...register("email")}
@@ -159,7 +170,7 @@ export default function LoginPage({
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   autoComplete="current-password"
-                  className={`h-12 bg-slate-700 border-slate-600 text-slate-100 placeholder:text-slate-400 focus:border-teal-500 focus:ring-teal-500 pr-12 ${
+                  className={`h-12 bg-[#1e293b] border-[#475569] text-slate-100 placeholder:text-slate-400 focus:border-[#14b8a6] focus:ring-[#14b8a6] pr-12 ${
                     errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500" : ""
                   }`}
                   {...register("password")}
@@ -167,7 +178,7 @@ export default function LoginPage({
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-teal-500 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#14b8a6] transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -183,7 +194,7 @@ export default function LoginPage({
                   id="rememberMe"
                   checked={rememberMe}
                   onCheckedChange={(checked) => setValue("rememberMe", checked as boolean)}
-                  className="border-slate-600 data-[state=checked]:bg-teal-500 data-[state=checked]:border-teal-500"
+                  className="border-[#475569] data-[state=checked]:bg-[#14b8a6] data-[state=checked]:border-[#14b8a6]"
                 />
                 <Label htmlFor="rememberMe" className="text-sm text-slate-400 cursor-pointer">
                   Remember me
@@ -192,7 +203,7 @@ export default function LoginPage({
               <button
                 type="button"
                 onClick={handleForgotPassword}
-                className="text-sm text-teal-500 hover:text-teal-400 transition-colors"
+                className="text-sm text-[#14b8a6] hover:text-[#0d9488] transition-colors"
               >
                 Forgot password?
               </button>
@@ -202,7 +213,7 @@ export default function LoginPage({
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full h-12 bg-teal-500 hover:bg-teal-400 text-white font-medium transition-colors disabled:opacity-50"
+              className="w-full h-12 bg-[#14b8a6] hover:bg-[#0d9488] text-white font-medium transition-colors disabled:opacity-50"
             >
               {isLoading ? (
                 <>
@@ -229,7 +240,7 @@ export default function LoginPage({
               <button
                 type="button"
                 onClick={handleSignUp}
-                className="text-teal-500 hover:text-teal-400 font-medium transition-colors"
+                className="text-[#14b8a6] hover:text-[#0d9488] font-medium transition-colors"
               >
                 Sign up
               </button>
