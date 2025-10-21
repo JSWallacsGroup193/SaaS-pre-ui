@@ -42,7 +42,9 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@nestjs/serve-static": "^5.0.4",
+    "@types/jsbarcode": "^3.11.4",
     "html5-qrcode": "^2.3.8",
+    "jsbarcode": "^3.12.1",
     "qrcode.react": "^4.2.0",
     "react-markdown": "^10.1.0",
     "recharts": "^3.3.0"
