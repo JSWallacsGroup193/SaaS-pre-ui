@@ -67,7 +67,7 @@ export class ChatService {
     const fullPrompt = contextText + '\n' + context + prompt;
 
     const response = await openai.chat.completions.create({
-      model: 'gpt-4',
+      model: 'gpt-4o',
       messages: [
         { role: 'system', content: 'You are an assistant for an HVAC company.' },
         { role: 'user', content: fullPrompt },
