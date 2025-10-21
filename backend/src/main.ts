@@ -7,13 +7,6 @@ import { SpaFilter } from './spa.filter';
 import * as express from 'express';
 import { join } from 'path';
 import { CustomSocketIoAdapter } from './common/socket-io.adapter';
-import * as http from 'http';
-
-// Polyfill for Node.js 20 compatibility with engine.io
-// Engine.io expects server.listeners() to return array, force override
-http.Server.prototype.listeners = function(event: string | symbol) {
-  return this.rawListeners(event);
-};
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,8 +14,11 @@ async function bootstrap() {
   // Serve static files from frontend/dist
   app.use(express.static(join(__dirname, '..', '..', '..', 'frontend', 'dist')));
   
-  // WebSocket adapter enabled - using Node.js 20 LTS for Socket.IO compatibility
-  app.useWebSocketAdapter(new CustomSocketIoAdapter(app));
+  // NOTE: WebSocket disabled - engine.io has persistent compatibility issues with NestJS HTTP server
+  // Real-time notifications use HTTP polling (30-second interval) as production solution
+  // Polling endpoint: GET /api/v1/notifications
+  // WebSocket can be revisited when engine.io v7+ resolves HTTP server attachment issues
+  // app.useWebSocketAdapter(new CustomSocketIoAdapter(app));
   
   app.use(helmet({
     contentSecurityPolicy: false,
