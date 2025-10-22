@@ -24,45 +24,69 @@ async function main() {
   }
   console.log(`✅ Tenant: ${tenant.name}\n`);
 
-  // Step 2: Create demo user with FIELD_MANAGER role
-  console.log('👤 Creating demo user...');
+  // Step 2: Create demo users for all roles
+  console.log('👤 Creating demo users for all roles...');
   const hashedPassword = await bcrypt.hash('demo123', 10);
   
-  const demoUser = await prisma.user.upsert({
-    where: { email: 'demo@hvac.com' },
-    update: {},
-    create: {
-      email: 'demo@hvac.com',
-      password: hashedPassword,
-      tenantId: tenant.id,
-      firstName: 'Demo',
-      lastName: 'User',
-      isActive: true,
-      emailVerified: true,
-    },
-  });
+  // Define demo users for each role (excluding SUPER_ADMIN which is system-wide)
+  const demoUsersData = [
+    { email: 'owner@hvac.com', firstName: 'Owen', lastName: 'Roberts', roleName: 'OWNER' },
+    { email: 'admin@hvac.com', firstName: 'Alice', lastName: 'Anderson', roleName: 'ADMIN' },
+    { email: 'manager@hvac.com', firstName: 'Frank', lastName: 'Miller', roleName: 'FIELD_MANAGER' },
+    { email: 'supervisor@hvac.com', firstName: 'Sam', lastName: 'Davis', roleName: 'FIELD_SUPERVISOR' },
+    { email: 'tech@hvac.com', firstName: 'Tom', lastName: 'Wilson', roleName: 'TECHNICIAN' },
+    { email: 'office@hvac.com', firstName: 'Olivia', lastName: 'Moore', roleName: 'OFFICE_MANAGER' },
+    { email: 'warehouse@hvac.com', firstName: 'Walter', lastName: 'Taylor', roleName: 'WAREHOUSE_MANAGER' },
+    { email: 'sales@hvac.com', firstName: 'Sally', lastName: 'Clark', roleName: 'SALES_REPRESENTATIVE' },
+    { email: 'service@hvac.com', firstName: 'Chris', lastName: 'White', roleName: 'CUSTOMER_SERVICE_REPRESENTATIVE' },
+    { email: 'accountant@hvac.com', firstName: 'Amy', lastName: 'Lewis', roleName: 'ACCOUNTANT' },
+    { email: 'viewer@hvac.com', firstName: 'Victor', lastName: 'Hall', roleName: 'VIEWER' },
+    { email: 'user@hvac.com', firstName: 'Uma', lastName: 'Young', roleName: 'USER' },
+  ];
 
-  // Assign FIELD_MANAGER role
-  const fieldManagerRole = await prisma.role.findUnique({ where: { name: 'FIELD_MANAGER' } });
-  if (fieldManagerRole) {
-    await prisma.userRole.upsert({
-      where: {
-        userId_roleId: {
-          userId: demoUser.id,
-          roleId: fieldManagerRole.id,
-        },
-      },
+  const demoUsers = [];
+  for (const userData of demoUsersData) {
+    const user = await prisma.user.upsert({
+      where: { email: userData.email },
       update: {},
       create: {
-        userId: demoUser.id,
-        roleId: fieldManagerRole.id,
+        email: userData.email,
+        password: hashedPassword,
+        tenantId: tenant.id,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        isActive: true,
+        emailVerified: true,
       },
     });
+
+    // Assign role
+    const role = await prisma.role.findUnique({ where: { name: userData.roleName } });
+    if (role) {
+      await prisma.userRole.upsert({
+        where: {
+          userId_roleId: {
+            userId: user.id,
+            roleId: role.id,
+          },
+        },
+        update: {},
+        create: {
+          userId: user.id,
+          roleId: role.id,
+        },
+      });
+    }
+    
+    demoUsers.push(user);
   }
-  console.log(`✅ Demo User: ${demoUser.email} (FIELD_MANAGER)\n`);
+  console.log(`✅ Created ${demoUsers.length} demo users (one for each role)\n`);
+
+  // Keep reference to field manager for work orders
+  const demoUser = demoUsers.find(u => u.email === 'manager@hvac.com') || demoUsers[0];
 
   // Step 3: Create additional technician users for dispatch
-  console.log('👷 Creating technician users...');
+  console.log('👷 Creating additional technician users for dispatch...');
   const technicians = [];
   const technicianRole = await prisma.role.findUnique({ where: { name: 'TECHNICIAN' } });
   
@@ -108,7 +132,7 @@ async function main() {
     
     technicians.push(user);
   }
-  console.log(`✅ Created ${technicians.length} technician users\n`);
+  console.log(`✅ Created ${technicians.length} additional technician users for dispatch\n`);
 
   // Step 4: Create CRM data (Accounts & Contacts)
   console.log('👥 Creating CRM data...');
@@ -430,12 +454,13 @@ async function main() {
   ];
 
   const workOrders = [];
+  const woTimestamp = Date.now();
   for (let i = 0; i < workOrdersData.length; i++) {
     const woData = workOrdersData[i];
     const wo = await prisma.workOrder.create({
       data: {
         tenantId: tenant.id,
-        number: `WO-2025-${String(i + 1).padStart(6, '0')}`,
+        number: `WO-${woTimestamp}-${String(i + 1).padStart(3, '0')}`,
         customerId: accounts[woData.accountIdx].id,
         title: woData.title,
         description: woData.description,
@@ -548,11 +573,25 @@ async function main() {
   console.log('═══════════════════════════════════════════════════');
   console.log('');
   console.log('🏢 Tenant: HVAC Demo Corp');
-  console.log('📧 Demo User: demo@hvac.com');
-  console.log('🔐 Password: demo123');
-  console.log('👤 Role: FIELD_MANAGER');
+  console.log('🔐 Password for all demo users: demo123');
+  console.log('');
+  console.log('👥 Demo Users by Role:');
+  console.log('  • owner@hvac.com         → OWNER');
+  console.log('  • admin@hvac.com         → ADMIN');
+  console.log('  • manager@hvac.com       → FIELD_MANAGER');
+  console.log('  • supervisor@hvac.com    → FIELD_SUPERVISOR');
+  console.log('  • tech@hvac.com          → TECHNICIAN');
+  console.log('  • office@hvac.com        → OFFICE_MANAGER');
+  console.log('  • warehouse@hvac.com     → WAREHOUSE_MANAGER');
+  console.log('  • sales@hvac.com         → SALES_REPRESENTATIVE');
+  console.log('  • service@hvac.com       → CUSTOMER_SERVICE_REPRESENTATIVE');
+  console.log('  • accountant@hvac.com    → ACCOUNTANT');
+  console.log('  • viewer@hvac.com        → VIEWER');
+  console.log('  • user@hvac.com          → USER');
   console.log('');
   console.log('📊 Sample Data Created:');
+  console.log(`  • ${demoUsers.length} Demo Users (one per role)`);
+  console.log(`  • ${technicians.length} Additional Technicians (for dispatch)`);
   console.log(`  • ${accounts.length} Customer Accounts`);
   console.log(`  • ${contacts.length} Contacts`);
   console.log(`  • ${leads.length} Leads`);
@@ -561,11 +600,10 @@ async function main() {
   console.log(`  • ${warehouses.length} Warehouses`);
   console.log(`  • ${bins.length} Storage Bins`);
   console.log(`  • ${purchaseOrdersData.length} Purchase Orders`);
-  console.log(`  • ${technicians.length} Technician Users`);
   console.log(`  • ${calculationsData.length} Field Calculations`);
   console.log(`  • ${notificationsData.length} Notifications`);
   console.log('');
-  console.log('🚀 Ready to explore all features!');
+  console.log('🚀 Ready to explore all features with any role!');
   console.log('═══════════════════════════════════════════════════');
 }
 

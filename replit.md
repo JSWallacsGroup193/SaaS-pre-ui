@@ -45,8 +45,23 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 ## Demo Data & Testing
 
 ### System Credentials
-- **Super Admin**: admin@hvac.com / password123 (SUPER_ADMIN role)
-- **Demo Tenant User**: demo@hvac.com / demo123 (FIELD_MANAGER role in "HVAC Demo Corp" tenant)
+
+**Super Admin** (system-wide):
+- admin@hvac.com / password123 (SUPER_ADMIN role)
+
+**Demo Tenant Users** (HVAC Demo Corp) - All passwords: **demo123**
+- owner@hvac.com → OWNER
+- admin@hvac.com → ADMIN  
+- manager@hvac.com → FIELD_MANAGER
+- supervisor@hvac.com → FIELD_SUPERVISOR
+- tech@hvac.com → TECHNICIAN
+- office@hvac.com → OFFICE_MANAGER
+- warehouse@hvac.com → WAREHOUSE_MANAGER
+- sales@hvac.com → SALES_REPRESENTATIVE
+- service@hvac.com → CUSTOMER_SERVICE_REPRESENTATIVE
+- accountant@hvac.com → ACCOUNTANT
+- viewer@hvac.com → VIEWER
+- user@hvac.com → USER
 
 ### Database Seed Scripts
 Three database seeding scripts are available for setting up the system:
@@ -59,7 +74,9 @@ Three database seeding scripts are available for setting up the system:
 
 2. **Demo Tenant Seeding** (`npm run seed:demo`)
    - Creates "HVAC Demo Corp" tenant with complete sample data
-   - Demo user: demo@hvac.com (FIELD_MANAGER role)
+   - 12 demo users (one for each role, excluding SUPER_ADMIN)
+   - All demo user passwords: **demo123**
+   - 5 additional technician users for dispatch testing
    - 12 customer accounts (retail, commercial, residential, property management)
    - 18 contacts across various accounts
    - 8 leads in different stages
@@ -67,7 +84,6 @@ Three database seeding scripts are available for setting up the system:
    - 35 realistic HVAC SKUs (filters, refrigerants, parts, equipment, tools)
    - 3 warehouses (Main, Branch, Service Vans)
    - 10 storage bins with organized locations
-   - 5 technician users for dispatch testing
    - Purchase orders, field calculations, and notifications
    - Idempotent for users/warehouses/SKUs (some CRM entities may duplicate on reruns)
 
