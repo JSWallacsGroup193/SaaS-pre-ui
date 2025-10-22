@@ -3,6 +3,11 @@
 ## Feature Overview
 Implement a comprehensive Service Catalog and Pricebook management system for OpsNex that allows users to manage standardized services, labor rates, and service bundles. This will streamline work order creation, ensure pricing consistency, and enable professional quote generation.
 
+### Three Pricing Models Supported:
+1. **Flat Rate** - Fixed price for the service (e.g., "AC Tune-Up: $149.99")
+2. **Hourly** - Price based on hours worked at specified labor rate (e.g., "Diagnostic: $85/hr")
+3. **Time and Material** - Combination of labor hours + material costs (e.g., "Repair: Labor + Parts")
+
 ---
 
 ## Database Schema Implementation
@@ -1050,12 +1055,23 @@ When creating work orders, allow users to select from the service catalog:
 
 **Create:** `backend/scripts/seed-service-catalog.ts`
 
-Add sample services like:
-- "AC Tune-Up" - $149.99
-- "Furnace Inspection" - $89.99
-- "Emergency Service Call" - $199.99 (after hours: $299.99)
-- "Duct Cleaning" - $399.99
-- "Filter Replacement" - $49.99
+Add sample services with different pricing types:
+
+**Flat Rate Services:**
+- "AC Tune-Up" - $149.99 (flat rate)
+- "Furnace Inspection" - $89.99 (flat rate)
+- "Filter Replacement" - $49.99 (flat rate)
+- "Duct Cleaning" - $399.99 (flat rate)
+- "Thermostat Installation" - $129.99 (flat rate)
+
+**Hourly Services:**
+- "Diagnostic Service" - $85/hr (hourly)
+- "General Repair" - $95/hr (hourly)
+- "Emergency Service Call" - $150/hr (hourly, after hours: $225/hr with 1.5x multiplier)
+
+**Time & Material Services:**
+- "Custom Installation" - Labor + Materials (time_and_material)
+- "System Modification" - Labor + Parts (time_and_material)
 
 Add sample bundles:
 - "Spring HVAC Package" (AC Tune-Up + Filter Replacement) - $179.99 (save $20)
