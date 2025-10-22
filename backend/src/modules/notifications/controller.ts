@@ -43,6 +43,21 @@ export class NotificationController {
   }
 
   /**
+   * Get notifications with count (optimized for polling)
+   * Returns both notifications and unread count in a single request
+   */
+  @Get('with-count')
+  async getNotificationsWithCount(
+    @Req() req: any,
+    @Query('limit') limit?: string
+  ) {
+    const userId = req.user.userId;
+    const limitNum = limit ? parseInt(limit, 10) : 50;
+    
+    return this.notificationService.getNotificationsWithCount(userId, limitNum);
+  }
+
+  /**
    * Mark notification as read
    */
   @Put(':id/read')

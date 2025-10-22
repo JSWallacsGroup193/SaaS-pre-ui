@@ -112,6 +112,32 @@ export class NotificationService {
   }
 
   /**
+   * Get notifications with unread count (optimized for polling)
+   * Returns both notifications and unread count in a single query
+   */
+  async getNotificationsWithCount(userId: string, limit = 50) {
+    const [notifications, unreadCount] = await Promise.all([
+      this.prisma.notification.findMany({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+      }),
+      this.prisma.notification.count({
+        where: {
+          userId,
+          isRead: false,
+        },
+      }),
+    ]);
+
+    return {
+      notifications,
+      unreadCount,
+      total: notifications.length,
+    };
+  }
+
+  /**
    * Mark notification as read
    */
   async markAsRead(notificationId: string, userId: string) {

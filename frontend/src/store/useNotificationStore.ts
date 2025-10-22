@@ -58,16 +58,14 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       return;
     }
 
-    console.log('[HTTP Polling] Starting notification polling (30s interval)');
+    console.log('[HTTP Polling] Starting notification polling (30s interval - optimized)');
     
-    // Fetch immediately
+    // Fetch immediately using combined endpoint
     get().fetchNotifications();
-    get().fetchUnreadCount();
     
-    // Set up polling interval
+    // Set up polling interval with combined endpoint
     const interval = setInterval(() => {
       get().fetchNotifications();
-      get().fetchUnreadCount();
     }, POLLING_INTERVAL);
     
     set({ pollingInterval: interval, isPolling: true });
@@ -86,20 +84,24 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   fetchNotifications: async () => {
     try {
       set({ isLoading: true });
-      const { data } = await api.get('/notifications', { params: { limit: 50 } });
+      // Use optimized combined endpoint that returns both notifications and count
+      const { data } = await api.get('/notifications/with-count', { params: { limit: 50 } });
+      
+      const notifications = data.notifications || [];
+      const unreadCount = data.unreadCount || 0;
       
       const { lastNotificationId, hasFetchedOnce } = get();
       
       // Check for new notifications (skip toasts on initial load)
-      if (data.length > 0 && hasFetchedOnce) {
+      if (notifications.length > 0 && hasFetchedOnce) {
         let newNotifications: Notification[] = [];
         
         if (lastNotificationId === null) {
           // First poll after empty inbox - show toasts for all unread notifications
-          newNotifications = data.filter((n: Notification) => !n.isRead);
-        } else if (data[0].id !== lastNotificationId) {
+          newNotifications = notifications.filter((n: Notification) => !n.isRead);
+        } else if (notifications[0].id !== lastNotificationId) {
           // Subsequent polls - find new notifications since last poll
-          for (const notification of data) {
+          for (const notification of notifications) {
             if (notification.id === lastNotificationId) break;
             newNotifications.push(notification);
           }
@@ -121,11 +123,12 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
         });
       }
       
-      // Update state
+      // Update state with both notifications and unread count
       set({ 
-        notifications: data, 
+        notifications, 
+        unreadCount,
         isLoading: false,
-        lastNotificationId: data.length > 0 ? data[0].id : null,
+        lastNotificationId: notifications.length > 0 ? notifications[0].id : null,
         hasFetchedOnce: true
       });
     } catch (error) {

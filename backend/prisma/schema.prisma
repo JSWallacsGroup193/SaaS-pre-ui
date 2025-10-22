@@ -568,6 +568,11 @@ model WorkOrder {
   @@index([isCallback])
   @@index([originalWorkOrderId])
   @@index([createdAt])
+  // Composite indexes for multi-tenant query optimization
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, scheduledAt])
+  @@index([tenantId, priority])
 }
 
 // NEW: Work order priority enum
@@ -803,6 +808,10 @@ model FieldCalculation {
   @@index([calculatorType])
   @@index([category])
   @@index([createdAt])
+  // Composite indexes for multi-tenant query optimization
+  @@index([tenantId, createdAt])
+  @@index([tenantId, calculatorType])
+  @@index([technicianId, createdAt])
 }
 
 // EXISTING: DispatchSlot (keep as-is but can enhance)
@@ -1428,6 +1437,8 @@ model PurchaseOrder {
   @@index([skuId])
   @@index([status, tenantId])
   @@index([poNumber])
+  // Additional composite indexes for query optimization
+  @@index([tenantId, orderDate])
 }
 
 // EXISTING: POStatus enum (keep as-is)
@@ -1958,6 +1969,10 @@ model Notification {
   @@index([userId])
   @@index([isRead])
   @@index([createdAt])
+  // Composite indexes for notification query optimization
+  @@index([userId, isRead])
+  @@index([userId, createdAt])
+  @@index([tenantId, createdAt])
 }
 
 // Notifications: User notification preferences
@@ -2399,6 +2414,10 @@ model Estimate {
   @@index([createdBy])
   @@index([estimateType])
   @@index([status])
+  // Composite indexes for multi-tenant query optimization
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, estimateType])
 }
 
 // Estimate Line Items - For manual estimates
@@ -2485,6 +2504,9 @@ model Proposal {
   @@index([proposalNumber])
   @@index([status])
   @@index([createdBy])
+  // Composite indexes for multi-tenant query optimization
+  @@index([tenantId, status])
+  @@index([tenantId, createdAt])
 }
 
 // Proposal Line Items

@@ -406,18 +406,42 @@ export class EstimatorService {
     return this.getProposalById(tenantId, proposalId);
   }
 
-  async listProposals(tenantId: string) {
-    return this.prisma.proposal.findMany({
-      where: { tenantId },
-      include: {
-        lineItems: true,
-        estimate: true,
-        account: true,
-        workOrder: true,
-        creator: { select: { id: true, email: true, firstName: true, lastName: true } },
+  async listProposals(tenantId: string, page = 1, limit = 20) {
+    // Ensure valid pagination values
+    const validPage = Math.max(1, page);
+    const validLimit = Math.min(Math.max(1, limit), 100); // Max 100 per page
+    const skip = (validPage - 1) * validLimit;
+
+    // Get total count and paginated data in parallel
+    const [total, proposals] = await Promise.all([
+      this.prisma.proposal.count({
+        where: { tenantId },
+      }),
+      this.prisma.proposal.findMany({
+        where: { tenantId },
+        include: {
+          lineItems: true,
+          estimate: true,
+          account: true,
+          workOrder: true,
+          creator: { select: { id: true, email: true, firstName: true, lastName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: validLimit,
+      }),
+    ]);
+
+    return {
+      data: proposals,
+      pagination: {
+        total,
+        page: validPage,
+        limit: validLimit,
+        totalPages: Math.ceil(total / validLimit),
+        hasMore: skip + proposals.length < total,
       },
-      orderBy: { createdAt: 'desc' },
-    });
+    };
   }
 
   async getProposalById(tenantId: string, proposalId: string) {

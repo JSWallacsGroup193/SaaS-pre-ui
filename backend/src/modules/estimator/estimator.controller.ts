@@ -92,9 +92,21 @@ export class EstimatorController {
 
   @Get('proposals')
   @UseGuards(JwtAuthGuard)
-  async listProposals(@Request() req) {
+  async listProposals(
+    @Request() req,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string
+  ) {
     const tenantId = req.user.tenantId;
-    return this.estimatorService.listProposals(tenantId);
+    
+    // Safely parse pagination parameters, default to valid values if invalid
+    const parsedPage = page ? parseInt(page, 10) : 1;
+    const parsedLimit = limit ? parseInt(limit, 10) : 20;
+    
+    const pageNum = Number.isNaN(parsedPage) || parsedPage < 1 ? 1 : parsedPage;
+    const limitNum = Number.isNaN(parsedLimit) || parsedLimit < 1 ? 20 : Math.min(parsedLimit, 100);
+    
+    return this.estimatorService.listProposals(tenantId, pageNum, limitNum);
   }
 
   @Get('proposals/:id')
