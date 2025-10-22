@@ -97,11 +97,19 @@ export default function Dashboard() {
   }
 
   return (
-    <TechnicianDashboard
-      technicianName={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : 'Technician'}
-      jobsToday={jobsToday}
-      hoursWorked={hoursWorked}
-      workOrders={workOrders}
-    />
+    <div className="min-h-screen bg-slate-950">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Dashboard</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Full situational awareness. Business ops at a glance.</p>
+      </div>
+      
+      <TechnicianDashboard
+        technicianName={user?.firstName && user?.lastName ? `${user.firstName} ${user.lastName}` : 'Technician'}
+        jobsToday={jobsToday}
+        hoursWorked={hoursWorked}
+        workOrders={workOrders}
+      />
+    </div>
   )
 }

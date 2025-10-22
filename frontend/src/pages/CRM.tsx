@@ -14,8 +14,14 @@ export default function CRM() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-slate-900 p-3 md:p-6">
-      <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">CRM Contacts</h2>
+    <div className="min-h-screen bg-slate-900">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-3 md:px-6 py-4 md:py-6 mb-4 md:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">CRM</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Log intel. Manage contacts. Build target profiles.</p>
+      </div>
+      
+      <div className="p-3 md:p-6 pt-0">
       
       {/* Desktop Table View */}
       <div className="hidden md:block bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
@@ -78,6 +84,7 @@ export default function CRM() {
             </div>
           ))
         )}
+      </div>
       </div>
     </div>
   )

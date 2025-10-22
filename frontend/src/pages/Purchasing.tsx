@@ -26,8 +26,14 @@ export default function Purchasing() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 p-3 md:p-6">
-      <h2 className="text-xl md:text-2xl font-bold text-white mb-4 md:mb-6">Purchase Orders</h2>
+    <div className="min-h-screen bg-slate-900">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-3 md:px-6 py-4 md:py-6 mb-4 md:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Purchasing</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Requisition gear. Keep supply lines moving.</p>
+      </div>
+      
+      <div className="p-3 md:p-6 pt-0">
       
       {/* Desktop Table View */}
       <div className="hidden md:block bg-slate-800 rounded-lg overflow-x-auto border border-slate-700">
@@ -95,6 +101,7 @@ export default function Purchasing() {
             </div>
           ))
         )}
+      </div>
       </div>
     </div>
   )

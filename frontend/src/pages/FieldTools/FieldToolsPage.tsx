@@ -231,16 +231,17 @@ export default function FieldToolsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
+    <div className="min-h-screen bg-background">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Field Tools</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Essential calcs. Quick estimates. Field-ready.</p>
+      </div>
+      
+      <div className="p-3 sm:p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 md:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
-            <div>
-              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Field Tools</h1>
-              <p className="text-base sm:text-lg text-muted-foreground">
-                Professional HVAC calculators and diagnostic tools for field technicians
-              </p>
-            </div>
             <div className="flex gap-3">
               <button
                 onClick={() => navigate('/estimates')}
@@ -336,6 +337,7 @@ export default function FieldToolsPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

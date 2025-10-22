@@ -62,13 +62,21 @@ export default function AI() {
   }
 
   return (
-    <div className="h-[calc(100vh-56px)] bg-[#0f172a]">
-      <ChatInterface
-        messages={messages}
-        onSendMessage={handleSendMessage}
-        onClearHistory={handleClearHistory}
-        isLoading={isLoading}
-      />
+    <div className="h-[calc(100vh-56px)] bg-[#0f172a] flex flex-col">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 flex-shrink-0">
+        <h1 className="text-xl sm:text-2xl font-bold text-white mb-1">AI Assistant</h1>
+        <p className="text-slate-400 text-xs sm:text-sm">Call in backup. Get answers. Execute.</p>
+      </div>
+      
+      <div className="flex-1 overflow-hidden">
+        <ChatInterface
+          messages={messages}
+          onSendMessage={handleSendMessage}
+          onClearHistory={handleClearHistory}
+          isLoading={isLoading}
+        />
+      </div>
     </div>
   )
 }

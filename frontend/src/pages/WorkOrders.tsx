@@ -231,15 +231,23 @@ export default function WorkOrders() {
   }
 
   return (
-    <WorkOrderList
-      workOrders={filteredWorkOrders}
-      totalCount={workOrders.length}
-      filters={filters}
-      onFilterChange={handleFilterChange}
-      onCreate={handleCreate}
-      onView={handleView}
-      onEdit={handleEdit}
-      onDelete={handleDelete}
-    />
+    <div className="min-h-screen bg-slate-950">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Work Orders</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Track missions. Execute jobs. Close the loop.</p>
+      </div>
+      
+      <WorkOrderList
+        workOrders={filteredWorkOrders}
+        totalCount={workOrders.length}
+        filters={filters}
+        onFilterChange={handleFilterChange}
+        onCreate={handleCreate}
+        onView={handleView}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+    </div>
   )
 }

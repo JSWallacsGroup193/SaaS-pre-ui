@@ -395,6 +395,12 @@ export default function SettingsPage({
 
   return (
     <div className="min-h-screen bg-slate-950">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Settings</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Customize loadout. Lock in your config</p>
+      </div>
+      
       <div className="flex flex-col lg:flex-row">
         <aside className="w-full lg:w-60 bg-slate-800 border-b lg:border-r lg:border-b-0 border-slate-700">
           <div className="p-4">

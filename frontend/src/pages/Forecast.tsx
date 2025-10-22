@@ -92,9 +92,15 @@ export default function ForecastPage() {
   const forecastAccuracy = 94.2
 
   return (
-    <div className="min-h-screen bg-[#0f172a] p-4 md:p-6 lg:p-8">
+    <div className="min-h-screen bg-[#0f172a]">
+      {/* Page Header */}
+      <div className="bg-slate-900 border-b border-slate-800 px-4 sm:px-6 py-4 sm:py-6">
+        <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Forecasting</h1>
+        <p className="text-slate-400 text-sm sm:text-base">Anticipate demand. Prepare before it hits.</p>
+      </div>
+      
+      <div className="p-4 md:p-6 lg:p-8">
       <div className="mb-6 flex flex-col gap-4 rounded-lg bg-[#1e293b] p-4 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-bold text-slate-100 md:text-3xl">Demand Forecasting</h1>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <Select value={timePeriod} onValueChange={setTimePeriod}>
             <SelectTrigger className="w-full border-[#475569] bg-[#334155] text-slate-100 sm:w-[180px]">
@@ -173,6 +179,7 @@ export default function ForecastPage() {
       </div>
 
       <TopMoversTable movers={topMovers} />
+      </div>
     </div>
   )
 }
