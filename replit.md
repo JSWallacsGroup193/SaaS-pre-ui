@@ -24,8 +24,9 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Demand Forecasting Dashboard**: Comprehensive module with interactive charts, KPIs, reorder recommendations, and time period selection.
 - **Labels Generator**: Professional inventory label creation tool with SKU search, customizable sizes, selectable fields, live preview (JsBarcode CODE128), and print/PDF export.
 - **Barcode Scanner**: Production-ready camera-based scanning (html5-qrcode) supporting multiple formats, exact/fuzzy SKU matching, real-time backend lookup, and navigation to SKU detail pages.
-- **Field Tools**: 21 professional HVAC calculators across various categories, with results savable to work orders.
+- **Field Tools**: 21 professional HVAC calculators across various categories, with results savable to work orders. Includes AI Cost Estimator with Quick (5-min) and Comprehensive (full) modes using OpenAI GPT-4o.
 - **AI Chat**: OpenAI-powered HVAC assistant with quick suggestions, rich text support, and feedback options.
+- **AI Cost Estimator**: Advanced AI-powered HVAC cost estimation module with Quick and Comprehensive modes. Uses OpenAI GPT-4o to generate detailed estimates including labor, materials, permits, overhead, and profit margins. Integrates with Field Tools and persists estimates to database with full tenant isolation. Backend API endpoint: POST /api/v1/estimator/calculate with JWT authentication.
 - **Super Admin Panel**: System administration interface for user, role, permission, and tenant management, protected by `AdminGuard`.
 - **Notification System**: In-app, email, and SMS notifications with user preferences using HTTP polling (30-second interval). WebSocket disabled due to engine.io/NestJS compatibility issues; HTTP polling provides reliable notification delivery with ~30s latency. Frontend automatically starts polling on login and stops on logout. Toast notifications display for new unread items.
 - **Monitoring**: Health checks and application metrics.
@@ -52,5 +53,6 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Barcode Generation**: `jsbarcode`
 - **Barcode Scanning**: `html5-qrcode`
 - **OpenAPI Documentation**: `@nestjs/swagger`
-- **OpenAI API**: For AI Chat
+- **OpenAI API**: For AI Chat and AI Cost Estimator
 - **Data Visualization**: Recharts
+- **Validation Library**: Zod (for AI response validation)
