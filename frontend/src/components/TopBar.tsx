@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../store/useAuth'
 import { LogOut, Menu } from 'lucide-react'
 import { Notifications } from './Notifications'
@@ -7,7 +8,13 @@ interface TopBarProps {
 }
 
 export function TopBar({ onMenuClick }: TopBarProps) {
+  const navigate = useNavigate()
   const logout = useAuth(s => s.logout)
+  
+  const handleLogout = () => {
+    logout()
+    navigate('/login')
+  }
   
   return (
     <div className="flex items-center justify-between px-4 lg:px-6 bg-slate-900 border-b border-slate-800">
@@ -34,7 +41,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         <Notifications />
         
         <button 
-          onClick={logout} 
+          onClick={handleLogout} 
           className="flex items-center gap-2 px-3 lg:px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-100 border border-slate-700 rounded-md transition-colors"
         >
           <LogOut className="w-4 h-4" />
