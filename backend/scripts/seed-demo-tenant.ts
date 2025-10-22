@@ -8,16 +8,20 @@ async function main() {
 
   // Step 1: Create or find tenant
   console.log('📝 Creating tenant...');
-  const tenant = await prisma.tenant.upsert({
+  let tenant = await prisma.tenant.findFirst({
     where: { name: 'HVAC Demo Corp' },
-    update: {},
-    create: {
-      name: 'HVAC Demo Corp',
-      subdomain: 'demo',
-      plan: 'professional',
-      isActive: true,
-    },
   });
+  
+  if (!tenant) {
+    tenant = await prisma.tenant.create({
+      data: {
+        name: 'HVAC Demo Corp',
+        subdomain: 'demo',
+        plan: 'professional',
+        isActive: true,
+      },
+    });
+  }
   console.log(`✅ Tenant: ${tenant.name}\n`);
 
   // Step 2: Create demo user with FIELD_MANAGER role
@@ -110,18 +114,18 @@ async function main() {
   console.log('👥 Creating CRM data...');
   
   const accountsData = [
-    { name: 'Johnson Residence', type: 'Residential', address: '123 Oak Street, Springfield, IL 62701', phone: '(555) 123-4567' },
-    { name: 'Smith Family Home', type: 'Residential', address: '456 Maple Ave, Springfield, IL 62702', phone: '(555) 234-5678' },
-    { name: 'Green Valley Apartments', type: 'Commercial', address: '789 Pine Road, Springfield, IL 62703', phone: '(555) 345-6789' },
-    { name: 'Downtown Office Tower', type: 'Commercial', address: '321 Business Blvd, Springfield, IL 62704', phone: '(555) 456-7890' },
-    { name: 'Riverside Shopping Mall', type: 'Commercial', address: '654 Commerce Dr, Springfield, IL 62705', phone: '(555) 567-8901' },
-    { name: 'Martinez Residence', type: 'Residential', address: '987 Elm Street, Springfield, IL 62706', phone: '(555) 678-9012' },
-    { name: 'Central High School', type: 'Commercial', address: '147 Education Way, Springfield, IL 62707', phone: '(555) 789-0123' },
-    { name: 'Anderson Family', type: 'Residential', address: '258 Birch Lane, Springfield, IL 62708', phone: '(555) 890-1234' },
-    { name: 'Sunset Medical Center', type: 'Commercial', address: '369 Hospital Dr, Springfield, IL 62709', phone: '(555) 901-2345' },
-    { name: 'Brown Residence', type: 'Residential', address: '741 Cedar Ave, Springfield, IL 62710', phone: '(555) 012-3456' },
-    { name: 'Lakeside Restaurant', type: 'Commercial', address: '852 Lake View Rd, Springfield, IL 62711', phone: '(555) 123-4568' },
-    { name: 'Taylor Family Home', type: 'Residential', address: '963 Willow St, Springfield, IL 62712', phone: '(555) 234-5679' },
+    { name: 'Johnson Residence', customerType: 'individual', address: '123 Oak Street, Springfield, IL 62701', phone: '(555) 123-4567' },
+    { name: 'Smith Family Home', customerType: 'individual', address: '456 Maple Ave, Springfield, IL 62702', phone: '(555) 234-5678' },
+    { name: 'Green Valley Apartments', customerType: 'business', address: '789 Pine Road, Springfield, IL 62703', phone: '(555) 345-6789' },
+    { name: 'Downtown Office Tower', customerType: 'business', address: '321 Business Blvd, Springfield, IL 62704', phone: '(555) 456-7890' },
+    { name: 'Riverside Shopping Mall', customerType: 'business', address: '654 Commerce Dr, Springfield, IL 62705', phone: '(555) 567-8901' },
+    { name: 'Martinez Residence', customerType: 'individual', address: '987 Elm Street, Springfield, IL 62706', phone: '(555) 678-9012' },
+    { name: 'Central High School', customerType: 'business', address: '147 Education Way, Springfield, IL 62707', phone: '(555) 789-0123' },
+    { name: 'Anderson Family', customerType: 'individual', address: '258 Birch Lane, Springfield, IL 62708', phone: '(555) 890-1234' },
+    { name: 'Sunset Medical Center', customerType: 'business', address: '369 Hospital Dr, Springfield, IL 62709', phone: '(555) 901-2345' },
+    { name: 'Brown Residence', customerType: 'individual', address: '741 Cedar Ave, Springfield, IL 62710', phone: '(555) 012-3456' },
+    { name: 'Lakeside Restaurant', customerType: 'business', address: '852 Lake View Rd, Springfield, IL 62711', phone: '(555) 123-4568' },
+    { name: 'Taylor Family Home', customerType: 'individual', address: '963 Willow St, Springfield, IL 62712', phone: '(555) 234-5679' },
   ];
 
   const accounts = [];
@@ -130,7 +134,8 @@ async function main() {
       data: {
         tenantId: tenant.id,
         name: accountData.name,
-        type: accountData.type,
+        accountNumber: `ACC-${Date.now()}-${accounts.length}`,
+        customerType: accountData.customerType,
         billingAddress: accountData.address,
         phone: accountData.phone,
       },
@@ -167,6 +172,7 @@ async function main() {
       data: {
         tenantId: tenant.id,
         accountId: accounts[contactData.accountIdx].id,
+        name: `${contactData.firstName} ${contactData.lastName}`,
         firstName: contactData.firstName,
         lastName: contactData.lastName,
         email: contactData.email,
@@ -181,14 +187,14 @@ async function main() {
 
   // Create leads
   const leadsData = [
-    { firstName: 'Christopher', lastName: 'Wilson', email: 'chris.wilson@email.com', phone: '(555) 111-2222', source: 'Website', status: 'New' },
-    { firstName: 'Amanda', lastName: 'Moore', email: 'amanda.moore@email.com', phone: '(555) 222-3333', source: 'Referral', status: 'Contacted' },
-    { firstName: 'Matthew', lastName: 'Garcia', email: 'matthew.garcia@email.com', phone: '(555) 333-4444', source: 'Google Ads', status: 'Qualified' },
-    { firstName: 'Michelle', lastName: 'Lee', email: 'michelle.lee@email.com', phone: '(555) 444-5555', source: 'Facebook', status: 'Proposal' },
-    { firstName: 'Joshua', lastName: 'Harris', email: 'joshua.harris@business.com', phone: '(555) 555-6666', source: 'Cold Call', status: 'Won', company: 'Harris Enterprises' },
-    { firstName: 'Ashley', lastName: 'Clark', email: 'ashley.clark@email.com', phone: '(555) 666-7777', source: 'Trade Show', status: 'Lost' },
-    { firstName: 'Andrew', lastName: 'Lewis', email: 'andrew.lewis@company.com', phone: '(555) 777-8888', source: 'Website', status: 'Contacted', company: 'Lewis Corp' },
-    { firstName: 'Stephanie', lastName: 'Walker', email: 'stephanie.walker@email.com', phone: '(555) 888-9999', source: 'Referral', status: 'New' },
+    { firstName: 'Christopher', lastName: 'Wilson', email: 'chris.wilson@email.com', phone: '(555) 111-2222', source: 'Website', status: 'NEW' as const },
+    { firstName: 'Amanda', lastName: 'Moore', email: 'amanda.moore@email.com', phone: '(555) 222-3333', source: 'Referral', status: 'NEW' as const },
+    { firstName: 'Matthew', lastName: 'Garcia', email: 'matthew.garcia@email.com', phone: '(555) 333-4444', source: 'Google Ads', status: 'QUALIFIED' as const },
+    { firstName: 'Michelle', lastName: 'Lee', email: 'michelle.lee@email.com', phone: '(555) 444-5555', source: 'Facebook', status: 'QUALIFIED' as const },
+    { firstName: 'Joshua', lastName: 'Harris', email: 'joshua.harris@business.com', phone: '(555) 555-6666', source: 'Cold Call', status: 'WON' as const, company: 'Harris Enterprises' },
+    { firstName: 'Ashley', lastName: 'Clark', email: 'ashley.clark@email.com', phone: '(555) 666-7777', source: 'Trade Show', status: 'LOST' as const },
+    { firstName: 'Andrew', lastName: 'Lewis', email: 'andrew.lewis@company.com', phone: '(555) 777-8888', source: 'Website', status: 'NEW' as const, company: 'Lewis Corp' },
+    { firstName: 'Stephanie', lastName: 'Walker', email: 'stephanie.walker@email.com', phone: '(555) 888-9999', source: 'Referral', status: 'NEW' as const },
   ];
 
   const leads = [];
@@ -226,7 +232,6 @@ async function main() {
         tenantId: tenant.id,
         contactId: contacts[noteData.contactIdx].id,
         content: noteData.content,
-        createdBy: demoUser.id,
       },
     });
   }
@@ -272,10 +277,8 @@ async function main() {
   for (const binData of binsData) {
     const bin = await prisma.bin.create({
       data: {
-        tenantId: tenant.id,
         warehouseId: warehouses[binData.warehouseIdx].id,
         name: binData.name,
-        location: binData.location,
       },
     });
     bins.push(bin);
@@ -377,11 +380,10 @@ async function main() {
       data: {
         tenantId: tenant.id,
         skuId: skus[stock.skuIdx].id,
-        warehouseId: bins[stock.binIdx].warehouseId,
         binId: bins[stock.binIdx].id,
         quantity: stock.quantity,
-        transactionType: 'IN',
-        reason: 'Initial Stock',
+        direction: 'IN',
+        note: 'Initial Stock',
       },
     });
   }
@@ -394,26 +396,26 @@ async function main() {
   const daysAgo = (days: number) => new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
   
   const workOrdersData = [
-    { accountIdx: 0, type: 'Maintenance', priority: 'Medium', status: 'OPEN', title: 'Annual AC Maintenance', description: 'Annual air conditioning system maintenance and inspection', scheduledDate: daysAgo(5), techIdx: 0 },
-    { accountIdx: 1, type: 'Emergency', priority: 'High', status: 'IN_PROGRESS', title: 'No Heat - Furnace Not Working', description: 'Customer reports no heat. Furnace not igniting.', scheduledDate: daysAgo(1), techIdx: 1 },
-    { accountIdx: 2, type: 'Installation', priority: 'Medium', status: 'OPEN', title: 'Install 3 Rooftop Units', description: 'Install three new 5-ton rooftop units for building expansion', scheduledDate: daysAgo(-7), techIdx: null },
-    { accountIdx: 3, type: 'Emergency', priority: 'High', status: 'IN_PROGRESS', title: 'Chiller Down - No Cooling', description: 'Main chiller not operating. Building overheating.', scheduledDate: daysAgo(0), techIdx: 2 },
-    { accountIdx: 4, type: 'Maintenance', priority: 'Low', status: 'OPEN', title: 'Quarterly HVAC Inspection', description: 'Quarterly preventive maintenance on all retail space units', scheduledDate: daysAgo(-14), techIdx: null },
-    { accountIdx: 5, type: 'Repair', priority: 'Medium', status: 'IN_PROGRESS', title: 'AC Not Cooling Properly', description: 'Air conditioner running but not cooling effectively', scheduledDate: daysAgo(2), techIdx: 3 },
-    { accountIdx: 6, type: 'Maintenance', priority: 'Medium', status: 'OPEN', title: 'Filter Replacement - All Units', description: 'Replace filters on all HVAC units throughout school', scheduledDate: daysAgo(-3), techIdx: null },
-    { accountIdx: 7, type: 'Emergency', priority: 'High', status: 'IN_PROGRESS', title: 'Gas Smell - Furnace Inspection', description: 'Customer reports gas smell near furnace. Immediate inspection needed.', scheduledDate: daysAgo(0), techIdx: 4 },
-    { accountIdx: 8, type: 'Repair', priority: 'High', status: 'OPEN', title: 'Operating Room AC Failure', description: 'Air conditioning failure in operating room. Critical priority.', scheduledDate: daysAgo(1), techIdx: null },
-    { accountIdx: 9, type: 'Maintenance', priority: 'Low', status: 'COMPLETED', title: 'Fall Furnace Tune-Up', description: 'Pre-winter furnace maintenance and cleaning', scheduledDate: daysAgo(30), completedDate: daysAgo(30), techIdx: 0 },
-    { accountIdx: 0, type: 'Repair', priority: 'Medium', status: 'COMPLETED', title: 'Replace Capacitor', description: 'Diagnosed and replaced failed run capacitor', scheduledDate: daysAgo(45), completedDate: daysAgo(45), techIdx: 1 },
-    { accountIdx: 1, type: 'Maintenance', priority: 'Low', status: 'COMPLETED', title: 'Spring AC Startup', description: 'Spring AC system startup and inspection', scheduledDate: daysAgo(60), completedDate: daysAgo(60), techIdx: 0 },
-    { accountIdx: 10, type: 'Installation', priority: 'Medium', status: 'COMPLETED', title: 'Install Walk-in Cooler HVAC', description: 'Install new HVAC system for walk-in cooler/freezer', scheduledDate: daysAgo(75), completedDate: daysAgo(72), techIdx: 2 },
-    { accountIdx: 3, type: 'Repair', priority: 'High', status: 'COMPLETED', title: 'Replace Compressor', description: 'Replaced failed compressor on main cooling unit', scheduledDate: daysAgo(80), completedDate: daysAgo(79), techIdx: 3 },
-    { accountIdx: 4, type: 'Maintenance', priority: 'Low', status: 'COMPLETED', title: 'Monthly Filter Service', description: 'Monthly filter replacement service for all retail units', scheduledDate: daysAgo(35), completedDate: daysAgo(35), techIdx: 4 },
-    { accountIdx: 11, type: 'Repair', priority: 'Medium', status: 'COMPLETED', title: 'Thermostat Not Working', description: 'Replaced faulty thermostat with programmable model', scheduledDate: daysAgo(50), completedDate: daysAgo(50), techIdx: 1 },
-    { accountIdx: 5, type: 'Inspection', priority: 'Low', status: 'COMPLETED', title: 'Annual System Inspection', description: 'Annual HVAC system inspection and certification', scheduledDate: daysAgo(90), completedDate: daysAgo(90), techIdx: 0 },
-    { accountIdx: 6, type: 'Repair', priority: 'Medium', status: 'ON_HOLD', title: 'Gym Unit Not Heating', description: 'Gymnasium heating unit not producing heat. Awaiting parts.', scheduledDate: daysAgo(10), techIdx: null },
-    { accountIdx: 7, type: 'Maintenance', priority: 'Low', status: 'ON_HOLD', title: 'Duct Cleaning Service', description: 'Professional duct cleaning service. Customer to confirm date.', scheduledDate: daysAgo(-21), techIdx: null },
-    { accountIdx: 8, type: 'Maintenance', priority: 'Low', status: 'CANCELLED', title: 'Preventive Maintenance', description: 'Customer cancelled - switching to annual contract', scheduledDate: daysAgo(20), techIdx: null },
+    { accountIdx: 0, type: 'Maintenance', priority: 'MEDIUM' as const, status: 'SCHEDULED' as const, title: 'Annual AC Maintenance', description: 'Annual air conditioning system maintenance and inspection', scheduledDate: daysAgo(5), techIdx: 0 },
+    { accountIdx: 1, type: 'Emergency', priority: 'HIGH' as const, status: 'IN_PROGRESS' as const, title: 'No Heat - Furnace Not Working', description: 'Customer reports no heat. Furnace not igniting.', scheduledDate: daysAgo(1), techIdx: 1 },
+    { accountIdx: 2, type: 'Installation', priority: 'MEDIUM' as const, status: 'NEW' as const, title: 'Install 3 Rooftop Units', description: 'Install three new 5-ton rooftop units for building expansion', scheduledDate: daysAgo(-7), techIdx: null },
+    { accountIdx: 3, type: 'Emergency', priority: 'HIGH' as const, status: 'IN_PROGRESS' as const, title: 'Chiller Down - No Cooling', description: 'Main chiller not operating. Building overheating.', scheduledDate: daysAgo(0), techIdx: 2 },
+    { accountIdx: 4, type: 'Maintenance', priority: 'LOW' as const, status: 'NEW' as const, title: 'Quarterly HVAC Inspection', description: 'Quarterly preventive maintenance on all retail space units', scheduledDate: daysAgo(-14), techIdx: null },
+    { accountIdx: 5, type: 'Repair', priority: 'MEDIUM' as const, status: 'IN_PROGRESS' as const, title: 'AC Not Cooling Properly', description: 'Air conditioner running but not cooling effectively', scheduledDate: daysAgo(2), techIdx: 3 },
+    { accountIdx: 6, type: 'Maintenance', priority: 'MEDIUM' as const, status: 'NEW' as const, title: 'Filter Replacement - All Units', description: 'Replace filters on all HVAC units throughout school', scheduledDate: daysAgo(-3), techIdx: null },
+    { accountIdx: 7, type: 'Emergency', priority: 'HIGH' as const, status: 'IN_PROGRESS' as const, title: 'Gas Smell - Furnace Inspection', description: 'Customer reports gas smell near furnace. Immediate inspection needed.', scheduledDate: daysAgo(0), techIdx: 4 },
+    { accountIdx: 8, type: 'Repair', priority: 'HIGH' as const, status: 'NEW' as const, title: 'Operating Room AC Failure', description: 'Air conditioning failure in operating room. Critical priority.', scheduledDate: daysAgo(1), techIdx: null },
+    { accountIdx: 9, type: 'Maintenance', priority: 'LOW' as const, status: 'COMPLETED' as const, title: 'Fall Furnace Tune-Up', description: 'Pre-winter furnace maintenance and cleaning', scheduledDate: daysAgo(30), completedDate: daysAgo(30), techIdx: 0 },
+    { accountIdx: 0, type: 'Repair', priority: 'MEDIUM' as const, status: 'COMPLETED' as const, title: 'Replace Capacitor', description: 'Diagnosed and replaced failed run capacitor', scheduledDate: daysAgo(45), completedDate: daysAgo(45), techIdx: 1 },
+    { accountIdx: 1, type: 'Maintenance', priority: 'LOW' as const, status: 'COMPLETED' as const, title: 'Spring AC Startup', description: 'Spring AC system startup and inspection', scheduledDate: daysAgo(60), completedDate: daysAgo(60), techIdx: 0 },
+    { accountIdx: 10, type: 'Installation', priority: 'MEDIUM' as const, status: 'COMPLETED' as const, title: 'Install Walk-in Cooler HVAC', description: 'Install new HVAC system for walk-in cooler/freezer', scheduledDate: daysAgo(75), completedDate: daysAgo(72), techIdx: 2 },
+    { accountIdx: 3, type: 'Repair', priority: 'HIGH' as const, status: 'COMPLETED' as const, title: 'Replace Compressor', description: 'Replaced failed compressor on main cooling unit', scheduledDate: daysAgo(80), completedDate: daysAgo(79), techIdx: 3 },
+    { accountIdx: 4, type: 'Maintenance', priority: 'LOW' as const, status: 'COMPLETED' as const, title: 'Monthly Filter Service', description: 'Monthly filter replacement service for all retail units', scheduledDate: daysAgo(35), completedDate: daysAgo(35), techIdx: 4 },
+    { accountIdx: 11, type: 'Repair', priority: 'MEDIUM' as const, status: 'COMPLETED' as const, title: 'Thermostat Not Working', description: 'Replaced faulty thermostat with programmable model', scheduledDate: daysAgo(50), completedDate: daysAgo(50), techIdx: 1 },
+    { accountIdx: 5, type: 'Inspection', priority: 'LOW' as const, status: 'COMPLETED' as const, title: 'Annual System Inspection', description: 'Annual HVAC system inspection and certification', scheduledDate: daysAgo(90), completedDate: daysAgo(90), techIdx: 0 },
+    { accountIdx: 6, type: 'Repair', priority: 'MEDIUM' as const, status: 'ON_HOLD' as const, title: 'Gym Unit Not Heating', description: 'Gymnasium heating unit not producing heat. Awaiting parts.', scheduledDate: daysAgo(10), techIdx: null },
+    { accountIdx: 7, type: 'Maintenance', priority: 'LOW' as const, status: 'ON_HOLD' as const, title: 'Duct Cleaning Service', description: 'Professional duct cleaning service. Customer to confirm date.', scheduledDate: daysAgo(-21), techIdx: null },
+    { accountIdx: 8, type: 'Maintenance', priority: 'LOW' as const, status: 'CANCELLED' as const, title: 'Preventive Maintenance', description: 'Customer cancelled - switching to annual contract', scheduledDate: daysAgo(20), techIdx: null },
   ];
 
   const workOrders = [];
@@ -441,14 +443,14 @@ async function main() {
   console.log('🛒 Creating purchase orders...');
   
   const purchaseOrdersData = [
-    { vendor: 'HVAC Supply Co', status: 'DRAFT', items: [{ skuIdx: 0, qty: 100 }, { skuIdx: 1, qty: 50 }] },
-    { vendor: 'Parts Distributors Inc', status: 'SUBMITTED', items: [{ skuIdx: 5, qty: 25 }, { skuIdx: 6, qty: 25 }] },
-    { vendor: 'Refrigerant Depot', status: 'SUBMITTED', items: [{ skuIdx: 3, qty: 10 }, { skuIdx: 4, qty: 5 }] },
-    { vendor: 'HVAC Supply Co', status: 'SUBMITTED', items: [{ skuIdx: 11, qty: 12 }, { skuIdx: 12, qty: 8 }] },
-    { vendor: 'Equipment Warehouse', status: 'APPROVED', items: [{ skuIdx: 15, qty: 2 }, { skuIdx: 16, qty: 1 }] },
-    { vendor: 'Parts Distributors Inc', status: 'APPROVED', items: [{ skuIdx: 24, qty: 20 }, { skuIdx: 25, qty: 15 }] },
-    { vendor: 'HVAC Supply Co', status: 'RECEIVED', items: [{ skuIdx: 30, qty: 10 }, { skuIdx: 31, qty: 10 }] },
-    { vendor: 'Parts Distributors Inc', status: 'DRAFT', items: [{ skuIdx: 9, qty: 15 }, { skuIdx: 10, qty: 15 }] },
+    { vendor: 'HVAC Supply Co', status: 'OPEN' as const, items: [{ skuIdx: 0, qty: 100 }, { skuIdx: 1, qty: 50 }] },
+    { vendor: 'Parts Distributors Inc', status: 'OPEN' as const, items: [{ skuIdx: 5, qty: 25 }, { skuIdx: 6, qty: 25 }] },
+    { vendor: 'Refrigerant Depot', status: 'OPEN' as const, items: [{ skuIdx: 3, qty: 10 }, { skuIdx: 4, qty: 5 }] },
+    { vendor: 'HVAC Supply Co', status: 'OPEN' as const, items: [{ skuIdx: 11, qty: 12 }, { skuIdx: 12, qty: 8 }] },
+    { vendor: 'Equipment Warehouse', status: 'OPEN' as const, items: [{ skuIdx: 15, qty: 2 }, { skuIdx: 16, qty: 1 }] },
+    { vendor: 'Parts Distributors Inc', status: 'RECEIVED' as const, items: [{ skuIdx: 24, qty: 20 }, { skuIdx: 25, qty: 15 }] },
+    { vendor: 'HVAC Supply Co', status: 'RECEIVED' as const, items: [{ skuIdx: 30, qty: 10 }, { skuIdx: 31, qty: 10 }] },
+    { vendor: 'Parts Distributors Inc', status: 'OPEN' as const, items: [{ skuIdx: 9, qty: 15 }, { skuIdx: 10, qty: 15 }] },
   ];
 
   for (const poData of purchaseOrdersData) {
@@ -489,7 +491,7 @@ async function main() {
     await prisma.fieldCalculation.create({
       data: {
         tenantId: tenant.id,
-        userId: demoUser.id,
+        technicianId: demoUser.id,
         calculatorType: calc.type,
         category: calc.category,
         inputs: calc.inputs,
