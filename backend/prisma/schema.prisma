@@ -95,6 +95,7 @@ model Tenant {
   emailTemplates EmailTemplate[]
   smsTemplates   SmsTemplate[]
   fieldCalculations FieldCalculation[]
+  estimates      Estimate[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -173,6 +174,7 @@ model User {
   completedChecklists WorkOrderChecklist[]
   workOrderSignatures WorkOrderSignature[]
   fieldCalculations FieldCalculation[]
+  estimates      Estimate[]
   customerNotes CustomerNote[]
   auditLogs     AuditLog[]
   createdInvoices Invoice[]
@@ -546,6 +548,7 @@ model WorkOrder {
   checklists    WorkOrderChecklist[]
   signatures    WorkOrderSignature[]
   fieldCalculations FieldCalculation[]
+  estimates     Estimate[]
   
   @@index([tenantId])
   @@index([number])
@@ -2318,4 +2321,34 @@ model SmsTemplate {
   
   @@index([tenantId])
   @@index([templateType])
+}
+
+// ============================================================================
+// ESTIMATOR MODULE
+// ============================================================================
+
+model Estimate {
+  id            String   @id @default(uuid())
+  tenantId      String
+  workOrderId   String?
+  estimateMode  String   // 'quick' or 'comprehensive'
+  
+  inputData     Json     // Store inputs (6-8 fields for quick, 10 categories for comprehensive)
+  outputData    Json     // Store AI response
+  
+  totalEstimate Decimal? @db.Decimal(10, 2)
+  finalPrice    Decimal? @db.Decimal(10, 2)
+  profitMargin  Decimal? @db.Decimal(5, 2)
+  
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  workOrder     WorkOrder?  @relation(fields: [workOrderId], references: [id])
+  creator       User?       @relation(fields: [createdBy], references: [id])
+  
+  @@index([tenantId])
+  @@index([workOrderId])
+  @@index([createdBy])
 }

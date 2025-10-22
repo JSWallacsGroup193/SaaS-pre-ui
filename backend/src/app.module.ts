@@ -24,6 +24,7 @@ import { ChatModule } from './modules/chat/module';
 import { ScannerModule } from './modules/scanner/module';
 import { FieldCalculationModule } from './modules/field-calculation/module';
 import { NotificationModule } from './modules/notifications/module';
+import { EstimatorModule } from './modules/estimator/estimator.module';
 import { QueueModule } from './queue/queue.module';
 import { PrismaService } from './common/prisma.service';
 import { JwtAttachMiddleware } from './middleware/jwt.middleware';
@@ -50,6 +51,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     ScannerModule,
     FieldCalculationModule,
     NotificationModule,
+    EstimatorModule,
     QueueModule,
   ],
   controllers: [AppController, HealthController, MetricsController],
