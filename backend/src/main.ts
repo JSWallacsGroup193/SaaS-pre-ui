@@ -25,14 +25,27 @@ async function bootstrap() {
   
   const allowedOrigins = process.env.ALLOWED_ORIGINS 
     ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
-    : ['http://localhost:5000', 'http://0.0.0.0:5000'];
+    : [];
   
   app.enableCors({ 
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || process.env.NODE_ENV === 'development') {
+      // Always allow same-origin requests (no origin header)
+      if (!origin) {
         callback(null, true);
+        return;
+      }
+      
+      // If ALLOWED_ORIGINS is set in production, enforce strict CORS
+      // Otherwise, allow all origins (development/Replit environment)
+      if (allowedOrigins.length > 0) {
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error('Not allowed by CORS'));
+        }
       } else {
-        callback(new Error('Not allowed by CORS'));
+        // Development mode or Replit - allow all origins
+        callback(null, true);
       }
     },
     credentials: true,
