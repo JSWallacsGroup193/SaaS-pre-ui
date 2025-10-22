@@ -85,7 +85,7 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* Header - Fixed */}
         <div className="flex items-center justify-between p-6 border-b border-slate-800 flex-shrink-0">
           <div className="flex items-center gap-3">
-            <img src={logo} alt="OpsNex Logo" className="h-10 w-auto" />
+            <img src={logo} alt="OpsNex Logo" className="h-16 w-auto object-contain" style={{ mixBlendMode: 'lighten' }} />
           </div>
           <button
             onClick={onClose}

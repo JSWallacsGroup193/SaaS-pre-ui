@@ -113,7 +113,7 @@ export default function LoginPage({
           {/* Header */}
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <img src={logo} alt="OpsNex Logo" className="h-16 w-auto" />
+              <img src={logo} alt="OpsNex Logo" className="h-24 w-auto object-contain" style={{ mixBlendMode: 'lighten' }} />
             </div>
             <p className="text-sm text-muted-foreground">Sign in to your account</p>
           </div>
