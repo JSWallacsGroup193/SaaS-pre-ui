@@ -21,8 +21,9 @@ const PsychrometricCalculator = lazy(() => import('./components/PsychrometricCal
 const TonnageCalculator = lazy(() => import('./components/TonnageCalculator'));
 const HVACUnitConverter = lazy(() => import('./components/HVACUnitConverter'));
 const HeatLoadCalculator = lazy(() => import('./components/HeatLoadCalculator'));
+const AICostEstimator = lazy(() => import('./components/AICostEstimator'));
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | 'ai-estimator' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -36,6 +37,13 @@ export default function FieldToolsPage() {
   const [selectedCalculator, setSelectedCalculator] = useState<CalculatorType>(null);
 
   const calculators: Calculator[] = [
+    {
+      id: 'ai-estimator',
+      name: 'AI Cost Estimator',
+      icon: '🤖',
+      description: 'AI-powered job cost estimates with GPT-4o',
+      component: AICostEstimator
+    },
     {
       id: 'ohms',
       name: "Ohm's Law",
@@ -277,20 +285,20 @@ export default function FieldToolsPage() {
           <h2 className="text-xl font-bold text-foreground mb-4">Coming Soon</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground">
             <div className="flex items-start">
-              <span className="mr-2">🏠</span>
-              <span>HVAC Load Calculator (Manual J)</span>
-            </div>
-            <div className="flex items-start">
               <span className="mr-2">⚙️</span>
               <span>Belt Drive Calculator</span>
             </div>
             <div className="flex items-start">
-              <span className="mr-2">🌡️</span>
-              <span>Psychrometric Calculator</span>
+              <span className="mr-2">📊</span>
+              <span>Energy Savings Calculator</span>
             </div>
             <div className="flex items-start">
-              <span className="mr-2">💰</span>
-              <span>Job Pricing & Quote Builder</span>
+              <span className="mr-2">🔊</span>
+              <span>Noise Level Assessment</span>
+            </div>
+            <div className="flex items-start">
+              <span className="mr-2">📋</span>
+              <span>Equipment Maintenance Scheduler</span>
             </div>
           </div>
         </div>
