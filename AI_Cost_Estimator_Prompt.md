@@ -7,14 +7,47 @@ Use the structured input data provided to calculate an accurate HVAC installatio
 
 ## Context
 
+This AI cost estimator is being **added to the existing Field Tools module**, which currently contains 21 professional HVAC calculators across various categories. This new estimator will appear alongside tools like Airflow Calculator, BTU Calculator, Refrigerant Charge Calculator, etc.
+
+The estimator has **two modes** to serve different field scenarios:
+
+### **Quick Estimator** (5-Minute Version)
+- Minimal inputs (6-8 essential fields)
+- Job type, square footage, equipment tier, labor hours, zip code
+- Fast ballpark estimate for on-site quotes
+- Single recommended price point
+- Mobile-optimized for quick field use
+
+### **Comprehensive Estimator** (Full Version)
+- Complete 10-category input form
+- Detailed calculations with all cost breakdowns
+- Three-tier pricing (Good / Better / Best)
+- Profitability analysis and customer-facing summary
+- Used for formal proposals and complex projects
+
+Both versions use the same AI engine but with different prompt complexity and input requirements.
+
 The inputs are submitted from a form-based user interface used by HVAC professionals.
-You must parse all fields and return a detailed, itemized estimate along with tiered options (Good / Better / Best), profitability, and a customer-facing summary.
+You must parse all fields and return a detailed, itemized estimate along with tiered options (Good / Better / Best for comprehensive mode), profitability, and a customer-facing summary.
 
 ## Instructions
 
+### MODE DETECTION
+First, detect which mode is being used based on the `estimateMode` field:
+- `"quick"` = Quick Estimator (minimal inputs, single price)
+- `"comprehensive"` = Comprehensive Estimator (full form, three tiers)
+
 ### 1. READ AND PARSE
 
-All provided input fields across these 10 categories:
+**For Quick Mode** - Parse these essential fields:
+- Job type (installation, replacement, repair)
+- Square footage or tonnage
+- Equipment tier preference (budget, standard, premium)
+- Labor hours estimate
+- Zip code (for regional pricing)
+- Any special conditions (urgency, accessibility)
+
+**For Comprehensive Mode** - Parse all provided input fields across these 10 categories:
 - Project & System Info
 - Labor & Crew Inputs
 - Equipment & Materials
@@ -34,8 +67,14 @@ All provided input fields across these 10 categories:
 - Apply profit margin (markup after all costs)
 - Subtract incentives / rebates to show final estimate
 
-### 3. GENERATE THREE ESTIMATE TIERS
+### 3. GENERATE ESTIMATE TIERS
 
+**For Quick Mode** - Generate single recommended tier:
+- **Recommended**: Best-fit equipment based on input tier preference (budget/standard/premium)
+- Include essential features for the job type
+- Clear single price point for fast quoting
+
+**For Comprehensive Mode** - Generate three estimate tiers:
 - **Good**: Base model, minimal add-ons
 - **Better**: Mid-grade efficiency, smart thermostat, standard IAQ
 - **Best**: High-efficiency equipment, extended warranty, advanced IAQ, smart home options
@@ -129,15 +168,31 @@ async calculateEstimate(
 
 ## Frontend Implementation (React)
 
+### Module Integration
+**Add to existing Field Tools module** (`/frontend/src/pages/FieldTools.tsx`)
+- Create two new calculator cards: "Quick Cost Estimator" and "Comprehensive Cost Estimator"
+- Place alongside existing 21 calculators (Airflow, BTU, Refrigerant Charge, etc.)
+- Use existing calculator card component pattern
+- Both cards link to `/field-tools/estimator?mode=quick` and `/field-tools/estimator?mode=comprehensive`
+
 ### Page Location
-`/frontend/src/pages/Estimator.tsx`
+`/frontend/src/pages/FieldToolsEstimator.tsx` (new page)
 
 ### Form Structure
 
+**Quick Mode Form** (simplified):
+- Single-page compact form with 6-8 fields
+- Inline inputs (no collapsible sections)
+- Large "Calculate" button
+- Mobile-first responsive design
+- Results show immediately below form
+
+**Comprehensive Mode Form** (full):
 - Use React Hook Form + Zod validation (existing pattern)
-- Create 10 collapsible sections matching input categories
+- Create 10 collapsible/accordion sections matching input categories
 - Use shadcn/ui Form components (Input, Select, Checkbox, etc.)
 - Apply OpsNex dark theme: `bg-slate-950`, `text-slate-100`, `accent-teal-500`
+- Mode toggle button to switch between Quick/Comprehensive
 
 ### API Client Pattern
 
@@ -149,17 +204,27 @@ const response = await api.post('/estimator/calculate', formData)
 
 ### Results Display
 
-- Show three-tier pricing cards (Good / Better / Best)
+**Quick Mode Results**:
+- Single large price card with recommended estimate
+- Simplified breakdown (labor + materials + total)
+- "Save to Work Order" button
+- Option to "Switch to Comprehensive Mode" for detailed analysis
+
+**Comprehensive Mode Results**:
+- Three-tier pricing cards (Good / Better / Best) side-by-side
 - Use Recharts for cost breakdown visualization
 - Display profitability metrics for internal use
 - Provide customer-facing summary view
+- Export options (PDF, Email)
 - Toast notifications via react-hot-toast
 
 ### Navigation
 
-- Add route in `/frontend/src/router.tsx`
-- Add menu item to sidebar navigation
-- Link from Work Orders or Field Tools module
+- Add route in `/frontend/src/router.tsx`: `/field-tools/estimator`
+- **Add two calculator cards in Field Tools page** (main integration point)
+- Quick Estimator card: "Get a fast quote in 5 minutes"
+- Comprehensive Estimator card: "Detailed proposal with 3 pricing tiers"
+- Link from Work Orders page ("Generate Estimate" button)
 
 ---
 
@@ -172,7 +237,8 @@ export const estimates = pgTable('estimates', {
   id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
   tenantId: varchar('tenant_id').notNull().references(() => tenants.id),
   workOrderId: varchar('work_order_id').references(() => workOrders.id),
-  inputData: jsonb('input_data').notNull(), // Store 10-category inputs
+  estimateMode: varchar('estimate_mode', { length: 20 }).notNull(), // 'quick' or 'comprehensive'
+  inputData: jsonb('input_data').notNull(), // Store inputs (6-8 fields for quick, 10 categories for comprehensive)
   outputData: jsonb('output_data').notNull(), // Store AI response
   totalEstimate: numeric('total_estimate', { precision: 10, scale: 2 }),
   finalPrice: numeric('final_price', { precision: 10, scale: 2 }),
@@ -197,6 +263,7 @@ npm run db:push
 
 ```typescript
 interface EstimateResponseDto {
+  estimateMode: 'quick' | 'comprehensive';
   internal_calculations: {
     laborCost: number;
     materialsCost: number;
@@ -213,9 +280,10 @@ interface EstimateResponseDto {
     paymentTerms?: string;
   };
   estimate_tiers: {
-    good: TierDetails;
-    better: TierDetails;
-    best: TierDetails;
+    recommended?: TierDetails; // Only for Quick mode
+    good?: TierDetails;         // Only for Comprehensive mode
+    better?: TierDetails;        // Only for Comprehensive mode
+    best?: TierDetails;          // Only for Comprehensive mode
   };
   recommendations: string[];
   estimateId: string;
@@ -228,7 +296,28 @@ interface TierDetails {
   equipment: string;
   features: string[];
   warranty: string;
-  efficiency: string;
+  efficiency?: string;
+}
+
+// Input DTO examples
+interface QuickEstimateInput {
+  estimateMode: 'quick';
+  jobType: 'installation' | 'replacement' | 'repair';
+  squareFootage?: number;
+  tonnage?: number;
+  equipmentTier: 'budget' | 'standard' | 'premium';
+  laborHours: number;
+  zipCode: string;
+  specialConditions?: string;
+}
+
+interface ComprehensiveEstimateInput {
+  estimateMode: 'comprehensive';
+  // ... full 10-category input fields
+  projectInfo: { /* ... */ };
+  laborInputs: { /* ... */ };
+  equipmentMaterials: { /* ... */ };
+  // etc.
 }
 ```
 
@@ -277,10 +366,51 @@ interface TierDetails {
 
 ---
 
-## Example JSON Response
+## Example JSON Responses
+
+### Quick Mode Response Example
 
 ```json
 {
+  "estimateMode": "quick",
+  "internal_calculations": {
+    "laborCost": 1200.00,
+    "materialsCost": 800.00,
+    "equipmentCost": 4500.00,
+    "overheadCost": 650.00,
+    "profitMargin": 1425.00,
+    "totalCost": 8575.00
+  },
+  "customer_summary": {
+    "totalBeforeIncentives": 8575.00,
+    "incentivesApplied": 500.00,
+    "finalPrice": 8075.00,
+    "savingsAmount": 500.00
+  },
+  "estimate_tiers": {
+    "recommended": {
+      "name": "Recommended",
+      "price": 8075.00,
+      "equipment": "Trane 16 SEER 2.5-Ton AC Unit",
+      "features": ["Standard installation", "Smart thermostat", "2-year warranty"],
+      "warranty": "2 Year Parts & Labor",
+      "efficiency": "16 SEER"
+    }
+  },
+  "recommendations": [
+    "Customer qualifies for $500 utility rebate",
+    "Installation can be completed in 1 day"
+  ],
+  "estimateId": "est_quick_x1y2z3",
+  "createdAt": "2025-10-22T18:30:00Z"
+}
+```
+
+### Comprehensive Mode Response Example
+
+```json
+{
+  "estimateMode": "comprehensive",
   "internal_calculations": {
     "laborCost": 2400.00,
     "materialsCost": 3500.00,
@@ -327,7 +457,7 @@ interface TierDetails {
     "Recommend scheduling installation in off-season for 10% discount",
     "Annual maintenance plan available for $299/year"
   ],
-  "estimateId": "est_a1b2c3d4",
+  "estimateId": "est_comp_a1b2c3d4",
   "createdAt": "2025-10-22T18:30:00Z"
 }
 ```
