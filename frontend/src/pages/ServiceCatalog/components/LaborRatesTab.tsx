@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Pencil, Trash2, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { LaborRateFormDialog } from './LaborRateFormDialog';
 
 export function LaborRatesTab() {
   const [laborRates, setLaborRates] = useState<LaborRate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingRate, setEditingRate] = useState<LaborRate | undefined>();
 
   useEffect(() => {
     loadLaborRates();
@@ -24,7 +27,7 @@ export function LaborRatesTab() {
     }
   };
 
-  const handleDelete = async (id: string) {
+  const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this labor rate?')) return;
     
     try {
@@ -36,15 +39,37 @@ export function LaborRatesTab() {
     }
   };
 
+  const handleEdit = (rate: LaborRate) => {
+    setEditingRate(rate);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingRate(undefined);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingRate(undefined);
+  };
+
   if (loading) {
     return <div className="text-slate-400">Loading...</div>;
   }
 
   return (
     <div>
+      <LaborRateFormDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onSuccess={loadLaborRates}
+        laborRate={editingRate}
+      />
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-slate-100">Labor Rates</h2>
-        <Button size="sm">
+        <Button size="sm" onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Labor Rate
         </Button>
@@ -89,7 +114,7 @@ export function LaborRatesTab() {
             )}
 
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEdit(rate)}>
                 <Pencil className="h-3 w-3 mr-1" />
                 Edit
               </Button>

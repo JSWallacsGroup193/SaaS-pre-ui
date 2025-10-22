@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { ServiceFormDialog } from './ServiceFormDialog';
 
 export function ServicesTab() {
   const [services, setServices] = useState<ServiceCatalog[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingService, setEditingService] = useState<ServiceCatalog | undefined>();
 
   useEffect(() => {
     loadServices();
@@ -36,15 +39,37 @@ export function ServicesTab() {
     }
   };
 
+  const handleEdit = (service: ServiceCatalog) => {
+    setEditingService(service);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingService(undefined);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingService(undefined);
+  };
+
   if (loading) {
     return <div className="text-slate-400">Loading...</div>;
   }
 
   return (
     <div>
+      <ServiceFormDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onSuccess={loadServices}
+        service={editingService}
+      />
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-slate-100">Services</h2>
-        <Button size="sm">
+        <Button size="sm" onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Service
         </Button>
@@ -74,7 +99,7 @@ export function ServicesTab() {
             )}
 
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEdit(service)}>
                 <Pencil className="h-3 w-3 mr-1" />
                 Edit
               </Button>

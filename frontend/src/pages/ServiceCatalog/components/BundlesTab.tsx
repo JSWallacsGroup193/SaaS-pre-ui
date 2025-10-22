@@ -4,10 +4,13 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, Pencil, Trash2, Package } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { BundleFormDialog } from './BundleFormDialog';
 
 export function BundlesTab() {
   const [bundles, setBundles] = useState<ServiceBundle[]>([]);
   const [loading, setLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingBundle, setEditingBundle] = useState<ServiceBundle | undefined>();
 
   useEffect(() => {
     loadBundles();
@@ -36,15 +39,37 @@ export function BundlesTab() {
     }
   };
 
+  const handleEdit = (bundle: ServiceBundle) => {
+    setEditingBundle(bundle);
+    setDialogOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingBundle(undefined);
+    setDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setEditingBundle(undefined);
+  };
+
   if (loading) {
     return <div className="text-slate-400">Loading...</div>;
   }
 
   return (
     <div>
+      <BundleFormDialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        onSuccess={loadBundles}
+        bundle={editingBundle}
+      />
+
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-slate-100">Service Bundles</h2>
-        <Button size="sm">
+        <Button size="sm" onClick={handleAdd}>
           <Plus className="h-4 w-4 mr-2" />
           Add Bundle
         </Button>
@@ -98,7 +123,7 @@ export function BundlesTab() {
             </div>
 
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => handleEdit(bundle)}>
                 <Pencil className="h-3 w-3 mr-1" />
                 Edit
               </Button>
