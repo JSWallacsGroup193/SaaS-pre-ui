@@ -96,6 +96,7 @@ model Tenant {
   smsTemplates   SmsTemplate[]
   fieldCalculations FieldCalculation[]
   estimates      Estimate[]
+  proposals      Proposal[]
   serviceCatalog ServiceCatalog[]
   serviceBundles ServiceBundle[]
   laborRates     LaborRate[]
@@ -178,6 +179,7 @@ model User {
   workOrderSignatures WorkOrderSignature[]
   fieldCalculations FieldCalculation[]
   estimates      Estimate[]
+  proposals      Proposal[]
   customerNotes CustomerNote[]
   auditLogs     AuditLog[]
   createdInvoices Invoice[]
@@ -552,6 +554,7 @@ model WorkOrder {
   signatures    WorkOrderSignature[]
   fieldCalculations FieldCalculation[]
   estimates     Estimate[]
+  proposals     Proposal[]
   
   @@index([tenantId])
   @@index([number])
@@ -901,6 +904,8 @@ model Account {
   
   // Phase 3 relations
   customerPreference CustomerPreference?
+  estimates          Estimate[]
+  proposals          Proposal[]
   
   @@index([tenantId])
   @@index([accountNumber])
@@ -2337,14 +2342,44 @@ model Estimate {
   id            String   @id @default(uuid())
   tenantId      String
   workOrderId   String?
+  accountId     String?  // Customer/Account link
+  
+  // Type: 'ai' or 'manual'
+  estimateType  String   @default("ai")  // 'ai' or 'manual'
+  
+  // Mode: 'quick' or 'comprehensive'
   estimateMode  String   // 'quick' or 'comprehensive'
   
-  inputData     Json     // Store inputs (6-8 fields for quick, 10 categories for comprehensive)
-  outputData    Json     // Store AI response
+  // Basic Info
+  title         String?
+  description   String?
+  projectType   String?
+  location      String?
   
+  // For AI estimates
+  inputData     Json?    // Store AI inputs
+  outputData    Json?    // Store AI response
+  
+  // Financial
+  laborHours    Decimal? @db.Decimal(8, 2)
+  laborCost     Decimal? @db.Decimal(10, 2)
+  materialsCost Decimal? @db.Decimal(10, 2)
+  permitsCost   Decimal? @db.Decimal(10, 2)
+  overheadCost  Decimal? @db.Decimal(10, 2)
+  subtotal      Decimal? @db.Decimal(10, 2)
+  taxRate       Decimal? @db.Decimal(5, 2)
+  taxAmount     Decimal? @db.Decimal(10, 2)
   totalEstimate Decimal? @db.Decimal(10, 2)
   finalPrice    Decimal? @db.Decimal(10, 2)
   profitMargin  Decimal? @db.Decimal(5, 2)
+  
+  // Status
+  status        String   @default("draft")  // 'draft', 'final', 'approved', 'rejected'
+  expiresAt     DateTime?
+  
+  // Notes
+  internalNotes String?
+  customerNotes String?
   
   createdBy     String?
   createdAt     DateTime @default(now())
@@ -2352,11 +2387,127 @@ model Estimate {
   
   tenant        Tenant      @relation(fields: [tenantId], references: [id])
   workOrder     WorkOrder?  @relation(fields: [workOrderId], references: [id])
+  account       Account?    @relation(fields: [accountId], references: [id])
   creator       User?       @relation(fields: [createdBy], references: [id])
+  
+  lineItems     EstimateLineItem[]
+  proposals     Proposal[]
   
   @@index([tenantId])
   @@index([workOrderId])
+  @@index([accountId])
   @@index([createdBy])
+  @@index([estimateType])
+  @@index([status])
+}
+
+// Estimate Line Items - For manual estimates
+model EstimateLineItem {
+  id            String   @id @default(uuid())
+  estimateId    String
+  
+  category      String   // 'labor', 'material', 'permit', 'equipment', 'other'
+  description   String
+  quantity      Decimal  @db.Decimal(10, 2)
+  unitPrice     Decimal  @db.Decimal(10, 2)
+  total         Decimal  @db.Decimal(10, 2)
+  
+  displayOrder  Int      @default(0)
+  notes         String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  estimate      Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  
+  @@index([estimateId])
+  @@index([category])
+}
+
+// Proposals - Convert estimates to customer-facing proposals
+model Proposal {
+  id            String   @id @default(uuid())
+  tenantId      String
+  estimateId    String?  // Link to estimate
+  accountId     String?  // Customer/Account
+  workOrderId   String?
+  
+  // Proposal Info
+  proposalNumber String  @unique  // e.g., "PROP-2025-001"
+  title         String
+  description   String?
+  
+  // Financial
+  subtotal      Decimal  @db.Decimal(10, 2)
+  taxRate       Decimal  @default(0) @db.Decimal(5, 2)
+  taxAmount     Decimal  @default(0) @db.Decimal(10, 2)
+  totalAmount   Decimal  @db.Decimal(10, 2)
+  
+  // Status
+  status        String   @default("draft")  // 'draft', 'sent', 'viewed', 'approved', 'rejected', 'expired'
+  
+  // Dates
+  issuedDate    DateTime @default(now())
+  expiresAt     DateTime?
+  sentAt        DateTime?
+  viewedAt      DateTime?
+  respondedAt   DateTime?
+  
+  // Terms
+  paymentTerms  String?
+  validityDays  Int      @default(30)
+  termsAndConditions String?
+  
+  // Notes
+  internalNotes String?
+  customerNotes String?
+  
+  // Branding
+  companyLogo   String?
+  companyInfo   Json?
+  
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  tenant        Tenant      @relation(fields: [tenantId], references: [id])
+  estimate      Estimate?   @relation(fields: [estimateId], references: [id])
+  account       Account?    @relation(fields: [accountId], references: [id])
+  workOrder     WorkOrder?  @relation(fields: [workOrderId], references: [id])
+  creator       User?       @relation(fields: [createdBy], references: [id])
+  
+  lineItems     ProposalLineItem[]
+  
+  @@index([tenantId])
+  @@index([estimateId])
+  @@index([accountId])
+  @@index([workOrderId])
+  @@index([proposalNumber])
+  @@index([status])
+  @@index([createdBy])
+}
+
+// Proposal Line Items
+model ProposalLineItem {
+  id            String   @id @default(uuid())
+  proposalId    String
+  
+  category      String   // 'labor', 'material', 'permit', 'equipment', 'service', 'other'
+  description   String
+  quantity      Decimal  @db.Decimal(10, 2)
+  unitPrice     Decimal  @db.Decimal(10, 2)
+  total         Decimal  @db.Decimal(10, 2)
+  
+  displayOrder  Int      @default(0)
+  notes         String?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  proposal      Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  
+  @@index([proposalId])
+  @@index([category])
 }
 
 // ============================================================================
