@@ -84,10 +84,6 @@ export default function ManualCostEstimator() {
     const laborCost = hours * rate;
     const subtotalBeforeOverhead = laborCost + materials + permits;
     const overhead = subtotalBeforeOverhead * (overheadPct / 100);
-    const subtotal = subtotalBeforeOverhead + overhead;
-    const profit = subtotal * (profitPct / 100);
-    const beforeTax = subtotal + profit;
-    const taxAmount = beforeTax * (tax / 100);
 
     setLoading(true);
     try {
@@ -106,7 +102,7 @@ export default function ManualCostEstimator() {
         profitMargin: profitPct,
       });
 
-      setResult(response);
+      setResult(response.data);
       toast.success('Estimate created successfully!');
     } catch (error: any) {
       console.error('Estimate error:', error);
@@ -122,7 +118,6 @@ export default function ManualCostEstimator() {
       return;
     }
 
-    const lineItemsTotal = calculateLineItemsTotal();
     const tax = parseFloat(taxRate) || 0;
 
     setLoading(true);
@@ -142,7 +137,7 @@ export default function ManualCostEstimator() {
         })),
       });
 
-      setResult(response);
+      setResult(response.data);
       toast.success('Estimate created successfully!');
     } catch (error: any) {
       console.error('Estimate error:', error);
