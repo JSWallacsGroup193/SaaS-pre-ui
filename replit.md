@@ -43,7 +43,8 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **API Versioning**: All APIs are prefixed with `/api/v1`.
 - **Role-based Access Control**: Granular permissions system with 13 roles (SUPER_ADMIN, OWNER, ADMIN, FIELD_MANAGER, FIELD_SUPERVISOR, TECHNICIAN, OFFICE_MANAGER, WAREHOUSE_MANAGER, SALES_REPRESENTATIVE, CUSTOMER_SERVICE_REPRESENTATIVE, ACCOUNTANT, VIEWER, USER) and 114 permissions across all modules.
 - **Stock Ledger System**: Centralized tracking for accurate inventory levels.
-- **Security**: Utilizes Helmet, configurable CORS, JWT authentication, and `class-validator` for input validation; comprehensive tenant isolation implemented.
+- **Security**: Utilizes Helmet, environment-based CORS configuration (ALLOWED_ORIGINS environment variable for production), JWT authentication, and `class-validator` for input validation; comprehensive tenant isolation implemented. CORS defaults to localhost in development and requires explicit origin configuration for production environments.
+- **AI System Prompts**: AI Cost Estimator uses a comprehensive system prompt stored at `backend/prompts/AI_Cost_Estimator_Prompt.md` with HVAC industry expertise, pricing guidelines, and JSON response formatting requirements.
 
 ## Demo Data & Testing
 
@@ -116,6 +117,7 @@ The demo tenant includes realistic HVAC business scenarios:
 opsnex/
 ├── backend/              # NestJS backend API
 │   ├── prisma/          # Database schema and migrations
+│   ├── prompts/         # AI system prompts (AI Cost Estimator)
 │   ├── scripts/         # Seed scripts (RBAC, demo data)
 │   └── src/             # Source code (modules, controllers, services)
 ├── frontend/            # React + Vite frontend
