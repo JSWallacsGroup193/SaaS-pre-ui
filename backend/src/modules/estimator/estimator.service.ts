@@ -81,9 +81,28 @@ export class EstimatorService {
   }
 
   async createManualEstimate(tenantId: string, userId: string, dto: CreateManualEstimateDto) {
-    const subtotal = (dto.laborCost || 0) + (dto.materialsCost || 0) + (dto.permitsCost || 0) + (dto.overheadCost || 0);
-    const taxAmount = subtotal * ((dto.taxRate || 0) / 100);
-    const finalPrice = subtotal + taxAmount;
+    let subtotal = 0;
+    let laborCost = 0;
+    let materialsCost = 0;
+    let permitsCost = 0;
+    let overheadCost = 0;
+
+    if (dto.estimateMode === 'comprehensive' && dto.lineItems && dto.lineItems.length > 0) {
+      subtotal = dto.lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+    } else {
+      laborCost = dto.laborCost || 0;
+      materialsCost = dto.materialsCost || 0;
+      permitsCost = dto.permitsCost || 0;
+      overheadCost = dto.overheadCost || 0;
+      subtotal = laborCost + materialsCost + permitsCost + overheadCost;
+    }
+
+    const profitMarginPct = dto.profitMargin || 0;
+    const profitAmount = subtotal * (profitMarginPct / 100);
+    const subtotalWithProfit = subtotal + profitAmount;
+    
+    const taxAmount = subtotalWithProfit * ((dto.taxRate || 0) / 100);
+    const finalPrice = subtotalWithProfit + taxAmount;
 
     const estimate = await this.prisma.estimate.create({
       data: {
@@ -97,10 +116,10 @@ export class EstimatorService {
         workOrderId: dto.workOrderId,
         accountId: dto.accountId,
         laborHours: dto.laborHours ? new Decimal(dto.laborHours) : null,
-        laborCost: dto.laborCost ? new Decimal(dto.laborCost) : null,
-        materialsCost: dto.materialsCost ? new Decimal(dto.materialsCost) : null,
-        permitsCost: dto.permitsCost ? new Decimal(dto.permitsCost) : null,
-        overheadCost: dto.overheadCost ? new Decimal(dto.overheadCost) : null,
+        laborCost: laborCost > 0 ? new Decimal(laborCost) : null,
+        materialsCost: materialsCost > 0 ? new Decimal(materialsCost) : null,
+        permitsCost: permitsCost > 0 ? new Decimal(permitsCost) : null,
+        overheadCost: overheadCost > 0 ? new Decimal(overheadCost) : null,
         subtotal: new Decimal(subtotal),
         taxRate: dto.taxRate ? new Decimal(dto.taxRate) : null,
         taxAmount: new Decimal(taxAmount),
@@ -137,6 +156,7 @@ export class EstimatorService {
   async updateManualEstimate(tenantId: string, estimateId: string, dto: UpdateManualEstimateDto) {
     const existing = await this.prisma.estimate.findFirst({
       where: { id: estimateId, tenantId, estimateType: 'manual' },
+      include: { lineItems: true },
     });
 
     if (!existing) {
@@ -144,13 +164,24 @@ export class EstimatorService {
     }
 
     let subtotal = existing.subtotal ? parseFloat(existing.subtotal.toString()) : 0;
-    if (dto.laborCost !== undefined || dto.materialsCost !== undefined || dto.permitsCost !== undefined || dto.overheadCost !== undefined) {
+
+    if (dto.lineItems !== undefined) {
+      if (dto.lineItems.length > 0) {
+        subtotal = dto.lineItems.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      } else {
+        subtotal = 0;
+      }
+    } else if (dto.laborCost !== undefined || dto.materialsCost !== undefined || dto.permitsCost !== undefined || dto.overheadCost !== undefined) {
       subtotal = (dto.laborCost ?? 0) + (dto.materialsCost ?? 0) + (dto.permitsCost ?? 0) + (dto.overheadCost ?? 0);
     }
 
+    const profitMarginPct = dto.profitMargin !== undefined ? dto.profitMargin : (existing.profitMargin ? parseFloat(existing.profitMargin.toString()) : 0);
+    const profitAmount = subtotal * (profitMarginPct / 100);
+    const subtotalWithProfit = subtotal + profitAmount;
+
     const taxRate = dto.taxRate !== undefined ? dto.taxRate : (existing.taxRate ? parseFloat(existing.taxRate.toString()) : 0);
-    const taxAmount = subtotal * (taxRate / 100);
-    const finalPrice = subtotal + taxAmount;
+    const taxAmount = subtotalWithProfit * (taxRate / 100);
+    const finalPrice = subtotalWithProfit + taxAmount;
 
     await this.prisma.estimate.update({
       where: { id: estimateId },
@@ -159,16 +190,16 @@ export class EstimatorService {
         description: dto.description,
         projectType: dto.projectType,
         location: dto.location,
-        laborHours: dto.laborHours ? new Decimal(dto.laborHours) : undefined,
-        laborCost: dto.laborCost ? new Decimal(dto.laborCost) : undefined,
-        materialsCost: dto.materialsCost ? new Decimal(dto.materialsCost) : undefined,
-        permitsCost: dto.permitsCost ? new Decimal(dto.permitsCost) : undefined,
-        overheadCost: dto.overheadCost ? new Decimal(dto.overheadCost) : undefined,
+        laborHours: dto.laborHours !== undefined ? new Decimal(dto.laborHours) : undefined,
+        laborCost: dto.laborCost !== undefined ? new Decimal(dto.laborCost) : undefined,
+        materialsCost: dto.materialsCost !== undefined ? new Decimal(dto.materialsCost) : undefined,
+        permitsCost: dto.permitsCost !== undefined ? new Decimal(dto.permitsCost) : undefined,
+        overheadCost: dto.overheadCost !== undefined ? new Decimal(dto.overheadCost) : undefined,
         subtotal: new Decimal(subtotal),
-        taxRate: dto.taxRate ? new Decimal(dto.taxRate) : undefined,
+        taxRate: dto.taxRate !== undefined ? new Decimal(dto.taxRate) : undefined,
         taxAmount: new Decimal(taxAmount),
         finalPrice: new Decimal(finalPrice),
-        profitMargin: dto.profitMargin ? new Decimal(dto.profitMargin) : undefined,
+        profitMargin: dto.profitMargin !== undefined ? new Decimal(dto.profitMargin) : undefined,
         status: dto.status,
         internalNotes: dto.internalNotes,
         customerNotes: dto.customerNotes,
@@ -176,7 +207,7 @@ export class EstimatorService {
       },
     });
 
-    if (dto.lineItems) {
+    if (dto.lineItems !== undefined) {
       await this.prisma.estimateLineItem.deleteMany({ where: { estimateId } });
       if (dto.lineItems.length > 0) {
         await this.prisma.estimateLineItem.createMany({

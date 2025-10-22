@@ -22,8 +22,9 @@ const TonnageCalculator = lazy(() => import('./components/TonnageCalculator'));
 const HVACUnitConverter = lazy(() => import('./components/HVACUnitConverter'));
 const HeatLoadCalculator = lazy(() => import('./components/HeatLoadCalculator'));
 const AICostEstimator = lazy(() => import('./components/AICostEstimator'));
+const ManualCostEstimator = lazy(() => import('./components/ManualCostEstimator'));
 
-type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | 'ai-estimator' | null;
+type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' | 'subcooling' | 'target-superheat' | 'pt-chart' | 'cfm' | 'duct-sizer' | 'static-pressure' | 'gas-pipe' | 'combustion-air' | 'combustion-analysis' | 'expansion-tank' | 'hydronic-flow' | 'radiant-heating' | 'psychrometric' | 'tonnage' | 'unit-converter' | 'heat-load' | 'ai-estimator' | 'manual-estimator' | null;
 
 interface Calculator {
   id: CalculatorType;
@@ -43,6 +44,13 @@ export default function FieldToolsPage() {
       icon: '🤖',
       description: 'AI-powered job cost estimates with GPT-4o',
       component: AICostEstimator
+    },
+    {
+      id: 'manual-estimator',
+      name: 'Manual Cost Estimator',
+      icon: '🧮',
+      description: 'Create detailed estimates manually (no AI required)',
+      component: ManualCostEstimator
     },
     {
       id: 'ohms',
