@@ -1,4 +1,5 @@
 import { useState, lazy, Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const CapacitorTestTool = lazy(() => import('./components/CapacitorTestTool'));
 const MotorAmpsChecker = lazy(() => import('./components/MotorAmpsChecker'));
@@ -35,6 +36,7 @@ interface Calculator {
 }
 
 export default function FieldToolsPage() {
+  const navigate = useNavigate();
   const [selectedCalculator, setSelectedCalculator] = useState<CalculatorType>(null);
 
   const calculators: Calculator[] = [
@@ -232,10 +234,34 @@ export default function FieldToolsPage() {
     <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         <div className="mb-6 md:mb-8">
-          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Field Tools</h1>
-          <p className="text-base sm:text-lg text-muted-foreground">
-            Professional HVAC calculators and diagnostic tools for field technicians
-          </p>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+            <div>
+              <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Field Tools</h1>
+              <p className="text-base sm:text-lg text-muted-foreground">
+                Professional HVAC calculators and diagnostic tools for field technicians
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => navigate('/estimates')}
+                className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                View Estimates
+              </button>
+              <button
+                onClick={() => navigate('/proposals')}
+                className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors flex items-center gap-2 whitespace-nowrap"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                View Proposals
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
