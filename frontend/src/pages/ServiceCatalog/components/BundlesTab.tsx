@@ -18,8 +18,8 @@ export function BundlesTab() {
 
   const loadBundles = async () => {
     try {
-      const response = await serviceCatalogApi.getBundles();
-      setBundles(response.data);
+      const data = await serviceCatalogApi.getBundles();
+      setBundles(data);
     } catch (error) {
       toast.error('Failed to load bundles');
     } finally {

@@ -18,8 +18,8 @@ export function ServicesTab() {
 
   const loadServices = async () => {
     try {
-      const response = await serviceCatalogApi.getServices();
-      setServices(response.data);
+      const data = await serviceCatalogApi.getServices();
+      setServices(data);
     } catch (error) {
       toast.error('Failed to load services');
     } finally {

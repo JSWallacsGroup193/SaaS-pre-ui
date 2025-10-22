@@ -18,8 +18,8 @@ export function LaborRatesTab() {
 
   const loadLaborRates = async () => {
     try {
-      const response = await serviceCatalogApi.getLaborRates();
-      setLaborRates(response.data);
+      const data = await serviceCatalogApi.getLaborRates();
+      setLaborRates(data);
     } catch (error) {
       toast.error('Failed to load labor rates');
     } finally {
