@@ -136,7 +136,6 @@ async function main() {
         name: accountData.name,
         accountNumber: `ACC-${Date.now()}-${accounts.length}`,
         customerType: accountData.customerType,
-        billingAddress: accountData.address,
         phone: accountData.phone,
       },
     });
@@ -187,14 +186,14 @@ async function main() {
 
   // Create leads
   const leadsData = [
-    { firstName: 'Christopher', lastName: 'Wilson', email: 'chris.wilson@email.com', phone: '(555) 111-2222', source: 'Website', status: 'NEW' as const },
-    { firstName: 'Amanda', lastName: 'Moore', email: 'amanda.moore@email.com', phone: '(555) 222-3333', source: 'Referral', status: 'NEW' as const },
-    { firstName: 'Matthew', lastName: 'Garcia', email: 'matthew.garcia@email.com', phone: '(555) 333-4444', source: 'Google Ads', status: 'QUALIFIED' as const },
-    { firstName: 'Michelle', lastName: 'Lee', email: 'michelle.lee@email.com', phone: '(555) 444-5555', source: 'Facebook', status: 'QUALIFIED' as const },
-    { firstName: 'Joshua', lastName: 'Harris', email: 'joshua.harris@business.com', phone: '(555) 555-6666', source: 'Cold Call', status: 'WON' as const, company: 'Harris Enterprises' },
-    { firstName: 'Ashley', lastName: 'Clark', email: 'ashley.clark@email.com', phone: '(555) 666-7777', source: 'Trade Show', status: 'LOST' as const },
-    { firstName: 'Andrew', lastName: 'Lewis', email: 'andrew.lewis@company.com', phone: '(555) 777-8888', source: 'Website', status: 'NEW' as const, company: 'Lewis Corp' },
-    { firstName: 'Stephanie', lastName: 'Walker', email: 'stephanie.walker@email.com', phone: '(555) 888-9999', source: 'Referral', status: 'NEW' as const },
+    { description: 'Interested in HVAC system for new home - Christopher Wilson', source: 'Website', status: 'NEW' as const },
+    { description: 'Referred by Johnson Residence - Amanda Moore', source: 'Referral', status: 'NEW' as const },
+    { description: 'Commercial HVAC quote request - Matthew Garcia', source: 'Google Ads', status: 'QUALIFIED' as const },
+    { description: 'Restaurant AC upgrade inquiry - Michelle Lee', source: 'Facebook', status: 'QUALIFIED' as const },
+    { description: 'Won: New commercial HVAC installation - Harris Enterprises', source: 'Cold Call', status: 'WON' as const },
+    { description: 'Lost to competitor - Ashley Clark', source: 'Trade Show', status: 'LOST' as const },
+    { description: 'Lewis Corp - office building HVAC system', source: 'Website', status: 'NEW' as const },
+    { description: 'Residential AC repair inquiry - Stephanie Walker', source: 'Referral', status: 'NEW' as const },
   ];
 
   const leads = [];
@@ -202,11 +201,7 @@ async function main() {
     const lead = await prisma.lead.create({
       data: {
         tenantId: tenant.id,
-        firstName: leadData.firstName,
-        lastName: leadData.lastName,
-        email: leadData.email,
-        phone: leadData.phone,
-        company: leadData.company,
+        description: leadData.description,
         source: leadData.source,
         status: leadData.status,
       },
@@ -248,16 +243,21 @@ async function main() {
   ];
 
   const warehouses = [];
-  for (const whData of warehousesData) {
-    const wh = await prisma.warehouse.create({
-      data: {
+  for (let i = 0; i < warehousesData.length; i++) {
+    const whData = warehousesData[i];
+    const code = `WH-${i + 1}-DEMO`;
+    const wh = await prisma.warehouse.upsert({
+      where: { code },
+      update: {},
+      create: {
         tenantId: tenant.id,
+        code,
         ...whData,
       },
     });
     warehouses.push(wh);
   }
-  console.log(`✅ Created ${warehouses.length} warehouses`);
+  console.log(`✅ Created/updated ${warehouses.length} warehouses`);
 
   // Create bins
   const binsData = [
@@ -287,54 +287,65 @@ async function main() {
 
   // Create SKUs
   const skusData = [
-    { code: 'FLT-16X20-M8', name: '16x20x1 MERV 8 Air Filter', category: 'Filters', unitPrice: 8.99, minStock: 50 },
-    { code: 'FLT-20X25-M11', name: '20x25x1 MERV 11 Air Filter', category: 'Filters', unitPrice: 12.99, minStock: 40 },
-    { code: 'FLT-16X25-M13', name: '16x25x1 MERV 13 Air Filter', category: 'Filters', unitPrice: 15.99, minStock: 30 },
-    { code: 'REF-R410A-25', name: 'R-410A Refrigerant 25lb Cylinder', category: 'Refrigerants', unitPrice: 189.99, minStock: 10 },
-    { code: 'REF-R22-30', name: 'R-22 Refrigerant 30lb Cylinder', category: 'Refrigerants', unitPrice: 299.99, minStock: 5 },
-    { code: 'CAP-45-440V', name: '45µF 440V Run Capacitor', category: 'Parts', unitPrice: 24.99, minStock: 20 },
-    { code: 'CAP-35-370V', name: '35µF 370V Run Capacitor', category: 'Parts', unitPrice: 19.99, minStock: 25 },
-    { code: 'MTR-1HP-115V', name: '1HP 115V Condenser Motor', category: 'Parts', unitPrice: 189.99, minStock: 8 },
-    { code: 'MTR-075HP-230V', name: '3/4HP 230V Blower Motor', category: 'Parts', unitPrice: 169.99, minStock: 8 },
-    { code: 'CONT-40A-24V', name: '40A 24V Contactor', category: 'Parts', unitPrice: 34.99, minStock: 15 },
-    { code: 'CONT-30A-24V', name: '30A 24V Contactor', category: 'Parts', unitPrice: 29.99, minStock: 15 },
-    { code: 'TSTAT-PRO-WIFI', name: 'Pro WiFi Thermostat', category: 'Parts', unitPrice: 149.99, minStock: 12 },
-    { code: 'TSTAT-PROG-7D', name: '7-Day Programmable Thermostat', category: 'Parts', unitPrice: 89.99, minStock: 15 },
-    { code: 'COIL-3TON-AH', name: '3 Ton A-Coil Evaporator', category: 'Parts', unitPrice: 449.99, minStock: 4 },
-    { code: 'COIL-4TON-AH', name: '4 Ton A-Coil Evaporator', category: 'Parts', unitPrice: 549.99, minStock: 3 },
-    { code: 'COND-3TON-14S', name: '3 Ton 14 SEER Condenser', category: 'Equipment', unitPrice: 1299.99, minStock: 2 },
-    { code: 'COND-4TON-16S', name: '4 Ton 16 SEER Condenser', category: 'Equipment', unitPrice: 1699.99, minStock: 2 },
-    { code: 'FURN-80K-80AFUE', name: '80,000 BTU 80% AFUE Furnace', category: 'Equipment', unitPrice: 899.99, minStock: 2 },
-    { code: 'FURN-100K-95AFUE', name: '100,000 BTU 95% AFUE Furnace', category: 'Equipment', unitPrice: 1399.99, minStock: 1 },
-    { code: 'TOOL-GAUGE-MAN', name: 'Digital Manifold Gauge Set', category: 'Tools', unitPrice: 399.99, minStock: 3 },
-    { code: 'TOOL-VAC-PUMP', name: '6CFM Vacuum Pump', category: 'Tools', unitPrice: 189.99, minStock: 3 },
-    { code: 'TOOL-TORCH-KIT', name: 'Brazing Torch Kit', category: 'Tools', unitPrice: 129.99, minStock: 4 },
-    { code: 'TOOL-MULTIMETER', name: 'Digital Multimeter HVAC', category: 'Tools', unitPrice: 79.99, minStock: 5 },
-    { code: 'PART-BELT-3L', name: 'Blower Belt 3L x 38"', category: 'Parts', unitPrice: 12.99, minStock: 20 },
-    { code: 'PART-IGNITOR-HS', name: 'Hot Surface Ignitor', category: 'Parts', unitPrice: 39.99, minStock: 15 },
-    { code: 'PART-FLAME-SENS', name: 'Flame Sensor', category: 'Parts', unitPrice: 29.99, minStock: 15 },
-    { code: 'PART-PRESS-SW', name: 'Pressure Switch', category: 'Parts', unitPrice: 44.99, minStock: 12 },
-    { code: 'PART-GAS-VALVE', name: 'Gas Valve Assembly', category: 'Parts', unitPrice: 129.99, minStock: 8 },
-    { code: 'PART-CIRC-BOARD', name: 'Control Circuit Board', category: 'Parts', unitPrice: 199.99, minStock: 6 },
-    { code: 'PART-TRANS-40VA', name: '40VA Transformer 24V', category: 'Parts', unitPrice: 34.99, minStock: 15 },
-    { code: 'COPPER-3/8-50', name: '3/8" Copper Tubing 50ft', category: 'Parts', unitPrice: 89.99, minStock: 10 },
-    { code: 'COPPER-1/2-50', name: '1/2" Copper Tubing 50ft', category: 'Parts', unitPrice: 119.99, minStock: 10 },
-    { code: 'COPPER-5/8-50', name: '5/8" Copper Tubing 50ft', category: 'Parts', unitPrice: 149.99, minStock: 8 },
-    { code: 'DUCT-6-25', name: '6" Flex Duct 25ft', category: 'Parts', unitPrice: 49.99, minStock: 12 },
-    { code: 'DUCT-8-25', name: '8" Flex Duct 25ft', category: 'Parts', unitPrice: 69.99, minStock: 12 },
+    { sku: 'FLT-16X20-M8', name: '16x20x1 MERV 8 Air Filter', category: 'Filters', cost: 6.99, retailPrice: 8.99, reorderPoint: 50 },
+    { sku: 'FLT-20X25-M11', name: '20x25x1 MERV 11 Air Filter', category: 'Filters', cost: 9.99, retailPrice: 12.99, reorderPoint: 40 },
+    { sku: 'FLT-16X25-M13', name: '16x25x1 MERV 13 Air Filter', category: 'Filters', cost: 12.99, retailPrice: 15.99, reorderPoint: 30 },
+    { sku: 'REF-R410A-25', name: 'R-410A Refrigerant 25lb Cylinder', category: 'Refrigerants', cost: 149.99, retailPrice: 189.99, reorderPoint: 10 },
+    { sku: 'REF-R22-30', name: 'R-22 Refrigerant 30lb Cylinder', category: 'Refrigerants', cost: 249.99, retailPrice: 299.99, reorderPoint: 5 },
+    { sku: 'CAP-45-440V', name: '45µF 440V Run Capacitor', category: 'Parts', cost: 19.99, retailPrice: 24.99, reorderPoint: 20 },
+    { sku: 'CAP-35-370V', name: '35µF 370V Run Capacitor', category: 'Parts', cost: 15.99, retailPrice: 19.99, reorderPoint: 25 },
+    { sku: 'MTR-1HP-115V', name: '1HP 115V Condenser Motor', category: 'Parts', cost: 149.99, retailPrice: 189.99, reorderPoint: 8 },
+    { sku: 'MTR-075HP-230V', name: '3/4HP 230V Blower Motor', category: 'Parts', cost: 139.99, retailPrice: 169.99, reorderPoint: 8 },
+    { sku: 'CONT-40A-24V', name: '40A 24V Contactor', category: 'Parts', cost: 27.99, retailPrice: 34.99, reorderPoint: 15 },
+    { sku: 'CONT-30A-24V', name: '30A 24V Contactor', category: 'Parts', cost: 23.99, retailPrice: 29.99, reorderPoint: 15 },
+    { sku: 'TSTAT-PRO-WIFI', name: 'Pro WiFi Thermostat', category: 'Parts', cost: 119.99, retailPrice: 149.99, reorderPoint: 12 },
+    { sku: 'TSTAT-PROG-7D', name: '7-Day Programmable Thermostat', category: 'Parts', cost: 69.99, retailPrice: 89.99, reorderPoint: 15 },
+    { sku: 'COIL-3TON-AH', name: '3 Ton A-Coil Evaporator', category: 'Parts', cost: 359.99, retailPrice: 449.99, reorderPoint: 4 },
+    { sku: 'COIL-4TON-AH', name: '4 Ton A-Coil Evaporator', category: 'Parts', cost: 449.99, retailPrice: 549.99, reorderPoint: 3 },
+    { sku: 'COND-3TON-14S', name: '3 Ton 14 SEER Condenser', category: 'Equipment', cost: 1099.99, retailPrice: 1299.99, reorderPoint: 2 },
+    { sku: 'COND-4TON-16S', name: '4 Ton 16 SEER Condenser', category: 'Equipment', cost: 1449.99, retailPrice: 1699.99, reorderPoint: 2 },
+    { sku: 'FURN-80K-80AFUE', name: '80,000 BTU 80% AFUE Furnace', category: 'Equipment', cost: 749.99, retailPrice: 899.99, reorderPoint: 2 },
+    { sku: 'FURN-100K-95AFUE', name: '100,000 BTU 95% AFUE Furnace', category: 'Equipment', cost: 1199.99, retailPrice: 1399.99, reorderPoint: 1 },
+    { sku: 'TOOL-GAUGE-MAN', name: 'Digital Manifold Gauge Set', category: 'Tools', cost: 329.99, retailPrice: 399.99, reorderPoint: 3 },
+    { sku: 'TOOL-VAC-PUMP', name: '6CFM Vacuum Pump', category: 'Tools', cost: 159.99, retailPrice: 189.99, reorderPoint: 3 },
+    { sku: 'TOOL-TORCH-KIT', name: 'Brazing Torch Kit', category: 'Tools', cost: 104.99, retailPrice: 129.99, reorderPoint: 4 },
+    { sku: 'TOOL-MULTIMETER', name: 'Digital Multimeter HVAC', category: 'Tools', cost: 63.99, retailPrice: 79.99, reorderPoint: 5 },
+    { sku: 'PART-BELT-3L', name: 'Blower Belt 3L x 38"', category: 'Parts', cost: 9.99, retailPrice: 12.99, reorderPoint: 20 },
+    { sku: 'PART-IGNITOR-HS', name: 'Hot Surface Ignitor', category: 'Parts', cost: 31.99, retailPrice: 39.99, reorderPoint: 15 },
+    { sku: 'PART-FLAME-SENS', name: 'Flame Sensor', category: 'Parts', cost: 23.99, retailPrice: 29.99, reorderPoint: 15 },
+    { sku: 'PART-PRESS-SW', name: 'Pressure Switch', category: 'Parts', cost: 35.99, retailPrice: 44.99, reorderPoint: 12 },
+    { sku: 'PART-GAS-VALVE', name: 'Gas Valve Assembly', category: 'Parts', cost: 103.99, retailPrice: 129.99, reorderPoint: 8 },
+    { sku: 'PART-CIRC-BOARD', name: 'Control Circuit Board', category: 'Parts', cost: 159.99, retailPrice: 199.99, reorderPoint: 6 },
+    { sku: 'PART-TRANS-40VA', name: '40VA Transformer 24V', category: 'Parts', cost: 27.99, retailPrice: 34.99, reorderPoint: 15 },
+    { sku: 'COPPER-3/8-50', name: '3/8" Copper Tubing 50ft', category: 'Parts', cost: 71.99, retailPrice: 89.99, reorderPoint: 10 },
+    { sku: 'COPPER-1/2-50', name: '1/2" Copper Tubing 50ft', category: 'Parts', cost: 95.99, retailPrice: 119.99, reorderPoint: 10 },
+    { sku: 'COPPER-5/8-50', name: '5/8" Copper Tubing 50ft', category: 'Parts', cost: 119.99, retailPrice: 149.99, reorderPoint: 8 },
+    { sku: 'DUCT-6-25', name: '6" Flex Duct 25ft', category: 'Parts', cost: 39.99, retailPrice: 49.99, reorderPoint: 12 },
+    { sku: 'DUCT-8-25', name: '8" Flex Duct 25ft', category: 'Parts', cost: 55.99, retailPrice: 69.99, reorderPoint: 12 },
   ];
 
   const skus = [];
   for (const skuData of skusData) {
-    const sku = await prisma.sKU.create({
-      data: {
+    const existingSku = await prisma.sKU.findFirst({
+      where: {
         tenantId: tenant.id,
-        ...skuData,
+        sku: skuData.sku,
       },
     });
-    skus.push(sku);
+    
+    if (existingSku) {
+      skus.push(existingSku);
+    } else {
+      const sku = await prisma.sKU.create({
+        data: {
+          tenantId: tenant.id,
+          ...skuData,
+        },
+      });
+      skus.push(sku);
+    }
   }
-  console.log(`✅ Created ${skus.length} SKUs`);
+  console.log(`✅ Created/found ${skus.length} SKUs`);
 
   // Create stock ledger entries (distribute stock across bins)
   const stockAssignments = [
@@ -419,20 +430,21 @@ async function main() {
   ];
 
   const workOrders = [];
-  for (const woData of workOrdersData) {
+  for (let i = 0; i < workOrdersData.length; i++) {
+    const woData = workOrdersData[i];
     const wo = await prisma.workOrder.create({
       data: {
         tenantId: tenant.id,
-        accountId: accounts[woData.accountIdx].id,
+        number: `WO-2025-${String(i + 1).padStart(6, '0')}`,
+        customerId: accounts[woData.accountIdx].id,
         title: woData.title,
         description: woData.description,
-        type: woData.type,
+        workOrderType: woData.type.toLowerCase(),
         priority: woData.priority,
         status: woData.status,
-        scheduledDate: woData.scheduledDate,
-        completedDate: woData.completedDate || null,
-        assignedTo: woData.techIdx !== null ? technicians[woData.techIdx].id : null,
-        createdBy: demoUser.id,
+        scheduledAt: woData.scheduledDate,
+        completedAt: woData.completedDate || null,
+        technicianId: woData.techIdx !== null ? technicians[woData.techIdx].id : null,
       },
     });
     workOrders.push(wo);
@@ -453,28 +465,31 @@ async function main() {
     { vendor: 'Parts Distributors Inc', status: 'OPEN' as const, items: [{ skuIdx: 9, qty: 15 }, { skuIdx: 10, qty: 15 }] },
   ];
 
-  for (const poData of purchaseOrdersData) {
-    let totalAmount = 0;
+  for (let i = 0; i < purchaseOrdersData.length; i++) {
+    const poData = purchaseOrdersData[i];
+    
+    // Create a PO for each item (since PO requires a single SKU)
     for (const item of poData.items) {
-      totalAmount += skus[item.skuIdx].unitPrice * item.qty;
+      const totalAmount = skus[item.skuIdx].retailPrice * item.qty;
+      
+      await prisma.purchaseOrder.create({
+        data: {
+          tenantId: tenant.id,
+          poNumber: `PO-2025-${String(Date.now())}-${i}`,
+          skuId: skus[item.skuIdx].id,
+          quantity: item.qty,
+          vendorName: poData.vendor,
+          status: poData.status,
+          totalAmount: totalAmount,
+          subtotal: totalAmount,
+          orderDate: daysAgo(Math.floor(Math.random() * 30)),
+          expectedDeliveryDate: daysAgo(-7),
+          createdBy: demoUser.id,
+        },
+      });
     }
-
-    const po = await prisma.purchaseOrder.create({
-      data: {
-        tenantId: tenant.id,
-        vendor: poData.vendor,
-        status: poData.status,
-        totalAmount: totalAmount,
-        orderDate: daysAgo(Math.floor(Math.random() * 30)),
-        expectedDate: daysAgo(-7),
-        createdBy: demoUser.id,
-      },
-    });
-
-    // Note: PurchaseOrderItem model would need to be created to store line items
-    // For now, we're just creating the PO headers
   }
-  console.log(`✅ Created ${purchaseOrdersData.length} purchase orders\n`);
+  console.log(`✅ Created purchase orders\n`);
 
   // Step 8: Create field calculations
   console.log('🔧 Creating field calculations...');
