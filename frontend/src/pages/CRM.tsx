@@ -48,26 +48,32 @@ export default function CRM() {
           </div>
         ) : (
           items.map((it, i) => (
-            <div key={it.id || i} className="bg-slate-800 rounded-lg p-4 border border-slate-700 space-y-2">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-teal-500" />
+            <div key={it.id || i} className="bg-slate-800 rounded-lg p-4 border border-slate-700 space-y-3">
+              <div className="flex items-center gap-2 mb-2">
+                <User className="w-5 h-5 text-teal-500" />
                 <span className="font-semibold text-white">{it.name ?? '-'}</span>
               </div>
+              
+              {/* Touch-friendly email button */}
               {it.email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-slate-400" />
-                  <a href={`mailto:${it.email}`} className="text-sm text-gray-300 hover:text-teal-400">
-                    {it.email}
-                  </a>
-                </div>
+                <a 
+                  href={`mailto:${it.email}`} 
+                  className="flex items-center gap-3 w-full p-3 rounded-md bg-slate-700 hover:bg-slate-600 active:bg-slate-500 transition-colors min-h-[48px] border border-slate-600"
+                >
+                  <Mail className="w-5 h-5 text-teal-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-100 break-all">{it.email}</span>
+                </a>
               )}
+              
+              {/* Touch-friendly phone button */}
               {it.phone && (
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-slate-400" />
-                  <a href={`tel:${it.phone}`} className="text-sm text-gray-300 hover:text-teal-400">
-                    {it.phone}
-                  </a>
-                </div>
+                <a 
+                  href={`tel:${it.phone}`} 
+                  className="flex items-center gap-3 w-full p-3 rounded-md bg-slate-700 hover:bg-slate-600 active:bg-slate-500 transition-colors min-h-[48px] border border-slate-600"
+                >
+                  <Phone className="w-5 h-5 text-teal-500 flex-shrink-0" />
+                  <span className="text-sm text-gray-100">{it.phone}</span>
+                </a>
               )}
             </div>
           ))
