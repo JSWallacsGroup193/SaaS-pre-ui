@@ -81,6 +81,11 @@ export class EstimatorService {
   }
 
   async createManualEstimate(tenantId: string, userId: string, dto: CreateManualEstimateDto) {
+    // Validation: Comprehensive mode requires at least one line item
+    if (dto.estimateMode === 'comprehensive' && (!dto.lineItems || dto.lineItems.length === 0)) {
+      throw new BadRequestException('Comprehensive mode requires at least one line item');
+    }
+
     let subtotal = 0;
     let laborCost = 0;
     let materialsCost = 0;
@@ -104,53 +109,62 @@ export class EstimatorService {
     const taxAmount = subtotalWithProfit * ((dto.taxRate || 0) / 100);
     const finalPrice = subtotalWithProfit + taxAmount;
 
-    const estimate = await this.prisma.estimate.create({
-      data: {
-        tenantId,
-        estimateType: 'manual',
-        estimateMode: dto.estimateMode,
-        title: dto.title,
-        description: dto.description,
-        projectType: dto.projectType,
-        location: dto.location,
-        workOrderId: dto.workOrderId,
-        accountId: dto.accountId,
-        laborHours: dto.laborHours ? new Decimal(dto.laborHours) : null,
-        laborCost: laborCost > 0 ? new Decimal(laborCost) : null,
-        materialsCost: materialsCost > 0 ? new Decimal(materialsCost) : null,
-        permitsCost: permitsCost > 0 ? new Decimal(permitsCost) : null,
-        overheadCost: overheadCost > 0 ? new Decimal(overheadCost) : null,
-        subtotal: new Decimal(subtotal),
-        taxRate: dto.taxRate ? new Decimal(dto.taxRate) : null,
-        taxAmount: new Decimal(taxAmount),
-        finalPrice: new Decimal(finalPrice),
-        profitMargin: dto.profitMargin ? new Decimal(dto.profitMargin) : null,
-        internalNotes: dto.internalNotes,
-        customerNotes: dto.customerNotes,
-        expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
-        createdBy: userId,
-      },
-      include: {
-        lineItems: true,
-      },
-    });
-
-    if (dto.lineItems && dto.lineItems.length > 0) {
-      await this.prisma.estimateLineItem.createMany({
-        data: dto.lineItems.map((item, index) => ({
-          estimateId: estimate.id,
-          category: item.category,
-          description: item.description,
-          quantity: new Decimal(item.quantity),
-          unitPrice: new Decimal(item.unitPrice),
-          total: new Decimal(item.quantity * item.unitPrice),
-          displayOrder: index,
-          notes: item.notes,
-        })),
+    // Use transaction to prevent orphaned estimates
+    return this.prisma.$transaction(async (tx) => {
+      const estimate = await tx.estimate.create({
+        data: {
+          tenantId,
+          estimateType: 'manual',
+          estimateMode: dto.estimateMode,
+          title: dto.title,
+          description: dto.description,
+          projectType: dto.projectType,
+          location: dto.location,
+          workOrderId: dto.workOrderId,
+          accountId: dto.accountId,
+          laborHours: dto.laborHours ? new Decimal(dto.laborHours) : null,
+          laborCost: laborCost > 0 ? new Decimal(laborCost) : null,
+          materialsCost: materialsCost > 0 ? new Decimal(materialsCost) : null,
+          permitsCost: permitsCost > 0 ? new Decimal(permitsCost) : null,
+          overheadCost: overheadCost > 0 ? new Decimal(overheadCost) : null,
+          subtotal: new Decimal(subtotal),
+          taxRate: dto.taxRate ? new Decimal(dto.taxRate) : null,
+          taxAmount: new Decimal(taxAmount),
+          finalPrice: new Decimal(finalPrice),
+          profitMargin: dto.profitMargin ? new Decimal(dto.profitMargin) : null,
+          internalNotes: dto.internalNotes,
+          customerNotes: dto.customerNotes,
+          expiresAt: dto.expiresAt ? new Date(dto.expiresAt) : null,
+          createdBy: userId,
+        },
       });
-    }
 
-    return this.getEstimateById(tenantId, estimate.id);
+      if (dto.lineItems && dto.lineItems.length > 0) {
+        await tx.estimateLineItem.createMany({
+          data: dto.lineItems.map((item, index) => ({
+            estimateId: estimate.id,
+            category: item.category,
+            description: item.description,
+            quantity: new Decimal(item.quantity),
+            unitPrice: new Decimal(item.unitPrice),
+            total: new Decimal(item.quantity * item.unitPrice),
+            displayOrder: index,
+            notes: item.notes,
+          })),
+        });
+      }
+
+      // Fetch complete estimate with line items
+      return tx.estimate.findUnique({
+        where: { id: estimate.id },
+        include: {
+          lineItems: true,
+          workOrder: true,
+          account: true,
+          creator: true,
+        },
+      });
+    });
   }
 
   async updateManualEstimate(tenantId: string, estimateId: string, dto: UpdateManualEstimateDto) {
