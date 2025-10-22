@@ -220,8 +220,8 @@ export default function ProposalBuilder() {
       const descLines = doc.splitTextToSize(item.description, 60);
       doc.text(descLines[0], margin + 35, yPosition);
       doc.text(item.quantity.toString(), margin + 100, yPosition);
-      doc.text(`$${item.unitPrice.toFixed(2)}`, margin + 120, yPosition);
-      doc.text(`$${item.total.toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
+      doc.text(`$${Number(item.unitPrice).toFixed(2)}`, margin + 120, yPosition);
+      doc.text(`$${Number(item.total).toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
       yPosition += 7;
     });
 
@@ -233,19 +233,19 @@ export default function ProposalBuilder() {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.text('Subtotal:', margin + 120, yPosition);
-    doc.text(`$${selectedProposal.subtotal.toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
+    doc.text(`$${Number(selectedProposal.subtotal).toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
     yPosition += 6;
 
     if (selectedProposal.taxAmount > 0) {
       doc.text('Tax:', margin + 120, yPosition);
-      doc.text(`$${selectedProposal.taxAmount.toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
+      doc.text(`$${Number(selectedProposal.taxAmount).toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
       yPosition += 6;
     }
 
     doc.setFontSize(12);
     doc.setTextColor(20, 184, 166);
     doc.text('Total:', margin + 120, yPosition);
-    doc.text(`$${selectedProposal.totalAmount.toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
+    doc.text(`$${Number(selectedProposal.totalAmount).toFixed(2)}`, margin + 160, yPosition, { align: 'right' });
     yPosition += 15;
 
     if (selectedProposal.terms) {
@@ -349,7 +349,7 @@ export default function ProposalBuilder() {
                     </div>
                     <div className="mt-2 flex items-center justify-between text-sm">
                       <span className="text-gray-400">{format(new Date(proposal.createdAt), 'MMM dd, yyyy')}</span>
-                      <span className="font-semibold text-teal-400">${proposal.totalAmount.toFixed(2)}</span>
+                      <span className="font-semibold text-teal-400">${Number(proposal.totalAmount).toFixed(2)}</span>
                     </div>
                   </button>
                 ))}
@@ -527,8 +527,8 @@ export default function ProposalBuilder() {
                               <td className="px-4 py-3 text-sm text-white">{item.category}</td>
                               <td className="px-4 py-3 text-sm text-gray-300">{item.description}</td>
                               <td className="px-4 py-3 text-sm text-white text-right">{item.quantity}</td>
-                              <td className="px-4 py-3 text-sm text-white text-right">${item.unitPrice.toFixed(2)}</td>
-                              <td className="px-4 py-3 text-sm font-medium text-white text-right">${item.total.toFixed(2)}</td>
+                              <td className="px-4 py-3 text-sm text-white text-right">${Number(item.unitPrice).toFixed(2)}</td>
+                              <td className="px-4 py-3 text-sm font-medium text-white text-right">${Number(item.total).toFixed(2)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -540,17 +540,17 @@ export default function ProposalBuilder() {
                     <div className="space-y-2 max-w-md ml-auto">
                       <div className="flex justify-between text-gray-300">
                         <span>Subtotal:</span>
-                        <span>${selectedProposal.subtotal.toFixed(2)}</span>
+                        <span>${Number(selectedProposal.subtotal).toFixed(2)}</span>
                       </div>
                       {selectedProposal.taxAmount > 0 && (
                         <div className="flex justify-between text-gray-300">
                           <span>Tax:</span>
-                          <span>${selectedProposal.taxAmount.toFixed(2)}</span>
+                          <span>${Number(selectedProposal.taxAmount).toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between text-xl font-bold text-teal-400 border-t border-slate-700 pt-2">
                         <span>Total:</span>
-                        <span>${selectedProposal.totalAmount.toFixed(2)}</span>
+                        <span>${Number(selectedProposal.totalAmount).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
