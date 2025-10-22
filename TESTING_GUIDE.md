@@ -23,11 +23,6 @@
 | `viewer@hvac.com` | VIEWER | Read-only access |
 | `user@hvac.com` | USER | Basic user access |
 
-### Super Admin Account
-- **Email:** `admin@hvac.com`
-- **Password:** `password123`
-- **Access:** System-wide administration
-
 ---
 
 ## ⚡ Quick Start (5 Minutes)
@@ -242,15 +237,6 @@
 - [ ] Update profile information
 - [ ] Change password
 - [ ] Configure notification preferences
-
-### ✅ Super Admin Panel
-**Login as:** `admin@hvac.com` / `password123`
-- [ ] Access Super Admin menu
-- [ ] View all users across tenants
-- [ ] Manage roles & permissions
-- [ ] View tenant list
-- [ ] Create new tenant
-- [ ] Assign user permissions
 
 ### ✅ Theme Toggle 🆕
 - [ ] Switch to light mode
