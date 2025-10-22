@@ -26,6 +26,7 @@ import { FieldCalculationModule } from './modules/field-calculation/module';
 import { NotificationModule } from './modules/notifications/module';
 import { EstimatorModule } from './modules/estimator/estimator.module';
 import { QueueModule } from './queue/queue.module';
+import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { PrismaService } from './common/prisma.service';
 import { JwtAttachMiddleware } from './middleware/jwt.middleware';
 
@@ -53,6 +54,7 @@ import { JwtAttachMiddleware } from './middleware/jwt.middleware';
     NotificationModule,
     EstimatorModule,
     QueueModule,
+    ServiceCatalogModule,
   ],
   controllers: [AppController, HealthController, MetricsController],
   providers: [AppService, PrismaService],
