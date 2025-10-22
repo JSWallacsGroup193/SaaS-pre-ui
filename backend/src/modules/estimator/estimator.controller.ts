@@ -4,7 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateEstimateDto } from './dto/create-estimate.dto';
 import { EstimateResponseDto } from './dto/estimate-response.dto';
 
-@Controller('api/v1/estimator')
+@Controller('estimator')
 export class EstimatorController {
   constructor(private readonly estimatorService: EstimatorService) {}
 
