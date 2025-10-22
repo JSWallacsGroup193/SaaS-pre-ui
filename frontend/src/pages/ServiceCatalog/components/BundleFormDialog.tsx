@@ -61,7 +61,13 @@ export function BundleFormDialog({ open, onClose, onSuccess, bundle }: BundleFor
       const savings = regularPrice - bundlePrice;
       const savingsPercent = (savings / regularPrice) * 100;
 
-      const data = {
+      const normalizedItems = bundle?.items?.map(item => ({
+        serviceId: item.serviceId,
+        quantity: item.quantity,
+        displayOrder: 1,
+      })) || [];
+
+      const data: any = {
         bundleName: formData.bundleName,
         bundleCode: formData.bundleCode,
         description: formData.description || undefined,
@@ -72,7 +78,7 @@ export function BundleFormDialog({ open, onClose, onSuccess, bundle }: BundleFor
         savingsPercent,
         isPromotional: formData.isPromotional,
         isActive: true,
-        items: bundle?.items || [],
+        items: normalizedItems,
       };
 
       if (bundle) {
