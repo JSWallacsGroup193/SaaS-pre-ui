@@ -1,4 +1,4 @@
-# OpsNex HVAC Management System - Technical Reference
+# OpsNex - Technical Reference
 
 **Version:** 1.0  
 **Last Updated:** October 21, 2025  

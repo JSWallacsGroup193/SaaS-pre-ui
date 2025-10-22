@@ -33,8 +33,8 @@ async function bootstrap() {
   app.useGlobalFilters(new SpaFilter());
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('HVAC API')
-    .setDescription('Generated API docs')
+    .setTitle('OpsNex API')
+    .setDescription('OpsNex HVAC Operations Management Platform API')
     .setVersion('1.1')
     .addBearerAuth()
     .build();
@@ -43,7 +43,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port, '0.0.0.0');
-  console.log(`✅ HVAC Management System running on port ${port}`);
+  console.log(`✅ OpsNex running on port ${port}`);
   console.log(`✅ Web Application: http://0.0.0.0:${port}/`);
   console.log(`✅ API: http://0.0.0.0:${port}/api/v1`);
   console.log(`✅ Swagger docs: http://0.0.0.0:${port}/api/v1/docs`);

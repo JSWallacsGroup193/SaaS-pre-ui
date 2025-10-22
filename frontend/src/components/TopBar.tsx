@@ -33,7 +33,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         </div>
         <div className="hidden sm:block">
           <h1 className="text-lg font-bold text-slate-100">OpsNex</h1>
-          <p className="text-xs text-slate-400">HVAC Management</p>
+          <p className="text-xs text-slate-400">HVAC Operations</p>
         </div>
       </div>
       <div className="flex items-center gap-4">

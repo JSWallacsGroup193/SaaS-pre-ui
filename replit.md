@@ -1,7 +1,7 @@
-# HVAC Management System
+# OpsNex
 
 ## Overview
-This project is a full-stack HVAC management application designed to streamline operations for HVAC businesses. It provides comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, aiming to be a complete SaaS solution for the HVAC industry. The application utilizes a consistent OpsNex dark theme across all interfaces.
+OpsNex is a full-stack HVAC operations management platform designed to streamline operations for HVAC service businesses. It provides comprehensive tools for managing work orders, inventory, customer relationships (CRM), dispatching, purchasing, and demand forecasting. Key capabilities include AI-powered chat assistance, barcode scanning, and robust reporting, delivering a complete SaaS solution for the HVAC industry. The application features a consistent OpsNex dark theme across all interfaces.
 
 ## User Preferences
 I prefer simple language and detailed explanations. I want iterative development with frequent, small updates. Ask before making major changes.
@@ -103,7 +103,7 @@ The demo tenant includes realistic HVAC business scenarios:
 ## Project Structure
 
 ```
-hvac-management-system/
+opsnex/
 ├── backend/              # NestJS backend API
 │   ├── prisma/          # Database schema and migrations
 │   ├── scripts/         # Seed scripts (RBAC, demo data)
