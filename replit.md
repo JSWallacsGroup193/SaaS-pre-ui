@@ -100,6 +100,26 @@ The demo tenant includes realistic HVAC business scenarios:
 - **Work Orders**: Mix of maintenance, repair, and installation jobs across different customer types
 - **Dispatch**: Ready for testing with 5 active technician accounts
 
+## Project Structure
+
+```
+hvac-management-system/
+├── backend/              # NestJS backend API
+│   ├── prisma/          # Database schema and migrations
+│   ├── scripts/         # Seed scripts (RBAC, demo data)
+│   └── src/             # Source code (modules, controllers, services)
+├── frontend/            # React + Vite frontend
+│   ├── app/            # App-specific components
+│   └── src/            # Source code (pages, components, stores)
+├── package.json         # Root package configuration
+├── replit.md           # Project documentation (this file)
+├── TECH_STACK_REFERENCE.md  # Technical reference
+└── Shell Scripts:
+    ├── build.sh        # Production build script
+    ├── dev.sh          # Development server script
+    └── setup_merge.sh  # Setup merge script
+```
+
 ## External Dependencies
 
 - **Database**: PostgreSQL (via Neon)
@@ -109,7 +129,6 @@ The demo tenant includes realistic HVAC business scenarios:
 - **State Management**: Zustand
 - **HTTP Client**: Axios
 - **Build Tool**: Vite
-- **Testing Framework**: Jest
 - **Barcode Generation**: `jsbarcode`
 - **Barcode Scanning**: `html5-qrcode`
 - **OpenAPI Documentation**: `@nestjs/swagger`
