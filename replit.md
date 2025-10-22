@@ -38,9 +38,51 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 ### System Design Choices
 - **Multi-tenancy**: Data is scoped by tenant ID.
 - **API Versioning**: All APIs are prefixed with `/api/v1`.
-- **Role-based Access Control**: Granular permissions system.
+- **Role-based Access Control**: Granular permissions system with 13 roles (SUPER_ADMIN, OWNER, ADMIN, FIELD_MANAGER, FIELD_SUPERVISOR, TECHNICIAN, OFFICE_MANAGER, WAREHOUSE_MANAGER, SALES_REPRESENTATIVE, CUSTOMER_SERVICE_REPRESENTATIVE, ACCOUNTANT, VIEWER, USER) and 114 permissions across all modules.
 - **Stock Ledger System**: Centralized tracking for accurate inventory levels.
 - **Security**: Utilizes Helmet, configurable CORS, JWT authentication, and `class-validator` for input validation; comprehensive tenant isolation implemented.
+
+## Demo Data & Testing
+
+### System Credentials
+- **Super Admin**: admin@hvac.com / password123 (SUPER_ADMIN role)
+- **Demo Tenant User**: demo@hvac.com / demo123 (FIELD_MANAGER role in "HVAC Demo Corp" tenant)
+
+### Database Seed Scripts
+Three database seeding scripts are available for setting up the system:
+
+1. **RBAC Seeding** (`npm run seed:rbac`)
+   - Creates all 13 roles with proper hierarchy
+   - Creates 114 permissions across all modules
+   - Assigns permissions to roles based on comprehensive permission matrix
+   - Idempotent (safe to run multiple times)
+
+2. **Demo Tenant Seeding** (`npm run seed:demo`)
+   - Creates "HVAC Demo Corp" tenant with complete sample data
+   - Demo user: demo@hvac.com (FIELD_MANAGER role)
+   - 12 customer accounts (retail, commercial, residential, property management)
+   - 18 contacts across various accounts
+   - 8 leads in different stages
+   - 20 work orders with varied statuses and priorities
+   - 35 realistic HVAC SKUs (filters, refrigerants, parts, equipment, tools)
+   - 3 warehouses (Main, Branch, Service Vans)
+   - 10 storage bins with organized locations
+   - 5 technician users for dispatch testing
+   - Purchase orders, field calculations, and notifications
+   - Idempotent for users/warehouses/SKUs (some CRM entities may duplicate on reruns)
+
+3. **Complete Seeding** (`npm run seed:all`)
+   - Runs admin seed, RBAC seed, and demo tenant seed in sequence
+   - One-command setup for development/testing environments
+
+### Demo Data Details
+The demo tenant includes realistic HVAC business scenarios:
+- **Equipment**: Condensers (3-4 ton, various SEER ratings), furnaces (80-100K BTU)
+- **Parts**: Capacitors, motors, contactors, thermostats, coils, ignitors, sensors
+- **Supplies**: Air filters (various sizes/MERV ratings), refrigerants (R-410A, R-22), copper tubing, flex duct
+- **Tools**: Manifold gauges, vacuum pumps, brazing kits, multimeters
+- **Work Orders**: Mix of maintenance, repair, and installation jobs across different customer types
+- **Dispatch**: Ready for testing with 5 active technician accounts
 
 ## External Dependencies
 
