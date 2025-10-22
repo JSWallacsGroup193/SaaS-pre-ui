@@ -5,6 +5,7 @@ import Register from './pages/Register'
 import { useAuthStore } from './store/useAuthStore'
 import { Sidebar } from './components/Sidebar'
 import { TopBar } from './components/TopBar'
+import { useThemeStore } from './store/useThemeStore'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const WorkOrders = lazy(() => import('./pages/WorkOrders'))
@@ -39,6 +40,17 @@ export default function App() {
   const user = useAuthStore(s => s.user)
   const loadUser = useAuthStore(s => s.loadUser)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const theme = useThemeStore(s => s.theme)
+
+  // Apply theme to document
+  useEffect(() => {
+    const root = document.documentElement
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [theme])
 
   // Load user profile on mount if token exists
   useEffect(() => {
@@ -58,16 +70,16 @@ export default function App() {
   }
 
   return (
-    <div className="grid grid-rows-[56px_1fr] h-screen bg-slate-950 text-slate-100">
+    <div className="grid grid-rows-[56px_1fr] h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
       <TopBar onMenuClick={() => setSidebarOpen(true)} />
       <div className="relative flex lg:grid lg:grid-cols-[240px_1fr] overflow-hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-        <div className="flex-1 p-4 overflow-auto bg-slate-900">
+        <div className="flex-1 p-4 overflow-auto bg-slate-100 dark:bg-slate-900">
           <Suspense fallback={
-            <div className="flex items-center justify-center min-h-screen bg-slate-900">
+            <div className="flex items-center justify-center min-h-screen bg-slate-100 dark:bg-slate-900">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-teal-500 mx-auto mb-4"></div>
-                <p className="text-slate-400">Loading dashboard...</p>
+                <p className="text-slate-600 dark:text-slate-400">Loading dashboard...</p>
               </div>
             </div>
           }>
