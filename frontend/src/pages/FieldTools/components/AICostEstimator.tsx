@@ -80,52 +80,52 @@ export default function AICostEstimator() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-teal-500" />
+          <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-teal-500" />
             AI Cost Estimator
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-sm sm:text-base">
             Get AI-powered cost estimates for HVAC projects using GPT-4o
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {/* Mode Selection */}
           <div className="space-y-2">
-            <Label>Estimate Mode</Label>
-            <div className="grid grid-cols-2 gap-4">
+            <Label className="text-base">Estimate Mode</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               <button
                 onClick={() => setMode('quick')}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 sm:p-5 rounded-lg border-2 transition-all touch-manipulation min-h-[100px] sm:min-h-[110px] ${
                   mode === 'quick'
                     ? 'border-teal-500 bg-teal-500/10'
-                    : 'border-slate-700 hover:border-slate-600'
+                    : 'border-slate-700 hover:border-slate-600 active:border-slate-500'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <Clock className="w-5 h-5" />
-                  <span className="font-semibold">Quick (5-min)</span>
+                  <Clock className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-semibold text-base">Quick (5-min)</span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground text-left">
                   Fast ballpark estimate for simple projects
                 </p>
               </button>
               
               <button
                 onClick={() => setMode('comprehensive')}
-                className={`p-4 rounded-lg border-2 transition-all ${
+                className={`p-4 sm:p-5 rounded-lg border-2 transition-all touch-manipulation min-h-[100px] sm:min-h-[110px] ${
                   mode === 'comprehensive'
                     ? 'border-teal-500 bg-teal-500/10'
-                    : 'border-slate-700 hover:border-slate-600'
+                    : 'border-slate-700 hover:border-slate-600 active:border-slate-500'
                 }`}
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <FileText className="w-5 h-5" />
-                  <span className="font-semibold">Comprehensive</span>
+                  <FileText className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-semibold text-base">Comprehensive</span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground text-left">
                   Detailed breakdown with line items
                 </p>
               </button>
@@ -204,20 +204,20 @@ export default function AICostEstimator() {
 
       {/* Results */}
       {result && (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-6">
           {/* Summary Card */}
           <Card className="border-teal-500/50 bg-teal-500/5">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-6 h-6 text-teal-500" />
+              <CardTitle className="flex items-center gap-2 text-xl sm:text-2xl">
+                <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 text-teal-500" />
                 Estimated Cost
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-teal-500 mb-4">
+              <div className="text-3xl sm:text-4xl font-bold text-teal-500 mb-3 sm:mb-4">
                 {formatCurrency(result.customer_summary.finalPrice)}
               </div>
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground">
                 {result.customer_summary.summaryMessage}
               </p>
             </CardContent>
@@ -267,34 +267,39 @@ export default function AICostEstimator() {
           {result.line_items && result.line_items.length > 0 && (
             <Card>
               <CardHeader>
-                <CardTitle>Line Items</CardTitle>
-                <CardDescription>Itemized cost details</CardDescription>
+                <CardTitle className="text-xl sm:text-2xl">Line Items</CardTitle>
+                <CardDescription className="text-sm sm:text-base">Itemized cost details</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b border-slate-700">
-                        <th className="text-left py-2 px-2">Category</th>
-                        <th className="text-left py-2 px-2">Description</th>
-                        <th className="text-right py-2 px-2">Qty</th>
-                        <th className="text-right py-2 px-2">Unit Price</th>
-                        <th className="text-right py-2 px-2">Total</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {result.line_items.map((item, index) => (
-                        <tr key={index} className="border-b border-slate-800">
-                          <td className="py-3 px-2 text-sm font-medium">{item.category}</td>
-                          <td className="py-3 px-2 text-sm text-muted-foreground">{item.description}</td>
-                          <td className="py-3 px-2 text-sm text-right">{item.quantity}</td>
-                          <td className="py-3 px-2 text-sm text-right">{formatCurrency(item.unit_price)}</td>
-                          <td className="py-3 px-2 text-sm text-right font-semibold">{formatCurrency(item.total)}</td>
+                <div className="overflow-x-auto -mx-2 sm:mx-0">
+                  <div className="inline-block min-w-full align-middle">
+                    <table className="w-full min-w-[600px]">
+                      <thead>
+                        <tr className="border-b border-slate-700">
+                          <th className="text-left py-2 px-2 text-sm font-semibold">Category</th>
+                          <th className="text-left py-2 px-2 text-sm font-semibold">Description</th>
+                          <th className="text-right py-2 px-2 text-sm font-semibold whitespace-nowrap">Qty</th>
+                          <th className="text-right py-2 px-2 text-sm font-semibold whitespace-nowrap">Unit Price</th>
+                          <th className="text-right py-2 px-2 text-sm font-semibold">Total</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody>
+                        {result.line_items.map((item, index) => (
+                          <tr key={index} className="border-b border-slate-800">
+                            <td className="py-3 px-2 text-sm font-medium whitespace-nowrap">{item.category}</td>
+                            <td className="py-3 px-2 text-sm text-muted-foreground">{item.description}</td>
+                            <td className="py-3 px-2 text-sm text-right">{item.quantity}</td>
+                            <td className="py-3 px-2 text-sm text-right whitespace-nowrap">{formatCurrency(item.unit_price)}</td>
+                            <td className="py-3 px-2 text-sm text-right font-semibold whitespace-nowrap">{formatCurrency(item.total)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
+                <p className="text-xs text-muted-foreground mt-3 sm:hidden">
+                  Scroll horizontally to see all columns →
+                </p>
               </CardContent>
             </Card>
           )}
