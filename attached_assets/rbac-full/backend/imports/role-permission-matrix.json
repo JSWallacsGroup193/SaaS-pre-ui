@@ -1,0 +1,1 @@
+{ "ADMIN": ["work_orders.create", "crm.accounts.read"] }

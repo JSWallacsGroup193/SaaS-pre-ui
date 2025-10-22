@@ -1,0 +1,1 @@
+{ "scripts": { "seed:rbac": "ts-node scripts/seed-rbac-complete.ts", "seed:demo": "ts-node scripts/seed-demo-tenant.ts", "seed:all": "npm run seed:rbac && npm run seed:demo", "export:permissions": "ts-node scripts/export-role-matrix.ts", "import:permissions": "ts-node scripts/import-role-matrix.ts" } }
