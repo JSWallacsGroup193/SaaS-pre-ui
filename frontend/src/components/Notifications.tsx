@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Bell, Check, CheckCheck, Trash2, X } from 'lucide-react';
-import { useNotificationStore } from '../stores/useNotificationStore';
+import { useNotificationStore } from '../store/useNotificationStore';
 import { useAuth } from '../store/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
