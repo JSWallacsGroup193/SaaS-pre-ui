@@ -108,10 +108,11 @@ Expect inputs in structured JSON format from front-end. Use default estimates if
 
 - **Backend**: NestJS + TypeScript
 - **Frontend**: React + Vite + Zustand
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: PostgreSQL with **Prisma ORM**
 - **AI**: OpenAI API (GPT-4 or similar)
 - **Authentication**: JWT-based with multi-tenant architecture
 - **UI**: shadcn/ui components + Tailwind CSS (OpsNex dark theme)
+- **Secrets Management**: .env files (DATABASE_URL, OPENAI_API_KEY)
 
 ---
 
@@ -140,7 +141,7 @@ Requirements:
 - Validate input with CreateEstimateDto
 - Call OpenAI API with this prompt + user inputs
 - Parse OpenAI response as JSON
-- Save to database via Drizzle ORM
+- Save to database via **Prisma ORM**
 - Return typed EstimateResponseDto
 
 ### Code Pattern (Follow Existing Modules)
@@ -228,31 +229,66 @@ const response = await api.post('/estimator/calculate', formData)
 
 ---
 
-## Database Schema (Drizzle ORM)
+## Database Schema (Prisma ORM)
 
-### Add to `/shared/schema.ts`
+### Add to `/backend/prisma/schema.prisma`
 
-```typescript
-export const estimates = pgTable('estimates', {
-  id: varchar('id').primaryKey().default(sql`gen_random_uuid()`),
-  tenantId: varchar('tenant_id').notNull().references(() => tenants.id),
-  workOrderId: varchar('work_order_id').references(() => workOrders.id),
-  estimateMode: varchar('estimate_mode', { length: 20 }).notNull(), // 'quick' or 'comprehensive'
-  inputData: jsonb('input_data').notNull(), // Store inputs (6-8 fields for quick, 10 categories for comprehensive)
-  outputData: jsonb('output_data').notNull(), // Store AI response
-  totalEstimate: numeric('total_estimate', { precision: 10, scale: 2 }),
-  finalPrice: numeric('final_price', { precision: 10, scale: 2 }),
-  profitMargin: numeric('profit_margin', { precision: 5, scale: 2 }),
-  createdBy: varchar('created_by').references(() => users.id),
-  createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow(),
-});
+```prisma
+model Estimate {
+  id            String   @id @default(uuid())
+  tenantId      String   @map("tenant_id")
+  workOrderId   String?  @map("work_order_id")
+  estimateMode  String   @map("estimate_mode") // 'quick' or 'comprehensive'
+  inputData     Json     @map("input_data")    // Store inputs (6-8 fields for quick, 10 categories for comprehensive)
+  outputData    Json     @map("output_data")   // Store AI response
+  totalEstimate Decimal? @map("total_estimate") @db.Decimal(10, 2)
+  finalPrice    Decimal? @map("final_price")    @db.Decimal(10, 2)
+  profitMargin  Decimal? @map("profit_margin")  @db.Decimal(5, 2)
+  createdBy     String?  @map("created_by")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  tenant     Tenant     @relation(fields: [tenantId], references: [id])
+  workOrder  WorkOrder? @relation(fields: [workOrderId], references: [id])
+  creator    User?      @relation(fields: [createdBy], references: [id])
+
+  @@map("estimates")
+}
+```
+
+### Add Relations to Existing Models
+
+```prisma
+// In Tenant model
+model Tenant {
+  // ... existing fields
+  estimates  Estimate[]
+}
+
+// In WorkOrder model
+model WorkOrder {
+  // ... existing fields
+  estimates  Estimate[]
+}
+
+// In User model
+model User {
+  // ... existing fields
+  estimates  Estimate[]
+}
 ```
 
 ### Run Migration
 
 ```bash
+npx prisma generate
 npm run db:push
+```
+
+Or if you encounter data-loss warnings:
+
+```bash
+npm run db:push --force
 ```
 
 ---
