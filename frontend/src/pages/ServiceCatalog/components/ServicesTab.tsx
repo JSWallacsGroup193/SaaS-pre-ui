@@ -6,6 +6,7 @@ import { Plus, Pencil, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ServiceFormDialog } from './ServiceFormDialog';
 
+// Services management tab
 export function ServicesTab() {
   const [services, setServices] = useState<ServiceCatalog[]>([]);
   const [loading, setLoading] = useState(true);
