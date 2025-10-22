@@ -99,7 +99,8 @@ export function DispatchBoard() {
           onCreateWorkOrder={handleCreateWorkOrder}
         />
 
-        <div className="flex flex-1 overflow-hidden">
+        {/* Desktop Layout: 3 columns */}
+        <div className="hidden lg:flex flex-1 overflow-hidden">
           <TechnicianSidebar technicians={technicians} />
 
           <div className="flex-1 overflow-auto">
@@ -112,6 +113,23 @@ export function DispatchBoard() {
           </div>
 
           <UnassignedPanel workOrders={workOrders.filter((wo) => !wo.technicianId)} />
+        </div>
+
+        {/* Mobile Layout: Stacked */}
+        <div className="flex lg:hidden flex-1 overflow-auto flex-col">
+          <div className="flex-1">
+            <WeekView
+              workOrders={workOrders}
+              technicians={technicians}
+              selectedDate={selectedDate}
+              viewMode={viewMode}
+            />
+          </div>
+          
+          {/* Unassigned panel at bottom on mobile */}
+          <div className="border-t border-border bg-card">
+            <UnassignedPanel workOrders={workOrders.filter((wo) => !wo.technicianId)} />
+          </div>
         </div>
       </div>
 
