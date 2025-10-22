@@ -8,6 +8,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/src/main.js",
     "postinstall": "prisma generate",
+    "db:push": "prisma db push",
     "seed": "ts-node scripts/seed.ts",
     "seed:admin": "ts-node scripts/seed-admin.ts",
     "seed:rbac": "ts-node scripts/seed-rbac-complete.ts",
