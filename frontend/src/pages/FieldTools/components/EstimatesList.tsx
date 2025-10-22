@@ -145,7 +145,7 @@ export default function EstimatesList() {
                   </div>
 
                   <div className="ml-4 text-right">
-                    <p className="text-2xl font-bold text-teal-400">${estimate.finalPrice.toFixed(2)}</p>
+                    <p className="text-2xl font-bold text-teal-400">${Number(estimate.finalPrice).toFixed(2)}</p>
                     <div className="mt-3">
                       <ConvertToProposal estimateId={estimate.id} onSuccess={loadEstimates} />
                     </div>
