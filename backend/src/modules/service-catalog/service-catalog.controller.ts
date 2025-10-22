@@ -10,7 +10,7 @@ import { CreateLaborRateDto } from './dto/create-labor-rate.dto';
 @ApiTags('Service Catalog')
 @ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
-@Controller('api/v1/service-catalog')
+@Controller('service-catalog')
 export class ServiceCatalogController {
   constructor(private readonly serviceCatalogService: ServiceCatalogService) {}
 
