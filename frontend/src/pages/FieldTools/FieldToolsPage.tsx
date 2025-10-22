@@ -199,13 +199,13 @@ export default function FieldToolsPage() {
     const SelectedComponent = selectedCalc.component;
     
     return (
-      <div className="min-h-screen bg-background p-4 md:p-8">
+      <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => setSelectedCalculator(null)}
-            className="mb-4 flex items-center text-primary hover:text-primary/90 font-medium"
+            className="mb-4 flex items-center text-primary hover:text-primary/90 font-medium py-2 px-3 -ml-3 rounded-md hover:bg-primary/10 transition-colors touch-manipulation"
           >
-            <span className="mr-2">←</span> Back to Field Tools
+            <span className="mr-2 text-lg">←</span> Back to Field Tools
           </button>
           
           <Suspense fallback={
@@ -221,26 +221,26 @@ export default function FieldToolsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-8">
+    <div className="min-h-screen bg-background p-3 sm:p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Field Tools</h1>
-          <p className="text-lg text-muted-foreground">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold text-foreground mb-2">Field Tools</h1>
+          <p className="text-base sm:text-lg text-muted-foreground">
             Professional HVAC calculators and diagnostic tools for field technicians
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {calculators.map((calc) => (
             <button
               key={calc.id}
               onClick={() => setSelectedCalculator(calc.id)}
-              className="bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 text-left group border border-border"
+              className="bg-card rounded-lg shadow-md hover:shadow-lg active:shadow-xl transition-all p-5 sm:p-6 text-left group border border-border min-h-[140px] touch-manipulation"
             >
-              <div className="flex items-start justify-between mb-4">
-                <div className="text-5xl">{calc.icon}</div>
+              <div className="flex items-start justify-between mb-3 sm:mb-4">
+                <div className="text-4xl sm:text-5xl">{calc.icon}</div>
                 <svg
-                  className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors"
+                  className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -254,11 +254,11 @@ export default function FieldToolsPage() {
                 </svg>
               </div>
               
-              <h3 className="text-xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
+              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
                 {calc.name}
               </h3>
               
-              <p className="text-muted-foreground">
+              <p className="text-sm sm:text-base text-muted-foreground line-clamp-2">
                 {calc.description}
               </p>
             </button>
