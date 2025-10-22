@@ -26,7 +26,7 @@ export default function Inventory() {
         api.get('/inventory/warehouses'),
       ])
 
-      const skuData = skusRes.data
+      const skuData = Array.isArray(skusRes.data) ? skusRes.data : (skusRes.data.items || [])
       setSkus(skuData)
 
       const uniqueCategories = [...new Set(skuData.map((s: any) => s.category).filter(Boolean))]
