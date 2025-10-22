@@ -27,7 +27,7 @@ export class EstimatorService {
   }
 
   async calculate(tenantId: string, userId: string, dto: CreateEstimateDto): Promise<EstimateResponseDto> {
-    const promptPath = path.join(process.cwd(), 'backend', 'prompts', 'AI_Cost_Estimator_Prompt.md');
+    const promptPath = path.join(process.cwd(), 'prompts', 'AI_Cost_Estimator_Prompt.md');
     const systemPrompt = fs.readFileSync(promptPath, 'utf8');
 
     const response = await this.openai.chat.completions.create({
