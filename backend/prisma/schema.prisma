@@ -96,6 +96,9 @@ model Tenant {
   smsTemplates   SmsTemplate[]
   fieldCalculations FieldCalculation[]
   estimates      Estimate[]
+  serviceCatalog ServiceCatalog[]
+  serviceBundles ServiceBundle[]
+  laborRates     LaborRate[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -591,6 +594,7 @@ model WorkOrderLineItem {
   
   itemType      String   // "product", "service", "labor"
   skuId         String?  // If product
+  serviceCatalogId String?  // If service from catalog
   
   description   String
   notes         String?
@@ -615,10 +619,12 @@ model WorkOrderLineItem {
   
   workOrder     WorkOrder @relation(fields: [workOrderId], references: [id], onDelete: Cascade)
   sku           SKU?      @relation(fields: [skuId], references: [id])
+  serviceCatalog ServiceCatalog? @relation(fields: [serviceCatalogId], references: [id])
   technician    User?     @relation(fields: [technicianId], references: [id])
   
   @@index([workOrderId])
   @@index([skuId])
+  @@index([serviceCatalogId])
   @@index([technicianId])
 }
 
@@ -2351,4 +2357,157 @@ model Estimate {
   @@index([tenantId])
   @@index([workOrderId])
   @@index([createdBy])
+}
+
+// ============================================================================
+// SERVICE CATALOG & PRICEBOOK
+// ============================================================================
+
+// Service Catalog - Master list of services offered
+model ServiceCatalog {
+  id                String   @id @default(uuid())
+  tenantId          String
+  
+  // Basic Info
+  serviceCode       String   @unique  // e.g., "AC-TUNE-UP", "FURN-REPAIR"
+  serviceName       String              // e.g., "Air Conditioner Tune-Up"
+  category          String              // e.g., "Maintenance", "Repair", "Installation"
+  subcategory       String?             // e.g., "AC", "Furnace", "Duct Work"
+  description       String?
+  
+  // Pricing
+  pricingType       String   @default("flat_rate") // "flat_rate", "hourly", "time_and_material"
+  basePrice         Decimal  @default(0) @db.Decimal(10,2)
+  minPrice          Decimal? @db.Decimal(10,2)
+  maxPrice          Decimal? @db.Decimal(10,2)
+  
+  // Labor
+  estimatedHours    Decimal? @db.Decimal(5,2)
+  laborRateOverride Decimal? @db.Decimal(10,2)  // Override default labor rate
+  skillLevelRequired String? // "apprentice", "journeyman", "master"
+  
+  // Service Details
+  durationMinutes   Int?     // Estimated service duration
+  warrantyDays      Int?     // Standard warranty period
+  requiresPermit    Boolean  @default(false)
+  isEmergency       Boolean  @default(false)
+  
+  // Parts/Materials
+  includedParts     Json?    // Array of SKU IDs included in base price
+  recommendedParts  Json?    // Array of commonly needed additional parts
+  
+  // Availability
+  isActive          Boolean  @default(true)
+  isSeasonalService Boolean  @default(false)
+  availableSeasons  String[] // ["spring", "summer", "fall", "winter"]
+  
+  // Metadata
+  internalNotes     String?
+  customerFacingNotes String?
+  displayOrder      Int      @default(0)
+  
+  createdBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt @default(now())
+  deletedAt         DateTime?
+  
+  // Relations
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
+  workOrderLineItems WorkOrderLineItem[]
+  bundleItems       ServiceBundleItem[]
+  
+  @@index([tenantId])
+  @@index([serviceCode])
+  @@index([category])
+  @@index([subcategory])
+  @@index([isActive])
+}
+
+// Service Bundles - Package multiple services together
+model ServiceBundle {
+  id              String   @id @default(uuid())
+  tenantId        String
+  
+  bundleCode      String   @unique
+  bundleName      String
+  description     String?
+  
+  category        String?
+  
+  // Pricing
+  bundlePrice     Decimal  @db.Decimal(10,2)
+  regularPrice    Decimal  @db.Decimal(10,2) // Sum of individual services
+  savings         Decimal  @db.Decimal(10,2) // Calculated discount
+  savingsPercent  Decimal  @db.Decimal(5,2)
+  
+  // Availability
+  isActive        Boolean  @default(true)
+  validFrom       DateTime?
+  validUntil      DateTime?
+  
+  // Marketing
+  isPromotional   Boolean  @default(false)
+  displayOrder    Int      @default(0)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt @default(now())
+  deletedAt       DateTime?
+  
+  // Relations
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  items           ServiceBundleItem[]
+  
+  @@index([tenantId])
+  @@index([bundleCode])
+  @@index([isActive])
+}
+
+// Service Bundle Items - Services included in bundles
+model ServiceBundleItem {
+  id              String   @id @default(uuid())
+  bundleId        String
+  serviceId       String
+  
+  quantity        Int      @default(1)
+  displayOrder    Int      @default(0)
+  
+  bundle          ServiceBundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  service         ServiceCatalog @relation(fields: [serviceId], references: [id])
+  
+  @@index([bundleId])
+  @@index([serviceId])
+}
+
+// Labor Rates - Configurable hourly rates
+model LaborRate {
+  id              String   @id @default(uuid())
+  tenantId        String
+  
+  rateName        String   // e.g., "Standard Rate", "Master Technician", "Emergency"
+  rateType        String   // "regular", "overtime", "emergency", "weekend", "holiday"
+  skillLevel      String?  // "apprentice", "journeyman", "master"
+  
+  hourlyRate      Decimal  @db.Decimal(10,2)
+  
+  // Time-based multipliers
+  isDefault       Boolean  @default(false)
+  afterHoursMultiplier Decimal? @db.Decimal(3,2)  // e.g., 1.5 for time-and-a-half
+  
+  // Availability
+  isActive        Boolean  @default(true)
+  effectiveFrom   DateTime?
+  effectiveUntil  DateTime?
+  
+  description     String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt @default(now())
+  
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId])
+  @@index([rateType])
+  @@index([skillLevel])
+  @@index([isActive])
+  @@index([isDefault])
 }
