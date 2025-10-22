@@ -24,6 +24,7 @@ const Forecast = lazy(() => import('./pages/Forecast'))
 const Scanner = lazy(() => import('./pages/Scanner'))
 const AI = lazy(() => import('./pages/AI'))
 const FieldToolsPage = lazy(() => import('./pages/FieldTools/FieldToolsPage'))
+const ServiceCatalogPage = lazy(() => import('./pages/ServiceCatalog/ServiceCatalogPage').then(m => ({ default: m.ServiceCatalogPage })))
 const SettingsPage = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
@@ -90,6 +91,7 @@ export default function App() {
               <Route path="/forecast" element={<Forecast />} />
               <Route path="/scanner" element={<Scanner />} />
               <Route path="/field-tools" element={<FieldToolsPage />} />
+              <Route path="/service-catalog" element={<ServiceCatalogPage />} />
               <Route path="/ai" element={<AI />} />
               <Route path="/settings" element={<SettingsPage user={user as any} />} />
               <Route path="/admin" element={<AdminLayout />}>

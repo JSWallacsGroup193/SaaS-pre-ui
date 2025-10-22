@@ -14,7 +14,8 @@ import {
   Bot,
   Shield,
   Settings,
-  X
+  X,
+  BookOpen
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import logo from '@/assets/logo.png'
@@ -24,6 +25,7 @@ const navItems = [
   { to: '/work-orders', label: 'Work Orders', icon: ClipboardList },
   { to: '/crm', label: 'CRM', icon: Users },
   { to: '/inventory', label: 'Inventory', icon: Package },
+  { to: '/service-catalog', label: 'Service Catalog', icon: BookOpen },
   { to: '/purchasing', label: 'Purchasing', icon: ShoppingCart },
   { to: '/dispatch', label: 'Dispatch & Scheduling', icon: Calendar },
   { to: '/labels', label: 'Labels', icon: Tag },
