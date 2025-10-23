@@ -30,18 +30,18 @@ export function MobileDispatchView({ workOrders, technicians, selectedDate }: Mo
   const isToday = isSameDay(selectedDate, new Date())
 
   return (
-    <div className="h-full overflow-auto bg-background">
+    <div className="h-full overflow-auto bg-background pb-6">
       {/* Date Header */}
-      <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 px-4 py-3">
+      <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 px-3 py-2.5 shadow-md">
         <div className="flex items-center justify-between">
           <div>
-            <div className="text-xs font-medium text-slate-400">{format(selectedDate, "EEEE")}</div>
-            <div className={`text-lg font-bold ${isToday ? "text-teal-400" : "text-white"}`}>
+            <div className="text-xs font-medium text-slate-400 uppercase tracking-wide">{format(selectedDate, "EEEE")}</div>
+            <div className={`text-base font-bold mt-0.5 ${isToday ? "text-teal-400" : "text-white"}`}>
               {format(selectedDate, "MMMM d, yyyy")}
             </div>
           </div>
           {isToday && (
-            <div className="px-2 py-1 bg-teal-500 text-white text-xs font-semibold rounded">
+            <div className="px-2.5 py-1 bg-teal-500 text-white text-xs font-semibold rounded-md shadow-sm">
               TODAY
             </div>
           )}
@@ -73,6 +73,13 @@ export function MobileDispatchView({ workOrders, technicians, selectedDate }: Mo
             />
           )
         })}
+
+        {/* Empty State */}
+        {technicians.length === 0 && workOrders.filter(wo => wo.date === dateStr).length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-slate-400 text-sm">No work orders scheduled for this date</div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -92,33 +99,33 @@ function UnassignedSection({ workOrders, dateStr }: UnassignedSectionProps) {
   if (workOrders.length === 0) return null
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden">
+    <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 text-left touch-manipulation"
+        className="w-full flex items-center justify-between p-3.5 text-left touch-manipulation active:bg-slate-700/30 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-700 text-slate-300">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-700 text-slate-300 flex-shrink-0">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
-          <div>
+          <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold text-foreground">Unassigned</div>
             <div className="text-xs text-muted-foreground">{workOrders.length} work order{workOrders.length !== 1 ? 's' : ''}</div>
           </div>
         </div>
         {isExpanded ? (
-          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+          <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
         ) : (
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
         )}
       </button>
 
       {isExpanded && (
         <div
           ref={setNodeRef}
-          className={`p-3 space-y-2 border-t border-border transition-colors ${
+          className={`p-3 space-y-2.5 border-t border-border transition-colors min-h-[60px] ${
             isOver ? "bg-teal-500/10" : ""
           }`}
         >
@@ -175,28 +182,28 @@ function TechnicianCard({ tech, workOrders, dateStr, isExpanded, onToggle }: Tec
   }
 
   return (
-    <div className={`bg-card border rounded-lg overflow-hidden ${hasConflict ? "border-red-500 border-2" : "border-border"}`}>
+    <div className={`bg-card border rounded-lg overflow-hidden shadow-sm ${hasConflict ? "border-red-500 border-2" : "border-border"}`}>
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between p-4 text-left touch-manipulation"
+        className="w-full flex items-center justify-between p-3.5 text-left touch-manipulation active:bg-slate-700/30 transition-colors"
       >
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground flex-shrink-0">
             {tech.avatar}
           </div>
-          <div>
-            <div className="text-sm font-semibold text-foreground">{tech.name}</div>
-            <div className="flex items-center gap-1.5">
-              <div className={`h-2 w-2 rounded-full ${statusColors[tech.status]}`} />
-              <span className="text-xs text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-foreground truncate">{tech.name}</div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <div className={`h-2 w-2 rounded-full flex-shrink-0 ${statusColors[tech.status]}`} />
+              <span className="text-xs text-muted-foreground truncate">
                 {statusLabels[tech.status]} • {workOrders.length} job{workOrders.length !== 1 ? 's' : ''}
               </span>
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
           {hasConflict && (
-            <div className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded">
+            <div className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded whitespace-nowrap">
               CONFLICT
             </div>
           )}
@@ -211,7 +218,7 @@ function TechnicianCard({ tech, workOrders, dateStr, isExpanded, onToggle }: Tec
       {isExpanded && (
         <div
           ref={setNodeRef}
-          className={`p-3 space-y-2 border-t border-border transition-colors ${
+          className={`p-3 space-y-2.5 border-t border-border transition-colors min-h-[60px] ${
             isOver ? "bg-teal-500/10" : ""
           }`}
         >
@@ -221,7 +228,7 @@ function TechnicianCard({ tech, workOrders, dateStr, isExpanded, onToggle }: Tec
             </div>
           ) : (
             workOrders.map((workOrder) => (
-              <div key={workOrder.id} className={hasConflict ? "ring-2 ring-red-500 ring-offset-2 rounded" : ""}>
+              <div key={workOrder.id} className={hasConflict ? "ring-2 ring-red-500 ring-offset-2 ring-offset-slate-800 rounded-lg" : ""}>
                 <WorkOrderCard workOrder={workOrder} />
               </div>
             ))
