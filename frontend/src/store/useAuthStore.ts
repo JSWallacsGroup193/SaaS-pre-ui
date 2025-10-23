@@ -122,16 +122,26 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         isLoading: false,
         error: null,
       });
-    } catch (error) {
-      // Token is invalid or expired
-      authService.logout();
-      set({
-        user: null,
-        token: null,
-        isAuthenticated: false,
-        isLoading: false,
-        error: null,
-      });
+    } catch (error: any) {
+      // Only logout if it's a 401 (Unauthorized) - keep token for other errors
+      const status = error.response?.status;
+      if (status === 401) {
+        authService.logout();
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+          error: null,
+        });
+      } else {
+        // For other errors, just log and keep the token
+        console.warn('Failed to load user profile, but keeping session:', error.message);
+        set({
+          isLoading: false,
+          error: null,
+        });
+      }
     }
   },
 
