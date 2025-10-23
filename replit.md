@@ -59,16 +59,26 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 
 ## Recent Changes (October 23, 2025)
 
-### Enhanced CRM Integration
-- **Database**: Added 3 new tables (Property, ServiceRequest, CustomerPerformance) bringing total to **79 tables**
-- **Enhanced CustomerPreference**: Added detailed service preferences (pet notices, parking instructions, gate codes, shoes-off requirements, air quality sensitivity)
-- **Backend Modules**: Created complete NestJS modules for Property, ServiceRequest, and CustomerPerformance with full CRUD operations and multi-tenant scoping
-- **Frontend Pages**: Added Property Management and Service Requests pages with styled forms using shadcn/ui components
-- **Navigation**: Integrated new pages into sidebar navigation and routing system
+### Enhanced CRM Integration with Hierarchical Data Model
+- **Database Schema Consolidation**: Enforced proper hierarchy: Account → Property → Equipment → Work Orders
+  - Made `CustomerEquipment.propertyId` required (equipment must belong to a property)
+  - Removed `CustomerEquipment.accountId` (equipment no longer directly linked to account)
+  - Added `WorkOrder.equipmentId` field for equipment-specific service tracking
+  - Removed ServiceRequest module entirely - Work Orders are now the single source of truth
+- **Backend**: Complete NestJS modules for Property, CustomerPerformance with multi-tenant scoping
+- **Frontend PropertiesTab**: Hierarchical accordion view in Account Details
+  - Properties displayed as expandable cards with type, address
+  - Equipment nested under each property with expandable details
+  - "View Service History" button for each equipment navigates to filtered work orders
+- **Service History Filtering**: 
+  - Backend: Work Orders API accepts `equipmentId` query parameter
+  - Frontend: Work Orders page reads URL parameter and filters accordingly
+  - Visual banner shows active equipment filter with "Clear Filter" option
+- **Navigation**: Removed separate Properties and Service Requests from sidebar - all customer data unified in CRM
 
 ### New API Endpoints
 - `POST/GET/PUT/DELETE /api/v1/properties` - Property management
-- `POST/GET/PUT/DELETE /api/v1/service-requests` - Service request tracking
+- `GET /api/v1/work-orders?equipmentId={id}` - Equipment-filtered work orders
 - `POST/GET/PUT/DELETE /api/v1/customer-performance` - Customer analytics
 - `POST /api/v1/customer-performance/recalculate/:accountId` - Auto-calculate customer metrics
 
