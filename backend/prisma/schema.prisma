@@ -107,6 +107,11 @@ model Tenant {
   laborRates     LaborRate[]
   feedbacks      Feedback[]
   
+  // Enhanced CRM relations
+  properties     Property[]
+  serviceRequests ServiceRequest[]
+  customerPerformances CustomerPerformance[]
+  
   @@index([subdomain])
   @@index([isActive])
 }
@@ -209,6 +214,9 @@ model User {
   vendorsCreated           Vendor[]                    @relation("VendorCreator")
   vendorPerformanceReviews VendorPerformanceReview[]
   vendorDocuments          VendorDocument[]
+  
+  // Enhanced CRM relations
+  assignedServiceRequests  ServiceRequest[]            @relation("TechServiceRequests")
   
   @@index([tenantId])
   @@index([email])
@@ -567,6 +575,7 @@ model WorkOrder {
   fieldCalculations FieldCalculation[]
   estimates     Estimate[]
   proposals     Proposal[]
+  serviceRequests ServiceRequest[]
   
   @@index([tenantId])
   @@index([number])
@@ -928,6 +937,11 @@ model Account {
   estimates          Estimate[]
   proposals          Proposal[]
   
+  // Enhanced CRM relations
+  properties         Property[]
+  serviceRequests    ServiceRequest[]
+  customerPerformance CustomerPerformance?
+  
   @@index([tenantId])
   @@index([accountNumber])
   @@index([email])
@@ -1021,6 +1035,7 @@ model Address {
   equipment   CustomerEquipment[]
   workOrdersService WorkOrder[] @relation("ServiceAddress")
   workOrdersBilling WorkOrder[] @relation("BillingAddress")
+  properties  Property[]
   
   @@index([accountId])
   @@index([addressType])
@@ -1033,6 +1048,7 @@ model CustomerEquipment {
   id          String   @id @default(uuid())
   accountId   String
   addressId   String?
+  propertyId  String?  // Link to Property for HVAC-specific tracking
   
   equipmentType String   // "HVAC", "Furnace", "AC Unit"
   make          String?
@@ -1067,9 +1083,12 @@ model CustomerEquipment {
   
   account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
   address       Address? @relation(fields: [addressId], references: [id])
+  property      Property? @relation("PropertyEquipment", fields: [propertyId], references: [id])
+  serviceRequests ServiceRequest[]
   
   @@index([accountId])
   @@index([addressId])
+  @@index([propertyId])
   @@index([serialNumber])
   @@index([nextServiceDue])
 }
@@ -2398,7 +2417,7 @@ model InvoiceLineItem {
   @@index([skuId])
 }
 
-// CRM: Customer-specific preferences and settings
+// CRM: Customer-specific preferences and settings (ENHANCED)
 model CustomerPreference {
   id             String   @id @default(uuid())
   accountId      String   @unique
@@ -2412,11 +2431,21 @@ model CustomerPreference {
   preferredTechnician String?
   preferredDayOfWeek  String?
   preferredTimeSlot   String?
+  preferredServiceTime String? // "morning", "afternoon", "evening"
+  techRequest         String? // Specific technician request
   
   // Billing preferences
   billingCycle        String? // "monthly", "quarterly", "annual"
   autoPayEnabled      Boolean @default(false)
   paperlessInvoicing  Boolean @default(false)
+  
+  // Site access & special instructions
+  petNoticeRequired    Boolean @default(false)
+  parkingInstructions  String? @db.Text
+  gateAccessCode       String?
+  shoesOffRequired     Boolean @default(false)
+  airQualitySensitivity String? // "none", "low", "medium", "high"
+  communicationNotes   String? @db.Text
   
   // Custom settings
   customSettings      Json?
@@ -2925,4 +2954,151 @@ model Feedback {
   @@index([category])
   @@index([status])
   @@index([createdAt])
+}
+
+// ============================================================================
+// ENHANCED CRM - PROPERTY & SERVICE MANAGEMENT
+// ============================================================================
+
+// Property: HVAC-specific property tracking (extends Address with HVAC details)
+model Property {
+  id            String   @id @default(uuid())
+  tenantId      String
+  accountId     String
+  addressId     String?  // Link to Address for location details
+  
+  // Property details
+  propertyType  String   // "residential", "commercial", "industrial"
+  squareFootage Int?
+  hvacUnits     Int      @default(0)
+  
+  // Access notes (can override Address access notes)
+  accessNotes   String?  @db.Text
+  gateCode      String?
+  parkingInstructions String?
+  
+  // HVAC-specific
+  buildingAge   Int?
+  lastHvacUpgrade DateTime?
+  ductworkType  String?  // "metal", "flex", "fiberglass"
+  insulation    String?  // "none", "standard", "high_efficiency"
+  
+  isActive      Boolean  @default(true)
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt @default(now())
+  deletedAt     DateTime?
+  
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  account       Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  address       Address? @relation(fields: [addressId], references: [id])
+  equipment     CustomerEquipment[] @relation("PropertyEquipment")
+  serviceRequests ServiceRequest[]
+  
+  @@index([tenantId])
+  @@index([accountId])
+  @@index([addressId])
+  @@index([propertyType])
+}
+
+// ServiceRequest: Track service requests separate from WorkOrders
+model ServiceRequest {
+  id                 String   @id @default(uuid())
+  tenantId           String
+  accountId          String
+  propertyId         String?
+  equipmentId        String?
+  
+  requestNumber      String   @unique
+  requestType        String   // "repair", "maintenance", "installation", "inspection", "consultation"
+  problemDescription String   @db.Text
+  
+  // Scheduling
+  preferredDateTime  DateTime?
+  scheduledDateTime  DateTime?
+  
+  // Assignment
+  assignedTechId     String?
+  technicianNotes    String?  @db.Text
+  
+  // Status
+  status             String   @default("new") // "new", "scheduled", "in_progress", "completed", "cancelled"
+  priority           String   @default("normal") // "low", "normal", "high", "emergency"
+  
+  // Conversion
+  workOrderId        String?  // Link to created WorkOrder
+  
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt @default(now())
+  completedAt        DateTime?
+  
+  tenant             Tenant   @relation(fields: [tenantId], references: [id])
+  account            Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  property           Property? @relation(fields: [propertyId], references: [id])
+  equipment          CustomerEquipment? @relation(fields: [equipmentId], references: [id])
+  assignedTech       User?    @relation("TechServiceRequests", fields: [assignedTechId], references: [id])
+  workOrder          WorkOrder? @relation(fields: [workOrderId], references: [id])
+  
+  @@index([tenantId])
+  @@index([accountId])
+  @@index([propertyId])
+  @@index([equipmentId])
+  @@index([requestNumber])
+  @@index([status])
+  @@index([priority])
+  @@index([assignedTechId])
+}
+
+// CustomerPerformance: Track customer metrics and analytics
+model CustomerPerformance {
+  id                      String   @id @default(uuid())
+  tenantId                String
+  accountId               String   @unique
+  
+  // Job metrics
+  totalJobsCompleted      Int      @default(0)
+  averageTicketValue      Decimal  @default(0) @db.Decimal(10,2)
+  serviceCallFrequency    Int      @default(0) // Calls per year
+  lastServiceDate         DateTime?
+  
+  // Payment metrics
+  averagePaymentTime      Int      @default(0) // Days
+  latePayments            Int      @default(0)
+  activePaymentPlan       Boolean  @default(false)
+  
+  // Financial metrics
+  totalRevenueYTD         Decimal  @default(0) @db.Decimal(12,2)
+  totalCostToServe        Decimal  @default(0) @db.Decimal(12,2)
+  grossMarginPercent      Decimal  @default(0) @db.Decimal(5,2)
+  
+  // Customer behavior
+  discountsGiven          Boolean  @default(false)
+  maintenancePlanEnrolled Boolean  @default(false)
+  respondsToUpsell        Boolean  @default(false)
+  
+  // Satisfaction & engagement
+  reviewLeft              Boolean  @default(false)
+  referralsCount          Int      @default(0)
+  cancellationRate        Decimal  @default(0) @db.Decimal(5,2)
+  disputesCount           Int      @default(0)
+  
+  // Special handling
+  specialHandlingRequired Boolean  @default(false)
+  handlingNotes           String?  @db.Text
+  
+  // Calculated scores
+  customerScore           Decimal? @db.Decimal(5,2) // 0-100
+  lifetimeValue           Decimal  @default(0) @db.Decimal(12,2)
+  
+  lastCalculated          DateTime @default(now())
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt @default(now())
+  
+  tenant                  Tenant   @relation(fields: [tenantId], references: [id])
+  account                 Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  @@index([tenantId])
+  @@index([accountId])
+  @@index([customerScore])
+  @@index([lifetimeValue])
 }
