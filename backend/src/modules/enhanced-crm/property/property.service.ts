@@ -76,6 +76,17 @@ export class PropertyService {
     // Verify property exists and belongs to tenant
     const property = await this.findOne(tenantId, id);
 
+    // If updating accountId, verify new account belongs to tenant
+    if (dto.accountId && dto.accountId !== property.accountId) {
+      const account = await this.prisma.account.findUnique({
+        where: { id: dto.accountId },
+      });
+
+      if (!account || account.tenantId !== tenantId) {
+        throw new ForbiddenException('Account not found or access denied');
+      }
+    }
+
     return this.prisma.property.update({
       where: { id },
       data: dto,
