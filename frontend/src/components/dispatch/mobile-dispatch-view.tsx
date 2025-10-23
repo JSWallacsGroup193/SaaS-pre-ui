@@ -1,8 +1,6 @@
 import { useState } from "react"
-import { useDroppable } from "@dnd-kit/core"
-import { WorkOrderCard } from "./work-order-card"
 import { format, isSameDay } from "date-fns"
-import { ChevronDown, ChevronRight } from "lucide-react"
+import { Clock, User, Wrench } from "lucide-react"
 import type { WorkOrder, Technician } from "@/types/view-models/dispatch"
 
 interface MobileDispatchViewProps {
@@ -11,230 +9,271 @@ interface MobileDispatchViewProps {
   selectedDate: Date
 }
 
-export function MobileDispatchView({ workOrders, technicians, selectedDate }: MobileDispatchViewProps) {
-  const [expandedTechs, setExpandedTechs] = useState<Set<string>>(new Set(technicians.map(t => t.id)))
+type ViewTab = "all" | "unassigned" | "by-tech"
 
-  const toggleTech = (techId: string) => {
-    setExpandedTechs(prev => {
-      const next = new Set(prev)
-      if (next.has(techId)) {
-        next.delete(techId)
-      } else {
-        next.add(techId)
-      }
-      return next
-    })
-  }
+export function MobileDispatchView({ workOrders, technicians, selectedDate }: MobileDispatchViewProps) {
+  const [activeTab, setActiveTab] = useState<ViewTab>("all")
 
   const dateStr = format(selectedDate, "yyyy-MM-dd")
   const isToday = isSameDay(selectedDate, new Date())
+  
+  // Filter work orders for selected date
+  const dateWorkOrders = workOrders.filter(wo => wo.date === dateStr)
+  const unassignedOrders = dateWorkOrders.filter(wo => !wo.technicianId)
+  
+  // Group by technician
+  const ordersByTech = technicians.map(tech => ({
+    tech,
+    orders: dateWorkOrders.filter(wo => wo.technicianId === tech.id)
+  })).filter(group => group.orders.length > 0)
 
   return (
-    <div className="h-full overflow-auto bg-background pb-6">
-      {/* Date Header */}
-      <div className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 px-3 py-2.5 shadow-md">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="text-xs font-medium text-slate-400 uppercase tracking-wide">{format(selectedDate, "EEEE")}</div>
-            <div className={`text-base font-bold mt-0.5 ${isToday ? "text-teal-400" : "text-white"}`}>
-              {format(selectedDate, "MMMM d, yyyy")}
+    <div className="h-full overflow-auto bg-background">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-20 bg-slate-900 border-b border-slate-800 shadow-md">
+        {/* Date */}
+        <div className="px-3 py-2.5 border-b border-slate-800">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-xs font-medium text-slate-400 uppercase tracking-wide">{format(selectedDate, "EEEE")}</div>
+              <div className={`text-base font-bold mt-0.5 ${isToday ? "text-teal-400" : "text-white"}`}>
+                {format(selectedDate, "MMMM d, yyyy")}
+              </div>
             </div>
+            {isToday && (
+              <div className="px-2.5 py-1 bg-teal-500 text-white text-xs font-semibold rounded-md shadow-sm">
+                TODAY
+              </div>
+            )}
           </div>
-          {isToday && (
-            <div className="px-2.5 py-1 bg-teal-500 text-white text-xs font-semibold rounded-md shadow-sm">
-              TODAY
-            </div>
-          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex">
+          <button
+            onClick={() => setActiveTab("all")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "all" 
+                ? "text-teal-400 border-b-2 border-teal-400 bg-slate-800/50" 
+                : "text-slate-400 hover:text-slate-300"
+            }`}
+          >
+            All ({dateWorkOrders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("unassigned")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "unassigned" 
+                ? "text-teal-400 border-b-2 border-teal-400 bg-slate-800/50" 
+                : "text-slate-400 hover:text-slate-300"
+            }`}
+          >
+            Unassigned ({unassignedOrders.length})
+          </button>
+          <button
+            onClick={() => setActiveTab("by-tech")}
+            className={`flex-1 py-3 text-sm font-medium transition-colors ${
+              activeTab === "by-tech" 
+                ? "text-teal-400 border-b-2 border-teal-400 bg-slate-800/50" 
+                : "text-slate-400 hover:text-slate-300"
+            }`}
+          >
+            By Tech
+          </button>
         </div>
       </div>
 
-      <div className="p-3 space-y-3">
-        {/* Unassigned Work Orders */}
-        <UnassignedSection
-          workOrders={workOrders.filter(wo => !wo.technicianId && wo.date === dateStr)}
-          dateStr={dateStr}
-        />
-
-        {/* Technicians */}
-        {technicians.map((tech) => {
-          const techWorkOrders = workOrders.filter(
-            wo => wo.technicianId === tech.id && wo.date === dateStr
-          )
-          const isExpanded = expandedTechs.has(tech.id)
-
-          return (
-            <TechnicianCard
-              key={tech.id}
-              tech={tech}
-              workOrders={techWorkOrders}
-              dateStr={dateStr}
-              isExpanded={isExpanded}
-              onToggle={() => toggleTech(tech.id)}
-            />
-          )
-        })}
-
-        {/* Empty State */}
-        {technicians.length === 0 && workOrders.filter(wo => wo.date === dateStr).length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-slate-400 text-sm">No work orders scheduled for this date</div>
-          </div>
-        )}
+      {/* Content */}
+      <div className="pb-6">
+        {activeTab === "all" && <AllJobsTable workOrders={dateWorkOrders} technicians={technicians} />}
+        {activeTab === "unassigned" && <UnassignedTable workOrders={unassignedOrders} />}
+        {activeTab === "by-tech" && <ByTechTable groups={ordersByTech} />}
       </div>
     </div>
   )
 }
 
-interface UnassignedSectionProps {
+// Table Components
+interface AllJobsTableProps {
   workOrders: WorkOrder[]
-  dateStr: string
+  technicians: Technician[]
 }
 
-function UnassignedSection({ workOrders, dateStr }: UnassignedSectionProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
-  const { setNodeRef, isOver } = useDroppable({
-    id: `unassigned-${dateStr}`,
-  })
+function AllJobsTable({ workOrders, technicians }: AllJobsTableProps) {
+  if (workOrders.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-slate-400 text-sm">No work orders scheduled for this date</div>
+      </div>
+    )
+  }
 
-  if (workOrders.length === 0) return null
+  const getTechName = (techId: string | null) => {
+    if (!techId) return "Unassigned"
+    return technicians.find(t => t.id === techId)?.name || "Unknown"
+  }
+
+  const getStatusColor = (status: WorkOrder["status"]) => {
+    const colors = {
+      scheduled: "bg-slate-600 text-slate-100",
+      "in-progress": "bg-teal-600 text-white",
+      completed: "bg-emerald-600 text-white",
+      emergency: "bg-red-600 text-white",
+    }
+    return colors[status]
+  }
 
   return (
-    <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3.5 text-left touch-manipulation active:bg-slate-700/30 transition-colors"
-      >
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-700 text-slate-300 flex-shrink-0">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground">Unassigned</div>
-            <div className="text-xs text-muted-foreground">{workOrders.length} work order{workOrders.length !== 1 ? 's' : ''}</div>
-          </div>
-        </div>
-        {isExpanded ? (
-          <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-        ) : (
-          <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-        )}
-      </button>
-
-      {isExpanded && (
-        <div
-          ref={setNodeRef}
-          className={`p-3 space-y-2.5 border-t border-border transition-colors min-h-[60px] ${
-            isOver ? "bg-teal-500/10" : ""
-          }`}
-        >
-          {workOrders.length === 0 ? (
-            <div className="text-center py-6 text-sm text-muted-foreground">
-              No unassigned work orders
+    <div className="divide-y divide-slate-700">
+      {workOrders.map((wo) => (
+        <div key={wo.id} className="p-3 hover:bg-slate-800/30 active:bg-slate-800/50 transition-colors touch-manipulation">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate">{wo.customerName}</div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                <Clock className="h-3 w-3 flex-shrink-0" />
+                <span>{wo.startTime} - {wo.endTime}</span>
+              </div>
             </div>
-          ) : (
-            workOrders.map((workOrder) => (
-              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
-            ))
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-interface TechnicianCardProps {
-  tech: Technician
-  workOrders: WorkOrder[]
-  dateStr: string
-  isExpanded: boolean
-  onToggle: () => void
-}
-
-function TechnicianCard({ tech, workOrders, dateStr, isExpanded, onToggle }: TechnicianCardProps) {
-  const { setNodeRef, isOver } = useDroppable({
-    id: `${tech.id}-${dateStr}`,
-  })
-
-  // Check for conflicts
-  const hasConflict = workOrders.some((wo1, i) =>
-    workOrders.some((wo2, j) => {
-      if (i >= j) return false
-      const start1 = Number.parseInt(wo1.startTime.replace(":", ""))
-      const end1 = Number.parseInt(wo1.endTime.replace(":", ""))
-      const start2 = Number.parseInt(wo2.startTime.replace(":", ""))
-      const end2 = Number.parseInt(wo2.endTime.replace(":", ""))
-      return start1 < end2 && end1 > start2
-    }),
-  )
-
-  const statusColors: Record<Technician["status"], string> = {
-    available: "bg-emerald-500",
-    "on-job": "bg-amber-500",
-    off: "bg-slate-500",
-  }
-
-  const statusLabels: Record<Technician["status"], string> = {
-    available: "Available",
-    "on-job": "On Job",
-    off: "Off Duty",
-  }
-
-  return (
-    <div className={`bg-card border rounded-lg overflow-hidden shadow-sm ${hasConflict ? "border-red-500 border-2" : "border-border"}`}>
-      <button
-        onClick={onToggle}
-        className="w-full flex items-center justify-between p-3.5 text-left touch-manipulation active:bg-slate-700/30 transition-colors"
-      >
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-semibold text-foreground flex-shrink-0">
-            {tech.avatar}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-foreground truncate">{tech.name}</div>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <div className={`h-2 w-2 rounded-full flex-shrink-0 ${statusColors[tech.status]}`} />
-              <span className="text-xs text-muted-foreground truncate">
-                {statusLabels[tech.status]} • {workOrders.length} job{workOrders.length !== 1 ? 's' : ''}
+            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(wo.status)}`}>
+                {wo.status.replace("-", " ").toUpperCase()}
               </span>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0 ml-2">
-          {hasConflict && (
-            <div className="px-2 py-1 bg-red-500 text-white text-xs font-semibold rounded whitespace-nowrap">
-              CONFLICT
+          <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-1 text-slate-400">
+              <Wrench className="h-3 w-3" />
+              <span>{wo.jobType}</span>
             </div>
-          )}
-          {isExpanded ? (
-            <ChevronDown className="w-5 h-5 text-muted-foreground" />
-          ) : (
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          )}
+            <span className="text-slate-600">•</span>
+            <div className="flex items-center gap-1 text-slate-400">
+              <User className="h-3 w-3" />
+              <span>{getTechName(wo.technicianId)}</span>
+            </div>
+          </div>
         </div>
-      </button>
+      ))}
+    </div>
+  )
+}
 
-      {isExpanded && (
-        <div
-          ref={setNodeRef}
-          className={`p-3 space-y-2.5 border-t border-border transition-colors min-h-[60px] ${
-            isOver ? "bg-teal-500/10" : ""
-          }`}
-        >
-          {workOrders.length === 0 ? (
-            <div className="text-center py-6 text-sm text-muted-foreground">
-              No assignments for this day
-            </div>
-          ) : (
-            workOrders.map((workOrder) => (
-              <div key={workOrder.id} className={hasConflict ? "ring-2 ring-red-500 ring-offset-2 ring-offset-slate-800 rounded-lg" : ""}>
-                <WorkOrderCard workOrder={workOrder} />
+interface UnassignedTableProps {
+  workOrders: WorkOrder[]
+}
+
+function UnassignedTable({ workOrders }: UnassignedTableProps) {
+  if (workOrders.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-slate-400 text-sm">No unassigned work orders</div>
+      </div>
+    )
+  }
+
+  const getStatusColor = (status: WorkOrder["status"]) => {
+    const colors = {
+      scheduled: "bg-slate-600 text-slate-100",
+      "in-progress": "bg-teal-600 text-white",
+      completed: "bg-emerald-600 text-white",
+      emergency: "bg-red-600 text-white",
+    }
+    return colors[status]
+  }
+
+  return (
+    <div className="divide-y divide-slate-700">
+      {workOrders.map((wo) => (
+        <div key={wo.id} className="p-3 hover:bg-slate-800/30 active:bg-slate-800/50 transition-colors touch-manipulation">
+          <div className="flex items-start justify-between gap-3 mb-2">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-semibold text-white truncate">{wo.customerName}</div>
+              <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                <Clock className="h-3 w-3 flex-shrink-0" />
+                <span>{wo.startTime} - {wo.endTime}</span>
               </div>
-            ))
-          )}
+            </div>
+            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+              <span className={`px-2 py-0.5 rounded text-xs font-medium ${getStatusColor(wo.status)}`}>
+                {wo.status.replace("-", " ").toUpperCase()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 text-xs text-slate-400">
+            <Wrench className="h-3 w-3" />
+            <span>{wo.jobType}</span>
+          </div>
         </div>
-      )}
+      ))}
+    </div>
+  )
+}
+
+interface ByTechTableProps {
+  groups: Array<{ tech: Technician; orders: WorkOrder[] }>
+}
+
+function ByTechTable({ groups }: ByTechTableProps) {
+  if (groups.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-slate-400 text-sm">No technicians with assignments</div>
+      </div>
+    )
+  }
+
+  const getStatusColor = (status: WorkOrder["status"]) => {
+    const colors = {
+      scheduled: "bg-slate-600 text-slate-100",
+      "in-progress": "bg-teal-600 text-white",
+      completed: "bg-emerald-600 text-white",
+      emergency: "bg-red-600 text-white",
+    }
+    return colors[status]
+  }
+
+  return (
+    <div className="space-y-4 p-3">
+      {groups.map(({ tech, orders }) => (
+        <div key={tech.id} className="bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700">
+          {/* Technician Header */}
+          <div className="bg-slate-800 px-3 py-2.5 border-b border-slate-700">
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-white flex-shrink-0">
+                {tech.avatar}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-semibold text-white truncate">{tech.name}</div>
+                <div className="text-xs text-slate-400">{orders.length} job{orders.length !== 1 ? 's' : ''}</div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Jobs List */}
+          <div className="divide-y divide-slate-700/50">
+            {orders.map((wo) => (
+              <div key={wo.id} className="p-3 hover:bg-slate-700/30 active:bg-slate-700/50 transition-colors touch-manipulation">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-white truncate">{wo.customerName}</div>
+                    <div className="flex items-center gap-1.5 text-xs text-slate-400 mt-0.5">
+                      <Clock className="h-3 w-3 flex-shrink-0" />
+                      <span>{wo.startTime} - {wo.endTime}</span>
+                    </div>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${getStatusColor(wo.status)}`}>
+                    {wo.status.replace("-", " ").toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 text-xs text-slate-400">
+                  <Wrench className="h-3 w-3" />
+                  <span>{wo.jobType}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </div>
   )
 }
