@@ -13,7 +13,7 @@ packages = ["firebird_3"]
 run = ["npm", "start"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["bash", "build.sh"]
+build = ["bash", "-c", "cd backend && npm ci && npx prisma generate && cd .. && bash build.sh"]
 
 [agent]
 expertMode = true

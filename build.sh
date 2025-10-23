@@ -10,9 +10,17 @@ echo "📁 Root directory: $ROOT_DIR"
 # Build backend first (includes Prisma generation)
 echo "📦 Building backend..."
 cd "$ROOT_DIR/backend"
-npm ci
+
+# Install dependencies (production mode)
+echo "📥 Installing backend dependencies..."
+npm ci --include=dev
+
+# Explicitly generate Prisma Client with deployment binaries
 echo "🔄 Generating Prisma Client with deployment binaries..."
 npx prisma generate
+
+# Build the backend
+echo "🏗️ Building backend application..."
 npm run build
 echo "✅ Backend build complete"
 
