@@ -25,7 +25,7 @@ import logo from '@/assets/logo.png'
 const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/work-orders', label: 'Work Orders', icon: ClipboardList },
-  { to: '/crm', label: 'CRM', icon: Users },
+  { to: '/accounts', label: 'CRM', icon: Users },
   { to: '/inventory', label: 'Inventory', icon: Package },
   { to: '/service-catalog', label: 'Service Catalog', icon: BookOpen },
   { to: '/purchasing', label: 'Purchasing', icon: ShoppingCart },
