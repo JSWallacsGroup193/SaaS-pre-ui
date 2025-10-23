@@ -1,5 +1,30 @@
 import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  Cpu,
+  Calculator,
+  Zap,
+  Radio,
+  Settings,
+  TrendingDown,
+  Thermometer,
+  Snowflake,
+  Target,
+  ClipboardList,
+  Wind,
+  Wrench,
+  Gauge,
+  Flame,
+  FlaskConical,
+  Droplet,
+  Waves,
+  Layers,
+  CloudRain,
+  Scale,
+  RefreshCw,
+  Ruler,
+  type LucideIcon
+} from 'lucide-react';
 
 const CapacitorTestTool = lazy(() => import('./components/CapacitorTestTool'));
 const MotorAmpsChecker = lazy(() => import('./components/MotorAmpsChecker'));
@@ -30,7 +55,7 @@ type CalculatorType = 'capacitor' | 'motor' | 'voltage' | 'ohms' | 'superheat' |
 interface Calculator {
   id: CalculatorType;
   name: string;
-  icon: string;
+  icon: LucideIcon;
   description: string;
   component: React.ComponentType;
 }
@@ -43,161 +68,161 @@ export default function FieldToolsPage() {
     {
       id: 'ai-estimator',
       name: 'AI Cost Estimator',
-      icon: '🤖',
+      icon: Cpu,
       description: 'AI-powered job cost estimates with GPT-4o',
       component: AICostEstimator
     },
     {
       id: 'manual-estimator',
       name: 'Manual Cost Estimator',
-      icon: '🧮',
+      icon: Calculator,
       description: 'Create detailed estimates manually (no AI required)',
       component: ManualCostEstimator
     },
     {
       id: 'ohms',
       name: "Ohm's Law",
-      icon: '🔋',
+      icon: Zap,
       description: 'Calculate V, I, R, and Power',
       component: OhmsLawCalculator
     },
     {
       id: 'capacitor',
       name: 'Capacitor Test',
-      icon: '⚡',
+      icon: Radio,
       description: 'Test capacitors with ±10% tolerance',
       component: CapacitorTestTool
     },
     {
       id: 'motor',
       name: 'Motor Amps Checker',
-      icon: '🔌',
+      icon: Settings,
       description: 'Check motor load percentage',
       component: MotorAmpsChecker
     },
     {
       id: 'voltage',
       name: 'Voltage Drop',
-      icon: '📊',
+      icon: TrendingDown,
       description: 'Calculate voltage drop & wire sizing',
       component: VoltageDropTool
     },
     {
       id: 'superheat',
       name: 'Superheat Calculator',
-      icon: '🌡️',
+      icon: Thermometer,
       description: 'Measure superheat for charge diagnosis',
       component: SuperheatCalculator
     },
     {
       id: 'subcooling',
       name: 'Subcooling Calculator',
-      icon: '❄️',
+      icon: Snowflake,
       description: 'Measure subcooling for charge verification',
       component: SubcoolingCalculator
     },
     {
       id: 'target-superheat',
       name: 'Target Superheat',
-      icon: '🎯',
+      icon: Target,
       description: 'Calculate target superheat from conditions',
       component: TargetSuperheatTool
     },
     {
       id: 'pt-chart',
       name: 'PT Chart',
-      icon: '📋',
+      icon: ClipboardList,
       description: 'Pressure-Temperature reference chart',
       component: PTChart
     },
     {
       id: 'cfm',
       name: 'CFM Calculator',
-      icon: '💨',
+      icon: Wind,
       description: 'Calculate airflow from BTU/hr and ΔT',
       component: CFMCalculator
     },
     {
       id: 'duct-sizer',
       name: 'Duct Sizer',
-      icon: '🔧',
+      icon: Wrench,
       description: 'Size ducts based on CFM and velocity',
       component: DuctSizer
     },
     {
       id: 'static-pressure',
       name: 'Static Pressure',
-      icon: '📏',
+      icon: Gauge,
       description: 'Calculate total external static pressure',
       component: StaticPressureTool
     },
     {
       id: 'gas-pipe',
       name: 'Gas Pipe Sizer',
-      icon: '🔥',
+      icon: Flame,
       description: 'Size gas pipes for furnaces and appliances',
       component: GasPipeSizer
     },
     {
       id: 'combustion-air',
       name: 'Combustion Air',
-      icon: '💨',
+      icon: Wind,
       description: 'Calculate combustion air requirements',
       component: CombustionAirCalculator
     },
     {
       id: 'combustion-analysis',
       name: 'Combustion Analysis',
-      icon: '🔬',
+      icon: FlaskConical,
       description: 'Reference values for combustion testing',
       component: CombustionAnalysisTool
     },
     {
       id: 'expansion-tank',
       name: 'Expansion Tank Sizer',
-      icon: '💧',
+      icon: Droplet,
       description: 'Size expansion tanks for closed systems',
       component: ExpansionTankSizer
     },
     {
       id: 'hydronic-flow',
       name: 'Hydronic Flow',
-      icon: '🌊',
+      icon: Waves,
       description: 'Calculate GPM and pump sizing for hydronic systems',
       component: HydronicFlowCalculator
     },
     {
       id: 'radiant-heating',
       name: 'Radiant Floor',
-      icon: '🏠',
+      icon: Layers,
       description: 'Design radiant floor heating systems',
       component: RadiantHeatingCalculator
     },
     {
       id: 'psychrometric',
       name: 'Psychrometric',
-      icon: '🌡️',
+      icon: CloudRain,
       description: 'Dew point, wet bulb, humidity calculations',
       component: PsychrometricCalculator
     },
     {
       id: 'tonnage',
       name: 'Tonnage Converter',
-      icon: '⚖️',
+      icon: Scale,
       description: 'Convert BTU/hr to tons and vice versa',
       component: TonnageCalculator
     },
     {
       id: 'unit-converter',
       name: 'Unit Converter',
-      icon: '🔄',
+      icon: RefreshCw,
       description: 'Convert between HVAC units',
       component: HVACUnitConverter
     },
     {
       id: 'heat-load',
       name: 'Heat Load (Manual J)',
-      icon: '📐',
+      icon: Ruler,
       description: 'Estimate heating and cooling requirements',
       component: HeatLoadCalculator
     }
@@ -266,38 +291,43 @@ export default function FieldToolsPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-          {calculators.map((calc) => (
-            <button
-              key={calc.id}
-              onClick={() => setSelectedCalculator(calc.id)}
-              className="bg-card rounded-lg shadow-md hover:shadow-lg active:shadow-xl transition-all p-5 sm:p-6 text-left group border border-border min-h-[140px] touch-manipulation"
-            >
-              <div className="flex items-start justify-between mb-3 sm:mb-4">
-                <div className="text-4xl sm:text-5xl">{calc.icon}</div>
-                <svg
-                  className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </div>
-              
-              <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
-                {calc.name}
-              </h3>
-              
-              <p className="text-sm sm:text-base text-muted-foreground line-clamp-2">
-                {calc.description}
-              </p>
-            </button>
-          ))}
+          {calculators.map((calc) => {
+            const IconComponent = calc.icon;
+            return (
+              <button
+                key={calc.id}
+                onClick={() => setSelectedCalculator(calc.id)}
+                className="bg-card rounded-lg shadow-md hover:shadow-lg active:shadow-xl transition-all p-5 sm:p-6 text-left group border border-border min-h-[140px] touch-manipulation"
+              >
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
+                  <div className="p-2 rounded-lg bg-slate-800 border border-slate-700 group-hover:border-teal-500 transition-colors">
+                    <IconComponent className="w-7 h-7 sm:w-8 sm:h-8 text-slate-400 group-hover:text-teal-400 transition-colors" strokeWidth={1.5} />
+                  </div>
+                  <svg
+                    className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg>
+                </div>
+                
+                <h3 className="text-lg sm:text-xl font-bold text-foreground mb-1.5 sm:mb-2 group-hover:text-primary transition-colors">
+                  {calc.name}
+                </h3>
+                
+                <p className="text-sm sm:text-base text-muted-foreground line-clamp-2">
+                  {calc.description}
+                </p>
+              </button>
+            );
+          })}
         </div>
 
         <div className="mt-12 bg-primary/10 border border-primary/20 rounded-lg p-6">
@@ -319,20 +349,20 @@ export default function FieldToolsPage() {
         <div className="mt-8 bg-card rounded-lg shadow p-6 border border-border">
           <h2 className="text-xl font-bold text-foreground mb-4">Coming Soon</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-muted-foreground">
-            <div className="flex items-start">
-              <span className="mr-2">⚙️</span>
+            <div className="flex items-start gap-3">
+              <Settings className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
               <span>Belt Drive Calculator</span>
             </div>
-            <div className="flex items-start">
-              <span className="mr-2">📊</span>
+            <div className="flex items-start gap-3">
+              <TrendingDown className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
               <span>Energy Savings Calculator</span>
             </div>
-            <div className="flex items-start">
-              <span className="mr-2">🔊</span>
+            <div className="flex items-start gap-3">
+              <Radio className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
               <span>Noise Level Assessment</span>
             </div>
-            <div className="flex items-start">
-              <span className="mr-2">📋</span>
+            <div className="flex items-start gap-3">
+              <ClipboardList className="w-5 h-5 text-slate-500 flex-shrink-0 mt-0.5" />
               <span>Equipment Maintenance Scheduler</span>
             </div>
           </div>
