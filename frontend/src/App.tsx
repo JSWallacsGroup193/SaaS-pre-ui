@@ -29,6 +29,7 @@ const ProposalBuilder = lazy(() => import('./pages/FieldTools/components/Proposa
 const EstimatesList = lazy(() => import('./pages/FieldTools/components/EstimatesList'))
 const ServiceCatalogPage = lazy(() => import('./pages/ServiceCatalog/ServiceCatalogPage').then(m => ({ default: m.ServiceCatalogPage })))
 const SettingsPage = lazy(() => import('./pages/Settings'))
+const FeedbackPage = lazy(() => import('./pages/Feedback'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
@@ -109,6 +110,7 @@ export default function App() {
               <Route path="/proposals" element={<ProposalBuilder />} />
               <Route path="/service-catalog" element={<ServiceCatalogPage />} />
               <Route path="/ai" element={<AI />} />
+              <Route path="/feedback" element={<FeedbackPage />} />
               <Route path="/settings" element={<SettingsPage user={user as any} />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />

@@ -100,6 +100,7 @@ model Tenant {
   serviceCatalog ServiceCatalog[]
   serviceBundles ServiceBundle[]
   laborRates     LaborRate[]
+  feedbacks      Feedback[]
   
   @@index([subdomain])
   @@index([isActive])
@@ -197,6 +198,7 @@ model User {
   // Phase 2 relations
   notifications          Notification[]
   notificationPreference NotificationPreference?
+  feedbacks              Feedback[]
   
   @@index([tenantId])
   @@index([email])
@@ -2683,4 +2685,45 @@ model LaborRate {
   @@index([skillLevel])
   @@index([isActive])
   @@index([isDefault])
+}
+
+// ============================================================================
+// USER FEEDBACK SYSTEM
+// ============================================================================
+
+model Feedback {
+  id              String   @id @default(uuid())
+  tenantId        String
+  userId          String?  // Optional - allows anonymous feedback
+  
+  // Feedback content
+  category        String   // "bug", "feature_request", "complaint", "praise", "other"
+  rating          Int?     // 1-5 star rating (optional)
+  message         String   @db.Text
+  
+  // Contact for follow-up
+  contactEmail    String?
+  
+  // Metadata
+  userAgent       String?  // Browser/device info
+  pageUrl         String?  // Where feedback was submitted
+  
+  // Status tracking
+  status          String   @default("new") // "new", "reviewed", "in_progress", "resolved", "dismissed"
+  adminNotes      String?  @db.Text
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt @default(now())
+  
+  // Relations
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  user            User?    @relation(fields: [userId], references: [id])
+  
+  @@index([tenantId])
+  @@index([userId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
 }

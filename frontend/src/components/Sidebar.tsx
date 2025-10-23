@@ -15,7 +15,8 @@ import {
   Shield,
   Settings,
   X,
-  BookOpen
+  BookOpen,
+  MessageSquare
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import logo from '@/assets/logo.png'
@@ -33,6 +34,7 @@ const navItems = [
   { to: '/scanner', label: 'Barcode Scanner', icon: Scan },
   { to: '/field-tools', label: 'Field Tools', icon: Wrench },
   { to: '/ai', label: 'AI Assistant', icon: Bot },
+  { to: '/feedback', label: 'Feedback', icon: MessageSquare },
   { to: '/settings', label: 'Settings', icon: Settings },
 ]
 
