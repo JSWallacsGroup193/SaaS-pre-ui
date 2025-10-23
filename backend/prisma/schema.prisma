@@ -86,6 +86,11 @@ model Tenant {
   
   // Phase 3 relations
   vendors        Vendor[]
+  vendorCategories VendorCategory[]
+  vendorContacts VendorContact[]
+  vendorPriceAgreements VendorPriceAgreement[]
+  vendorPerformanceReviews VendorPerformanceReview[]
+  vendorDocuments VendorDocument[]
   taxRates       TaxRate[]
   inventoryAdjustments InventoryAdjustment[]
   stockTransfers StockTransfer[]
@@ -199,6 +204,11 @@ model User {
   notifications          Notification[]
   notificationPreference NotificationPreference?
   feedbacks              Feedback[]
+  
+  // Vendor relations
+  vendorsCreated           Vendor[]                    @relation("VendorCreator")
+  vendorPerformanceReviews VendorPerformanceReview[]
+  vendorDocuments          VendorDocument[]
   
   @@index([tenantId])
   @@index([email])
@@ -1277,6 +1287,7 @@ model SKU {
   stockTransfers       StockTransfer[]
   purchaseOrderItems   PurchaseOrderItem[]
   invoiceLineItems     InvoiceLineItem[]
+  priceAgreements      VendorPriceAgreement[]
   
   @@index([tenantId])
   @@index([barcode])
@@ -2019,43 +2030,231 @@ model NotificationPreference {
 // PHASE 3: ADVANCED INVENTORY & OPERATIONS (10 NEW TABLES)
 // ============================================================================
 
-// Inventory: Vendor/Supplier management
+// Inventory: Vendor/Supplier management - Enhanced
 model Vendor {
-  id             String   @id @default(uuid())
-  tenantId       String
+  id                String   @id @default(uuid())
+  tenantId          String
+  tenant            Tenant   @relation(fields: [tenantId], references: [id])
   
-  vendorNumber   String?  @unique
-  name           String
+  // Basic Information
+  companyName       String
+  displayName       String?
+  vendorCode        String   // Unique vendor identifier (e.g., "VEN-001")
+  status            VendorStatus @default(ACTIVE)
+  type              VendorType
   
-  contactName    String?
-  email          String?
-  phone          String?
-  website        String?
+  // Contact Information
+  primaryContactName String?
+  email             String?
+  phone             String?
+  website           String?
   
   // Address
-  address        String?
-  city           String?
-  state          String?
-  zipCode        String?
-  country        String?  @default("US")
+  addressLine1      String?
+  addressLine2      String?
+  city              String?
+  state             String?
+  zipCode           String?
+  country           String   @default("USA")
   
-  // Payment terms
-  paymentTerms   String?  // "Net 30", "Net 60", "COD"
-  taxId          String?  // Tax ID / EIN
+  // Tax & Legal
+  taxId             String?  // EIN/Tax ID
+  businessLicense   String?
+  
+  // Payment Terms
+  paymentTerms      String?  // e.g., "Net 30", "Net 60"
+  creditLimit       Decimal? @db.Decimal(10, 2)
+  currency          String   @default("USD")
+  
+  // Performance Metrics
+  rating            Int?     @default(0) // 0-5 stars
+  onTimeDeliveryRate Decimal? @db.Decimal(5, 2) // Percentage
+  qualityRating     Decimal? @db.Decimal(3, 2) // 0-5.00
+  
+  // Relationships
+  categories        VendorCategory[]
+  contacts          VendorContact[]
+  priceAgreements   VendorPriceAgreement[]
+  performanceReviews VendorPerformanceReview[]
+  documents         VendorDocument[]
+  
+  // Metadata
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  createdById       String?
+  createdBy         User?    @relation("VendorCreator", fields: [createdById], references: [id])
+  
+  @@unique([tenantId, vendorCode])
+  @@index([tenantId, status])
+  @@index([tenantId, type])
+}
+
+enum VendorStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_APPROVAL
+  SUSPENDED
+  BLACKLISTED
+}
+
+enum VendorType {
+  MANUFACTURER
+  DISTRIBUTOR
+  WHOLESALER
+  SERVICE_PROVIDER
+  CONTRACTOR
+  SUPPLIES
+  EQUIPMENT
+  OTHER
+}
+
+model VendorCategory {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  vendorId    String
+  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  name        String   // e.g., "HVAC Equipment", "Filters", "Refrigerants"
+  description String?
+  isPrimary   Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([tenantId, vendorId])
+}
+
+model VendorContact {
+  id            String   @id @default(uuid())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  vendorId      String
+  vendor        Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  firstName     String
+  lastName      String
+  title         String?   // e.g., "Sales Rep", "Account Manager"
+  email         String?
+  phone         String?
+  mobile        String?
+  isPrimary     Boolean  @default(false)
+  
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@index([tenantId, vendorId])
+}
+
+model VendorPriceAgreement {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  vendorId        String
+  vendor          Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  skuId           String
+  sku             SKU      @relation(fields: [skuId], references: [id])
+  
+  // Pricing
+  vendorPartNumber String?  // Vendor's SKU number
+  unitPrice       Decimal  @db.Decimal(10, 2)
+  minimumOrderQty Int      @default(1)
+  currency        String   @default("USD")
+  
+  // Agreement Details
+  effectiveDate   DateTime
+  expirationDate  DateTime?
+  contractNumber  String?
+  
+  // Lead Time
+  leadTimeDays    Int?
   
   // Status
-  isActive       Boolean  @default(true)
-  rating         Int?     // 1-5 stars
-  notes          String?
+  isActive        Boolean  @default(true)
   
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
   
-  tenant         Tenant   @relation(fields: [tenantId], references: [id])
+  @@index([tenantId, vendorId])
+  @@index([tenantId, skuId])
+  @@index([tenantId, isActive])
+}
+
+model VendorPerformanceReview {
+  id              String   @id @default(uuid())
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  vendorId        String
+  vendor          Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   
-  @@index([tenantId])
-  @@index([vendorNumber])
-  @@index([isActive])
+  reviewDate      DateTime @default(now())
+  reviewPeriodStart DateTime
+  reviewPeriodEnd   DateTime
+  
+  // Ratings (1-5 scale)
+  qualityRating   Int      // Product quality
+  deliveryRating  Int      // On-time delivery
+  serviceRating   Int      // Customer service
+  pricingRating   Int      // Competitive pricing
+  overallRating   Decimal  @db.Decimal(3, 2) // Calculated average
+  
+  // Metrics
+  totalOrders     Int      @default(0)
+  onTimeDeliveries Int     @default(0)
+  defectiveItems  Int      @default(0)
+  
+  // Review Details
+  strengths       String?
+  weaknesses      String?
+  recommendations String?
+  
+  reviewedById    String
+  reviewedBy      User     @relation(fields: [reviewedById], references: [id])
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([tenantId, vendorId])
+  @@index([reviewDate])
+}
+
+model VendorDocument {
+  id          String   @id @default(uuid())
+  tenantId    String
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+  vendorId    String
+  vendor      Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  
+  documentType VendorDocumentType
+  title       String
+  description String?
+  fileUrl     String?  // URL to document storage
+  fileName    String?
+  fileSize    Int?     // bytes
+  
+  expirationDate DateTime?
+  
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@index([tenantId, vendorId])
+  @@index([documentType])
+}
+
+enum VendorDocumentType {
+  CONTRACT
+  INSURANCE_CERTIFICATE
+  W9_FORM
+  BUSINESS_LICENSE
+  QUALITY_CERTIFICATION
+  SAFETY_CERTIFICATION
+  PRODUCT_CATALOG
+  PRICE_LIST
+  OTHER
 }
 
 // Finance: Tax rates by jurisdiction
