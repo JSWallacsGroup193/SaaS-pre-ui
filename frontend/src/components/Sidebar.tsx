@@ -17,9 +17,7 @@ import {
   X,
   BookOpen,
   MessageSquare,
-  Building2,
-  Home,
-  FileText
+  Building2
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import logo from '@/assets/logo.png'
@@ -28,8 +26,6 @@ const navItems = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard },
   { to: '/work-orders', label: 'Work Orders', icon: ClipboardList },
   { to: '/crm', label: 'CRM', icon: Users },
-  { to: '/properties', label: 'Properties', icon: Home },
-  { to: '/service-requests', label: 'Service Requests', icon: FileText },
   { to: '/inventory', label: 'Inventory', icon: Package },
   { to: '/service-catalog', label: 'Service Catalog', icon: BookOpen },
   { to: '/purchasing', label: 'Purchasing', icon: ShoppingCart },

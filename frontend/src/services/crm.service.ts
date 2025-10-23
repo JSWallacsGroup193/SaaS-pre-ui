@@ -133,4 +133,44 @@ export const crmService = {
   }): Promise<CustomerNote> {
     return apiClient.post<CustomerNote>('/crm/notes', data);
   },
+
+  // ============================================================================
+  // Property Operations
+  // ============================================================================
+
+  /**
+   * Get all properties (optionally filtered by accountId)
+   */
+  async getProperties(accountId?: string): Promise<any[]> {
+    const params = accountId ? `?accountId=${accountId}` : '';
+    return apiClient.get<any[]>(`/properties${params}`);
+  },
+
+  /**
+   * Get single property by ID
+   */
+  async getProperty(id: string): Promise<any> {
+    return apiClient.get<any>(`/properties/${id}`);
+  },
+
+  /**
+   * Create new property
+   */
+  async createProperty(data: any): Promise<any> {
+    return apiClient.post<any>('/properties', data);
+  },
+
+  /**
+   * Update property
+   */
+  async updateProperty(id: string, data: any): Promise<any> {
+    return apiClient.put<any>(`/properties/${id}`, data);
+  },
+
+  /**
+   * Delete property
+   */
+  async deleteProperty(id: string): Promise<void> {
+    return apiClient.delete(`/properties/${id}`);
+  },
 };

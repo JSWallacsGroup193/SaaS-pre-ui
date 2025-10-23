@@ -2,7 +2,7 @@ import { Controller, Get, Post, Put, Delete, Body, Param, Request } from '@nestj
 import { CustomerPerformanceService } from './customer-performance.service';
 import { CreateCustomerPerformanceDto, UpdateCustomerPerformanceDto } from './dto';
 
-@Controller('api/v1/customer-performance')
+@Controller('customer-performance')
 export class CustomerPerformanceController {
   constructor(private readonly customerPerformanceService: CustomerPerformanceService) {}
 
