@@ -279,8 +279,6 @@ export default function AccountDetail() {
               <TabsContent value="equipment">
                 <PropertiesTab
                   accountId={mockAccount.id}
-                  onAddProperty={() => console.log('Add property')}
-                  onAddEquipment={(propertyId: string) => console.log('Add equipment to property', propertyId)}
                   onViewServiceHistory={(equipmentId: string) => navigate(`/work-orders?equipmentId=${equipmentId}`)}
                 />
               </TabsContent>

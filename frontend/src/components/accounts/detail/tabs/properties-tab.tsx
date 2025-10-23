@@ -3,6 +3,8 @@ import { Plus, Home, Wrench, ChevronDown, ChevronRight, MapPin, AlertCircle } fr
 import { Button } from '@/components/ui/button'
 import { crmService } from '@/services/crm.service'
 import toast from 'react-hot-toast'
+import { AddPropertyDialog } from '@/components/accounts/add-property-dialog'
+import { AddEquipmentDialog } from '@/components/accounts/add-equipment-dialog'
 
 interface Property {
   id: string
@@ -31,16 +33,17 @@ interface Equipment {
 
 interface PropertiesTabProps {
   accountId: string
-  onAddProperty: () => void
-  onAddEquipment: (propertyId: string) => void
   onViewServiceHistory: (equipmentId: string) => void
 }
 
-export function PropertiesTab({ accountId, onAddProperty, onAddEquipment, onViewServiceHistory }: PropertiesTabProps) {
+export function PropertiesTab({ accountId, onViewServiceHistory }: PropertiesTabProps) {
   const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedProperties, setExpandedProperties] = useState<Set<string>>(new Set())
   const [expandedEquipment, setExpandedEquipment] = useState<Set<string>>(new Set())
+  const [showAddPropertyDialog, setShowAddPropertyDialog] = useState(false)
+  const [showAddEquipmentDialog, setShowAddEquipmentDialog] = useState(false)
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string | null>(null)
 
   useEffect(() => {
     loadProperties()
@@ -106,7 +109,7 @@ export function PropertiesTab({ accountId, onAddProperty, onAddEquipment, onView
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold text-slate-100">Properties & Equipment</h3>
-        <Button onClick={onAddProperty} className="bg-teal-500 text-white hover:bg-teal-600">
+        <Button onClick={() => setShowAddPropertyDialog(true)} className="bg-teal-500 text-white hover:bg-teal-600">
           <Plus className="h-4 w-4 mr-2" />
           Add Property
         </Button>
@@ -164,7 +167,8 @@ export function PropertiesTab({ accountId, onAddProperty, onAddEquipment, onView
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation()
-                        onAddEquipment(property.id)
+                        setSelectedPropertyId(property.id)
+                        setShowAddEquipmentDialog(true)
                       }}
                       className="bg-teal-600 text-white hover:bg-teal-700"
                     >
@@ -269,7 +273,8 @@ export function PropertiesTab({ accountId, onAddProperty, onAddEquipment, onView
                         size="sm"
                         onClick={(e) => {
                           e.stopPropagation()
-                          onAddEquipment(property.id)
+                          setSelectedPropertyId(property.id)
+                          setShowAddEquipmentDialog(true)
                         }}
                         className="bg-teal-600 text-white hover:bg-teal-700"
                       >
@@ -289,12 +294,26 @@ export function PropertiesTab({ accountId, onAddProperty, onAddEquipment, onView
         <div className="bg-slate-700 rounded-lg p-12 border border-slate-600 text-center">
           <Home className="h-12 w-12 text-slate-500 mx-auto mb-4" />
           <p className="text-slate-400 mb-4">No properties registered yet</p>
-          <Button onClick={onAddProperty} className="bg-teal-500 text-white hover:bg-teal-600">
+          <Button onClick={() => setShowAddPropertyDialog(true)} className="bg-teal-500 text-white hover:bg-teal-600">
             <Plus className="h-4 w-4 mr-2" />
             Add First Property
           </Button>
         </div>
       )}
+
+      <AddPropertyDialog
+        open={showAddPropertyDialog}
+        onOpenChange={setShowAddPropertyDialog}
+        accountId={accountId}
+        onSuccess={loadProperties}
+      />
+
+      <AddEquipmentDialog
+        open={showAddEquipmentDialog}
+        onOpenChange={setShowAddEquipmentDialog}
+        propertyId={selectedPropertyId || ''}
+        onSuccess={loadProperties}
+      />
     </div>
   )
 }
