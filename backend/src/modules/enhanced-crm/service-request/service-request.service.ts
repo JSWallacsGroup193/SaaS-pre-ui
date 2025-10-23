@@ -36,9 +36,10 @@ export class ServiceRequestService {
     if (dto.equipmentId) {
       const equipment = await this.prisma.customerEquipment.findUnique({
         where: { id: dto.equipmentId },
+        include: { account: true },
       });
 
-      if (!equipment || equipment.tenantId !== tenantId) {
+      if (!equipment || equipment.account.tenantId !== tenantId) {
         throw new ForbiddenException('Equipment not found or access denied');
       }
 
@@ -153,6 +154,7 @@ export class ServiceRequestService {
       if (existing.equipmentId && dto.equipmentId === undefined) {
         const existingEquipment = await this.prisma.customerEquipment.findUnique({
           where: { id: existing.equipmentId },
+          include: { account: true },
         });
 
         if (existingEquipment && existingEquipment.accountId !== dto.accountId) {
@@ -183,9 +185,10 @@ export class ServiceRequestService {
     if (dto.equipmentId) {
       const equipment = await this.prisma.customerEquipment.findUnique({
         where: { id: dto.equipmentId },
+        include: { account: true },
       });
 
-      if (!equipment || equipment.tenantId !== tenantId) {
+      if (!equipment || equipment.account.tenantId !== tenantId) {
         throw new ForbiddenException('Equipment not found or access denied');
       }
 
