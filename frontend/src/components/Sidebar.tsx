@@ -16,7 +16,8 @@ import {
   Settings,
   X,
   BookOpen,
-  MessageSquare
+  MessageSquare,
+  Building2
 } from 'lucide-react'
 import { useAuthStore } from '@/store/useAuthStore'
 import logo from '@/assets/logo.png'
@@ -28,6 +29,7 @@ const navItems = [
   { to: '/inventory', label: 'Inventory', icon: Package },
   { to: '/service-catalog', label: 'Service Catalog', icon: BookOpen },
   { to: '/purchasing', label: 'Purchasing', icon: ShoppingCart },
+  { to: '/vendors', label: 'Vendors', icon: Building2 },
   { to: '/dispatch', label: 'Dispatch & Scheduling', icon: Calendar },
   { to: '/labels', label: 'Labels', icon: Tag },
   { to: '/forecast', label: 'Forecasting', icon: TrendingUp },
