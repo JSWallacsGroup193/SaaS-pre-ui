@@ -10,7 +10,7 @@ channel = "stable-24_11"
 packages = ["firebird_3"]
 
 [deployment]
-run = ["sh", "-c", "cd backend && npm run start:prod"]
+run = ["sh", "-c", "cd backend && node dist/src/main.js"]
 deploymentTarget = "autoscale"
 ignorePorts = false
 build = ["bash", "build.sh"]
