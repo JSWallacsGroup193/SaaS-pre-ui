@@ -2,7 +2,8 @@
   "private": true,
   "scripts": {
     "dev": "./dev.sh",
-    "build": "cd frontend && npm run build && cd ../backend && npm run build",
+    "postinstall": "cd backend && prisma generate",
+    "build": "cd backend && prisma generate && cd .. && cd frontend && npm run build && cd ../backend && npm run build",
     "start": "node backend/dist/main.js",
     "seed:admin": "cd backend && npx ts-node scripts/seed-admin.ts",
     "seed:crm": "cd backend && npx ts-node scripts/seed-crm-purchasing.ts",

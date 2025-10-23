@@ -10,10 +10,10 @@ channel = "stable-24_11"
 packages = ["firebird_3"]
 
 [deployment]
-run = ["bash", "-c", "cd backend && npm run start:prod"]
+run = ["npm", "start"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["bash", "build.sh"]
+build = ["npm", "run", "build"]
 
 [agent]
 expertMode = true
