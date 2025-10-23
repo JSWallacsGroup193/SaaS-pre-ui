@@ -7,14 +7,13 @@ import { OverviewTab } from '@/components/accounts/detail/tabs/overview-tab'
 import { ContactsTab } from '@/components/accounts/detail/tabs/contacts-tab'
 import { WorkOrdersTab } from '@/components/accounts/detail/tabs/work-orders-tab'
 import { InvoicesTab } from '@/components/accounts/detail/tabs/invoices-tab'
-import { EquipmentTab } from '@/components/accounts/detail/tabs/equipment-tab'
+import { PropertiesTab } from '@/components/accounts/detail/tabs/properties-tab'
 import { NotesTab } from '@/components/accounts/detail/tabs/notes-tab'
 import { TimelineTab } from '@/components/accounts/detail/tabs/timeline-tab'
 import type {
   AccountDetail,
   AccountContact,
   AccountInvoice,
-  AccountEquipment,
   AccountNote,
   AccountActivity,
 } from '@/types/view-models/account-detail'
@@ -134,31 +133,6 @@ const mockInvoices: AccountInvoice[] = [
   },
 ]
 
-const mockEquipment: AccountEquipment[] = [
-  {
-    id: '1',
-    type: 'Central AC Unit',
-    brand: 'Carrier',
-    model: 'Infinity 24',
-    serialNumber: 'CAR-2022-12345',
-    installDate: '2022-05-10',
-    lastServiceDate: '2024-01-15',
-    location: 'Basement',
-    status: 'operational',
-  },
-  {
-    id: '2',
-    type: 'Gas Furnace',
-    brand: 'Trane',
-    model: 'XR95',
-    serialNumber: 'TRA-2022-67890',
-    installDate: '2022-05-10',
-    lastServiceDate: '2023-11-20',
-    warrantyExpiry: '2025-05-10',
-    location: 'Attic',
-    status: 'operational',
-  },
-]
 
 const mockNotes: AccountNote[] = [
   {
@@ -256,7 +230,7 @@ export default function AccountDetail() {
                   value="equipment"
                   className="data-[state=active]:bg-teal-500 data-[state=active]:text-white"
                 >
-                  Equipment
+                  Properties & Equipment
                 </TabsTrigger>
                 <TabsTrigger value="notes" className="data-[state=active]:bg-teal-500 data-[state=active]:text-white">
                   Notes
@@ -302,10 +276,11 @@ export default function AccountDetail() {
               </TabsContent>
 
               <TabsContent value="equipment">
-                <EquipmentTab
-                  equipment={mockEquipment}
-                  onAddEquipment={() => console.log('Add equipment')}
-                  onViewServiceHistory={(id) => console.log('View service history', id)}
+                <PropertiesTab
+                  accountId={mockAccount.id}
+                  onAddProperty={() => console.log('Add property')}
+                  onAddEquipment={(propertyId: string) => console.log('Add equipment to property', propertyId)}
+                  onViewServiceHistory={(equipmentId: string) => console.log('View service history for equipment', equipmentId)}
                 />
               </TabsContent>
 
