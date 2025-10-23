@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Put, Delete, Req, UseGuards, Query } from '@nestjs/common';
 import { WorkOrderService } from './service';
 import { WorkOrderStatus } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -15,9 +15,9 @@ export class WorkOrderController {
   }
 
   @Get()
-  findAll(@Req() req: any) {
+  findAll(@Req() req: any, @Query('equipmentId') equipmentId?: string) {
     const tenantId = req.user.tenantId;
-    return this.service.findAll(tenantId);
+    return this.service.findAll(tenantId, equipmentId);
   }
 
   @Get(':id')

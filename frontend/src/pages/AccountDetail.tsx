@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { AccountDetailHeader } from '@/components/accounts/detail/account-detail-header'
 import { AccountSidebar } from '@/components/accounts/detail/account-sidebar'
@@ -184,6 +184,7 @@ const mockActivities: AccountActivity[] = [
 
 export default function AccountDetail() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState('overview')
 
   console.log('Account ID:', id)
@@ -280,7 +281,7 @@ export default function AccountDetail() {
                   accountId={mockAccount.id}
                   onAddProperty={() => console.log('Add property')}
                   onAddEquipment={(propertyId: string) => console.log('Add equipment to property', propertyId)}
-                  onViewServiceHistory={(equipmentId: string) => console.log('View service history for equipment', equipmentId)}
+                  onViewServiceHistory={(equipmentId: string) => navigate(`/work-orders?equipmentId=${equipmentId}`)}
                 />
               </TabsContent>
 

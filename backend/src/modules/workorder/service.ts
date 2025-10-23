@@ -5,8 +5,12 @@ const prisma = new PrismaClient();
 
 @Injectable()
 export class WorkOrderService {
-  async findAll(tenantId: string) {
-    return prisma.workOrder.findMany({ where: { tenantId } });
+  async findAll(tenantId: string, equipmentId?: string) {
+    const where: any = { tenantId };
+    if (equipmentId) {
+      where.equipmentId = equipmentId;
+    }
+    return prisma.workOrder.findMany({ where });
   }
 
   async findOne(id: string, tenantId: string) {

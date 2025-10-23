@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'react-hot-toast'
 import { WorkOrderList } from '@/components/work-orders/work-order-list'
 import type { FilterState, WorkOrderView } from '@/types/view-models/work-order'
@@ -95,6 +95,8 @@ const mockWorkOrders: WorkOrderView[] = [
 
 export default function WorkOrders() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const equipmentIdFilter = searchParams.get('equipmentId')
   const [workOrders, setWorkOrders] = useState<WorkOrderView[]>([])
   const [loading, setLoading] = useState(true)
   const [filters, setFilters] = useState<FilterState>({
@@ -111,7 +113,10 @@ export default function WorkOrders() {
   const loadWorkOrders = async () => {
     try {
       setLoading(true)
-      const { data } = await api.get('/work-orders')
+      const url = equipmentIdFilter 
+        ? `/work-orders?equipmentId=${equipmentIdFilter}`
+        : '/work-orders'
+      const { data } = await api.get(url)
       
       const transformedOrders: WorkOrderView[] = data.map((wo: any) => ({
         id: wo.id,
@@ -144,7 +149,7 @@ export default function WorkOrders() {
 
   useEffect(() => {
     loadWorkOrders()
-  }, [])
+  }, [equipmentIdFilter])
 
   // Filter work orders based on current filters
   const filteredWorkOrders = workOrders.filter((wo) => {
@@ -237,6 +242,25 @@ export default function WorkOrders() {
         <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">Work Orders</h1>
         <p className="text-slate-400 text-sm sm:text-base">Track missions. Execute jobs. Close the loop.</p>
       </div>
+      
+      {/* Equipment Filter Banner */}
+      {equipmentIdFilter && (
+        <div className="bg-teal-900/20 border-b border-teal-500/30 px-4 sm:px-6 py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-teal-400">
+                📋 Filtered by Equipment: <span className="font-mono font-semibold">{equipmentIdFilter}</span>
+              </span>
+            </div>
+            <button
+              onClick={() => navigate('/work-orders')}
+              className="text-xs text-slate-400 hover:text-white underline transition-colors"
+            >
+              Clear Filter
+            </button>
+          </div>
+        </div>
+      )}
       
       <WorkOrderList
         workOrders={filteredWorkOrders}
