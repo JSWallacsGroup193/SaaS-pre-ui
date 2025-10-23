@@ -45,10 +45,14 @@ export interface VendorPriceAgreement {
     skuCode: string;
     description: string;
   };
-  agreedPrice: number;
+  vendorPartNumber?: string;
+  unitPrice: number;
+  minimumOrderQty: number;
+  currency: string;
   effectiveDate: string;
   expirationDate?: string;
-  minimumQuantity?: number;
+  contractNumber?: string;
+  leadTimeDays?: number;
   isActive: boolean;
   notes?: string;
   createdAt: string;
@@ -226,10 +230,14 @@ export interface CreateVendorContactDto {
 
 export interface CreatePriceAgreementDto {
   skuId: string;
-  agreedPrice: number;
+  vendorPartNumber?: string;
+  unitPrice: number;
+  minimumOrderQty?: number;
+  currency?: string;
   effectiveDate: string;
   expirationDate?: string;
-  minimumQuantity?: number;
+  contractNumber?: string;
+  leadTimeDays?: number;
   isActive?: boolean;
   notes?: string;
 }

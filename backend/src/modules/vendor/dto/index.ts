@@ -5,6 +5,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateVendorDto {
   @ApiProperty()
   @IsString()
+  vendorCode: string;
+
+  @ApiProperty()
+  @IsString()
   companyName: string;
 
   @ApiProperty({ required: false })
@@ -12,18 +16,14 @@ export class CreateVendorDto {
   @IsString()
   displayName?: string;
 
-  @ApiProperty()
-  @IsString()
-  vendorCode: string;
-
   @ApiProperty({ enum: VendorType })
   @IsEnum(VendorType)
   type: VendorType;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({ enum: VendorStatus, required: false })
   @IsOptional()
-  @IsString()
-  primaryContactName?: string;
+  @IsEnum(VendorStatus)
+  status?: VendorStatus;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -38,17 +38,17 @@ export class CreateVendorDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  fax?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   website?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  addressLine1?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  addressLine2?: string;
+  address?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -63,7 +63,12 @@ export class CreateVendorDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  zipCode?: string;
+  postalCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  country?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -82,10 +87,13 @@ export class CreateVendorDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  @Max(5)
-  rating?: number;
+  @IsBoolean()
+  isPreferred?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -120,11 +128,6 @@ export class UpdateVendorDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
-  primaryContactName?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsEmail()
   email?: string;
 
@@ -136,12 +139,17 @@ export class UpdateVendorDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
+  fax?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
   website?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  addressLine1?: string;
+  address?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -156,7 +164,17 @@ export class UpdateVendorDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
-  zipCode?: string;
+  postalCode?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  taxId?: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -174,6 +192,31 @@ export class UpdateVendorDto {
   @Min(0)
   @Max(5)
   rating?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  qualityRating?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  deliveryRating?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsNumber()
+  serviceRating?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isPreferred?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -241,6 +284,11 @@ export class CreatePriceAgreementDto {
   @Min(1)
   minimumOrderQty?: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  currency?: string;
+
   @ApiProperty()
   @IsString()
   effectiveDate: string;
@@ -263,11 +311,20 @@ export class CreatePriceAgreementDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   notes?: string;
 }
 
 export class CreatePerformanceReviewDto {
+  @ApiProperty()
+  @IsString()
+  reviewDate: string;
+
   @ApiProperty()
   @IsString()
   reviewPeriodStart: string;
@@ -302,36 +359,8 @@ export class CreatePerformanceReviewDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsNumber()
-  @Min(0)
-  totalOrders?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  onTimeDeliveries?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsNumber()
-  @Min(0)
-  defectiveItems?: number;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
   @IsString()
-  strengths?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  weaknesses?: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString()
-  recommendations?: string;
+  comments?: string;
 }
 
 export class VendorQueryDto {

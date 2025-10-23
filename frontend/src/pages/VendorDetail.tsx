@@ -396,7 +396,7 @@ export default function VendorDetail() {
                             )}
                           </div>
                           <p className="text-xl font-bold text-green-400">
-                            ${agreement.agreedPrice.toFixed(2)}
+                            ${Number(agreement.unitPrice).toFixed(2)}
                           </p>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-slate-400">
