@@ -45,6 +45,18 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Security**: Utilizes Helmet, environment-based CORS, JWT authentication, `class-validator`, and comprehensive tenant isolation.
 - **AI System Prompts**: AI Cost Estimator uses a detailed system prompt stored in `backend/prompts/AI_Cost_Estimator_Prompt.md`.
 
+## Testing
+
+### Backend Tests
+- **Framework**: Jest with ts-jest preset
+- **Configuration**: `backend/jest.config.ts`
+- **Test Directory**: `backend/test/`
+- **Setup File**: `backend/test/setup.ts` - Configures test environment, JWT secrets, and database URL
+- **Run Tests**: `npm test` (from backend directory)
+- **Coverage**: `npm run test:cov`
+- **Watch Mode**: `npm run test:watch`
+- **Note**: Currently configured with `--passWithNoTests` flag to allow zero test files
+
 ## External Dependencies
 
 - **Database**: PostgreSQL (via Neon)
@@ -60,3 +72,4 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **OpenAI API**: For AI Chat and AI Cost Estimator
 - **Data Visualization**: Recharts
 - **Validation Library**: Zod
+- **Testing Framework**: Jest with @nestjs/testing
