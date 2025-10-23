@@ -57,9 +57,24 @@ The backend is developed with NestJS and TypeScript, using Prisma as the ORM for
 - **Watch Mode**: `npm run test:watch`
 - **Note**: Currently configured with `--passWithNoTests` flag to allow zero test files
 
+## Recent Changes (October 23, 2025)
+
+### Enhanced CRM Integration
+- **Database**: Added 3 new tables (Property, ServiceRequest, CustomerPerformance) bringing total to **79 tables**
+- **Enhanced CustomerPreference**: Added detailed service preferences (pet notices, parking instructions, gate codes, shoes-off requirements, air quality sensitivity)
+- **Backend Modules**: Created complete NestJS modules for Property, ServiceRequest, and CustomerPerformance with full CRUD operations and multi-tenant scoping
+- **Frontend Pages**: Added Property Management and Service Requests pages with styled forms using shadcn/ui components
+- **Navigation**: Integrated new pages into sidebar navigation and routing system
+
+### New API Endpoints
+- `POST/GET/PUT/DELETE /api/v1/properties` - Property management
+- `POST/GET/PUT/DELETE /api/v1/service-requests` - Service request tracking
+- `POST/GET/PUT/DELETE /api/v1/customer-performance` - Customer analytics
+- `POST /api/v1/customer-performance/recalculate/:accountId` - Auto-calculate customer metrics
+
 ## External Dependencies
 
-- **Database**: PostgreSQL (via Neon)
+- **Database**: PostgreSQL (via Neon) - 79 tables total
 - **ORM**: Prisma
 - **Frontend Framework**: React
 - **Backend Framework**: NestJS

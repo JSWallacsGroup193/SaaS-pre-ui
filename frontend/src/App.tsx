@@ -32,6 +32,8 @@ const EstimatesList = lazy(() => import('./pages/FieldTools/components/Estimates
 const ServiceCatalogPage = lazy(() => import('./pages/ServiceCatalog/ServiceCatalogPage').then(m => ({ default: m.ServiceCatalogPage })))
 const SettingsPage = lazy(() => import('./pages/Settings'))
 const FeedbackPage = lazy(() => import('./pages/Feedback'))
+const PropertyManagement = lazy(() => import('./pages/enhanced-crm/PropertyManagement'))
+const ServiceRequests = lazy(() => import('./pages/enhanced-crm/ServiceRequests'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 const AdminLayout = lazy(() => import('./pages/admin/AdminLayout'))
@@ -114,6 +116,8 @@ export default function App() {
               <Route path="/proposals" element={<ProposalBuilder />} />
               <Route path="/service-catalog" element={<ServiceCatalogPage />} />
               <Route path="/ai" element={<AI />} />
+              <Route path="/properties" element={<PropertyManagement />} />
+              <Route path="/service-requests" element={<ServiceRequests />} />
               <Route path="/feedback" element={<FeedbackPage />} />
               <Route path="/settings" element={<SettingsPage user={user as any} />} />
               <Route path="/admin" element={<AdminLayout />}>
