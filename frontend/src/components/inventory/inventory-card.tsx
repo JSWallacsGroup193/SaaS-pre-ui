@@ -42,11 +42,11 @@ export function InventoryCard({ sku, onView }: InventoryCardProps) {
           <p className="text-sm text-slate-400">
             Location:{" "}
             <span className="text-slate-100">
-              {sku.location.warehouse} - {sku.location.bin}
+              {sku.location?.warehouse || 'N/A'} - {sku.location?.bin || 'N/A'}
             </span>
           </p>
           <p className="text-sm text-slate-400">
-            Unit Cost: <span className="text-slate-100">${sku.unitCost.toFixed(2)}</span>
+            Unit Cost: <span className="text-slate-100">${sku.unitCost?.toFixed(2) || '0.00'}</span>
           </p>
         </div>
 

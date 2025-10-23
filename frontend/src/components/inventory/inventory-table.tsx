@@ -118,9 +118,9 @@ export function InventoryTable({ skus, onView, onEdit, onPrintLabel, onDelete }:
                   </span>
                 </TableCell>
                 <TableCell className="text-slate-400">{sku.reorderPoint} units</TableCell>
-                <TableCell className="text-slate-100">${sku.unitCost.toFixed(2)}</TableCell>
+                <TableCell className="text-slate-100">${sku.unitCost?.toFixed(2) || '0.00'}</TableCell>
                 <TableCell className="text-slate-400">
-                  {sku.location.warehouse} - {sku.location.bin}
+                  {sku.location?.warehouse || 'N/A'} - {sku.location?.bin || 'N/A'}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>

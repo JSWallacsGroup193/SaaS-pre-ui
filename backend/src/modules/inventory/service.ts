@@ -39,9 +39,40 @@ export class InventoryService {
       });
       const sumIn = Object.fromEntries(ins.map(r => [r.skuId, r._sum.quantity || 0]));
       const sumOut = Object.fromEntries(outs.map(r => [r.skuId, r._sum.quantity || 0]));
+      
+      // Get latest bin location for each SKU
+      const latestLedgers = await this.prisma.stockLedger.findMany({
+        where: { tenantId, skuId: { in: skuIds } },
+        include: { 
+          bin: { 
+            include: { warehouse: true } 
+          } 
+        },
+        orderBy: { createdAt: 'desc' },
+        distinct: ['skuId'],
+      });
+      const locationMap = Object.fromEntries(
+        latestLedgers.map(l => [
+          l.skuId,
+          {
+            warehouse: l.bin?.warehouse?.name || 'N/A',
+            bin: l.bin?.name || 'N/A',
+          }
+        ])
+      );
+      
       items = items.map(i => ({
         ...i,
         onHand: (sumIn[i.id] || 0) - (sumOut[i.id] || 0),
+        unitCost: Number(i.cost),
+        location: locationMap[i.id] || { warehouse: 'N/A', bin: 'N/A' },
+      }));
+    } else {
+      items = items.map(i => ({
+        ...i,
+        onHand: 0,
+        unitCost: Number(i.cost),
+        location: { warehouse: 'N/A', bin: 'N/A' },
       }));
     }
     return { items, total, page, pageSize };
