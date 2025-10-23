@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { DispatchHeader } from "./dispatch-header"
 import { WeekView } from "./week-view"
+import { MobileDispatchView } from "./mobile-dispatch-view"
 import { TechnicianSidebar } from "./technician-sidebar"
 import { UnassignedPanel } from "./unassigned-panel"
 import { DndContext, type DragEndEvent, DragOverlay, type DragStartEvent } from "@dnd-kit/core"
@@ -115,21 +116,13 @@ export function DispatchBoard() {
           <UnassignedPanel workOrders={workOrders.filter((wo) => !wo.technicianId)} />
         </div>
 
-        {/* Mobile Layout: Stacked */}
-        <div className="flex lg:hidden flex-1 overflow-auto flex-col">
-          <div className="flex-1">
-            <WeekView
-              workOrders={workOrders}
-              technicians={technicians}
-              selectedDate={selectedDate}
-              viewMode={viewMode}
-            />
-          </div>
-          
-          {/* Unassigned panel at bottom on mobile */}
-          <div className="border-t border-border bg-card">
-            <UnassignedPanel workOrders={workOrders.filter((wo) => !wo.technicianId)} />
-          </div>
+        {/* Mobile Layout: Vertical Card View */}
+        <div className="flex lg:hidden flex-1 overflow-hidden">
+          <MobileDispatchView
+            workOrders={workOrders}
+            technicians={technicians}
+            selectedDate={selectedDate}
+          />
         </div>
       </div>
 
